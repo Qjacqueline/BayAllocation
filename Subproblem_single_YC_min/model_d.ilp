@@ -1,0 +1,15 @@
+\ Model SPRD_copy
+\ LP format - for model browsing. Use MPS format to capture full model detail.
+Maximize
+ 
+Subject To
+ 5c_p2_l1_lprime1: - pi_2_1 + pi_3_1 = 4
+ 5c_p2_l1_lprime2: - pi_2_1 + pi_3_2 = 3
+ 5c_p3_l1_lprime1: - pi_3_1 + pi_4_1 = 4
+ 5c_p3_l2_lprime1: - pi_3_2 + pi_4_1 = 3
+Bounds
+ pi_2_1 free
+ pi_3_1 free
+ pi_3_2 free
+ pi_4_1 free
+End
