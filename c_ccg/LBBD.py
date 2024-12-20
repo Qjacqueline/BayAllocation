@@ -108,19 +108,22 @@ def sub_problem(b, D, U, U_bound, L, data, scenario):
                         for u1 in U_bound[k][d1]:
                             for u2 in U_bound[k][d2]:
                                 for u3 in U_bound[k][d2]:
-                                    model.addConstr(C[w, k, d2] - C[w, k, d1] + data.bigM * (
-                                            4 - priority[d1][d2] - quicksum(
-                                        Y[w, k, d1, u, u1] for u in U_bound[k][d1]) - quicksum(
-                                        Y[w, k, d2, u2, u] for u in U_bound[k][d2]) - quicksum(
-                                        Y[w, k, d2, u, u3] for u in U_bound[k][d2]))
+                                    model.addConstr(C[w, k, d2] - C[w, k, d1]
+                                                    + data.bigM * (4 - priority[d1][d2] -
+                                                                   quicksum(Y[w, k, d1, u, u1]
+                                                                            for u in U_bound[k][d1])
+                                                                   - quicksum(Y[w, k, d2, u2, u]
+                                                                              for u in U_bound[k][d2])
+                                                                   - quicksum(Y[w, k, d2, u, u3]
+                                                                              for u in U_bound[k][d2]))
                                                     >= data.t_move * data.disMatrix[b[u1]][b[u2]] + data.t_move * (
                                                             2 * L[k, d2] - data.disMatrix[b[u2]][b[u3]])
                                                     + quicksum((data.t_relocation * data.gamma[u] + data.t_pickup *
                                                                 data.containerNum_of_subGroup[u]) for u in U[k][d2] if
                                                                u in data.subGroup1)
-                                                    + quicksum((2 * data.t_relocation * data.gamma[
-                                        u] + 2 * data.t_pickup * data.containerNum_of_subGroup[u]) for u in U[k][d2] if
-                                                               u in data.subGroup2))
+                                                    + quicksum((2 * data.t_relocation * data.gamma[u] +
+                                                                2 * data.t_pickup * data.containerNum_of_subGroup[u])
+                                                               for u in U[k][d2] if u in data.subGroup2))
     # 每个场桥上首个提取的卸货港子箱组结束时间
     for w in range(scenarioNum):
         for k in range(data.craneNum):

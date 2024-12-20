@@ -3,14 +3,15 @@
 # @Author  : JacQ
 # @File    : read_data.py
 import math
-from data_process import config as cf
+from a_data_process import config as cf
 
 
 class Data:
     S_num = 0  # 堆垛数
     T_num = 0  # 层高
     K_num = 0  # 箱区数
-    G_num = 0  # 卸货港数 -> 箱组数
+    D_num = 0  # 卸货港数
+    G_num = 0  # 箱组数需要
     J_num = 0  # 空贝位数
     U_num = 0  # 子箱组数
     U_L_num = 0  # 20TEU子箱组数
@@ -27,9 +28,14 @@ class Data:
 
     J = []  # 总贝集合 [3,5,11,...]
     I = []  # 存在后继贝位的贝位编号 [3]
-    J_K_init = []  # 每个箱区第一个空贝位置
-    block_bay_num = []  # 每个block内bay标号
+    J_K_first = []  # 每个箱区第一个空贝位置
+    J_K = []  # 每个block内bay标号
 
+    U = []  # 子箱组标号集合
+    U_L = []  # 20TEU子箱组标号集合
+    U_F_u = []  # 40TEU子箱组前标号集合
+    U_F_l = []  # 40TEU子箱组后标号集合
+    U_F = []  # 40TEU子箱组标号集合
     p_u = []  # 子箱组的优先级
     t_u = []  # 子箱组操作所需时间
     gamma_uu = []  # 箱组间混贝成本
@@ -67,6 +73,11 @@ class Data:
         self.U_num_set.extend(self.U_F_num_set)
         self.U_g_set.extend(self.U_L_g_set)
         self.U_g_set.extend(self.U_F_g_set)
+        self.U = [i for i in range(self.U_num)]  # 子箱组标号集合
+        self.U_L = [i for i in range(self.U_L_num)]  # 20TEU子箱组标号集合
+        self.U_F_u = [i for i in range(self.U_L_num, self.U_num, 2)]  # 40TEU子箱组前标号集合
+        self.U_F_l = [i for i in range(self.U_L_num + 1, self.U_num, 2)]  # 40TEU子箱组后标号集合
+        self.U_F = [i for i in range(self.U_L_num, self.U_num)]
 
 
 def read_data(path: str):
@@ -80,15 +91,16 @@ def read_data(path: str):
     for k in range(data.K_num):
         bays = list(map(int, lines[2 + k].split(" ")))
         bays = [j + 60 * k for j in bays]
-        data.J_K_init.append(bays[0])
+        data.J_K_first.append(bays[0])
         data.J.extend(bays)
-        data.block_bay_num.append(len(bays))
+        data.J_K.append(bays)
         for j in bays:
             if j + 2 in bays:
                 data.I.append(j)
     data.G_num_set = []
-    data.G_num = int(lines[data.K_num + 2][0])
-    for k in range(data.G_num):
+    data.D_num = int(lines[data.K_num + 2][0])
+    data.G_num = data.D_num * 2
+    for k in range(data.D_num):
         groups = list(map(int, lines[data.K_num + k + 3].split(" ")))
         data.G_num_set.extend(groups)
     data.init_process()

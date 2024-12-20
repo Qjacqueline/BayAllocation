@@ -4,8 +4,8 @@
 # @File    : CCG1.py
 import time
 from gurobipy import *
-from data_process.read_data import Data, read_data
-import data_process.config as cf
+from a_data_process.read_data import  read_data
+import a_data_process.config as cf
 
 
 def CCG(data):
@@ -86,7 +86,7 @@ def master_problem(data, added_cuts):
     model.addConstrs((quicksum(X[u][j - 1] for j in data.I) == 1 for u in range(data.U_L_num, data.U_num, 2)), "2c")
     model.addConstrs((quicksum(X[u][j + 1] for j in data.I) == 1 for u in range(data.U_L_num + 1, data.U_num, 2)), "2c")
     # con2: Initial position restrictions
-    model.addConstrs((X[data.U_num + k][j - 1] == 1 for k in range(data.K_num) for j in data.J_K_init), "2d")
+    model.addConstrs((X[data.U_num + k][j - 1] == 1 for k in range(data.K_num) for j in data.J_K_first), "2d")
     # con3:对于40ft的子箱组占了前一个后一个位置就要被虚拟子箱组占用
     model.addConstrs((X[u][j - 1] <= big_M * X[u + 1][j + 1] for u in range(data.U_L_num, data.U_num, 2)
                       for j in data.I), "2e")
@@ -154,13 +154,13 @@ def sub_problem_help(data, master_X):
         :return: N 几个箱组
                 pos 对应A，B子箱组位置
     """
-    G_u_pos = [[] for _ in range(data.G_num * 2)]  # 每个箱组子箱组位置
+    G_u_pos = [[] for _ in range(data.G_num)]  # 每个箱组子箱组位置
     for u in range(data.U_num):
         j = master_X[u]
         G_u_pos[data.U_g_set[u]].append(j)
     pos = [[min(G_u_pos[g]) * cf.unit_move_time, max(G_u_pos[g]) * cf.unit_move_time] for g in
-           range(data.G_num * 2)]  # 每个箱组AB子箱组位置
-    return data.G_num * 2, pos
+           range(data.D_num * 2)]  # 每个箱组AB子箱组位置
+    return data.D_num * 2, pos
 
 
 def sub_problem(N, pos):
