@@ -142,6 +142,7 @@ def original_problem(data):
                 print('%s' % c.constrName)
         return False
     else:
+        model.write('OP.sol')
         # 输出结果为
         bay_x_dict = {b: [] for b in data.J}
         for u in range(data.U_num):
