@@ -16,11 +16,11 @@ import numpy as np
 
 
 def sub_problem(b, D, U, U_bound, L, data, scenario):
-    '''
+    """
     :return: (1/0表示是否可行, 目标值, 每个场桥在该场景下的工作时间下界 * 场景系数)
              不可行 (0，float("inf")，[])
              可行 (1/0表示是否可行，目标值，每个场桥在该场景下的工作时间下界 * 场景系数)
-    '''
+    """
     # ============= 场景参数 =============
     scenarioNum = 1
     coff_scenario = data.coff_scenarios[scenario]
@@ -174,10 +174,10 @@ def sub_problem(b, D, U, U_bound, L, data, scenario):
     if model.status == GRB.INFEASIBLE:
         return 0, float("inf"), []
     else:
-        print("w=", scenario)
-        print(C_d)
-        print(C)
-        print(model.objVal)
+        # print("w=", scenario)
+        # print(C_d)
+        # print(C)
+        # print(model.objVal)
         K = []
         for k in range(data.craneNum):
             temp = [C[key].x for key in C.keys() if (key[0] == 0) and (key[1] == k)]
@@ -238,13 +238,13 @@ def sub_problem(b, D, U, U_bound, L, data, scenario):
 
 
 def master_problem(data, added_cuts, LB):
-    '''
+    """
     :param data: 数据
     :param added_cuts: 所有cut的集合
     :param LB: 当前迭代的下界LB
     :return: 不可行，返回 FALSE；
              可行，返回 master_X, theta.x, model.objVal, master_obj；分别表示解、theta值、主问题目标值、主问题目标值-theta值
-    '''
+    """
     model = gurobipy.Model("MasterProblem")
     X = {}
     for u in range(data.subGroupNum):
