@@ -5,7 +5,7 @@
 
 from gurobipy import *
 
-from data_process.read_data import Data
+from a_data_process.read_data import Data
 
 
 def model(data: Data):

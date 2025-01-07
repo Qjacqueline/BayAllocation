@@ -118,4 +118,4 @@ def read_data(path: str):
 
 
 if __name__ == '__main__':
-    data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case1')
+    data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case3')

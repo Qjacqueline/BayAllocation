@@ -31,13 +31,14 @@ def original_problem(data):
         :param data: 数据
         :return:
     """
+    s_t = time.time()
     # ============== 生成所有可能序列 ================
     sequence = list(range(data.G_num))
     valid_permutations = generate_permutations(sequence, swapped=None)
     pi_num = len(valid_permutations)
 
     # ============== 构造模型 ================
-    big_M = 10000
+    big_M = 10000000
     model = Model("original problem")
 
     # ============== 定义变量 ================
@@ -74,8 +75,7 @@ def original_problem(data):
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "1f")
     # con3:对于40ft的子箱组占了前一个后一个位置就要被虚拟子箱组占用
-    model.addConstrs((X[u][j - 1] <= big_M * (1 - X[uu][j + 1])
-                      for u in data.U_F for uu in data.U for j in data.I), "1g")
+    model.addConstrs((X[u][j - 1] + X[uu][j + 1] <= 1 for u in data.U_F for uu in data.U for j in data.I), "1g")
     # Con4: 一个贝上放置的箱组一般不超过2个
     model.addConstrs((quicksum(X[u][j - 1] for u in data.U) <= 2 for j in data.J), "1h")
     # con5: 20和40的不能放在一个贝
@@ -97,7 +97,6 @@ def original_problem(data):
                       for k in range(data.K_num) for w in range(pi_num)), "1l")
     model.addConstrs((quicksum(Y[w][data.U_num][uu][k] for uu in data.U + [data.U_num + 1]) == 1
                       for k in range(data.K_num) for w in range(pi_num)), "1m")
-
     # con8: 时序约束 pt+st
     model.addConstrs((C[w][uu] + big_M * (1 - Y[w][data.U_num][uu][k]) >=
                       data.U_num_set[uu] * cf.unit_process_time
@@ -117,7 +116,9 @@ def original_problem(data):
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1p")
     # con10:消除对称性
     model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
-                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu] and jj < j and u < uu), "1q")
+                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+                      and data.U_num_set[u] == data.U_num_set[uu]
+                      and jj < j and u < uu), "1q")
     # Con10: 优先级完成时间约束 fixme
     model.addConstrs((C[w][u] <= C[w][uu] for w in range(pi_num) for u in data.U for uu in data.U
                       if valid_permutations[w].index(data.U_g_set[u])
@@ -143,6 +144,7 @@ def original_problem(data):
         return False
     else:
         model.write('OP.sol')
+        model.write('OP.lp')
         # 输出结果为
         bay_x_dict = {b: [] for b in data.J}
         for u in range(data.U_num):
@@ -190,7 +192,8 @@ def original_problem(data):
 
         # 显示图形
         plt.savefig("1.png")
-        print("obj", obj.X)
+        print("obj:", obj.X)
+        print("time:", str(time.time() - s_t))
         # print("worst seq",valid_permutations[])
         return obj.X
 
@@ -202,6 +205,6 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case1')
+    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case4')
     obj = original_problem(dataa)
     print(obj)
