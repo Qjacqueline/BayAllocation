@@ -35,7 +35,11 @@ def CCG(data):
         N, pos, pt, init_pos = sub_problem_help(data, master_results[0])
 
         # 求解子问题
+        if master_results[0] == {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}:
+            a = 1
         sub_results = sub_problem(N, pos, pt, init_pos)
+        if sub_results[0] == 2376:
+            a = 1
         compare_results = find_max_permutation_cost(N, pos, pt, init_pos)
 
         UB = min(UB, sub_results[0])
@@ -94,8 +98,6 @@ def master_problem(data, added_cuts):
            for k in range(data.K_num)] for ll in [0, 1]] for l in [0, 1]]
     ZP = [[[[[0 for gg in range(data.G_num)] for g in range(data.G_num)]
             for k in range(data.K_num)] for ll in [0, 1]] for l in [0, 1]]
-    ZN = [[[[[0 for gg in range(data.G_num)] for g in range(data.G_num)]
-            for k in range(data.K_num)] for ll in [0, 1]] for l in [0, 1]]
     for gg in range(data.G_num):
         for g in range(data.G_num):
             for k in range(data.K_num):
@@ -108,9 +110,6 @@ def master_problem(data, added_cuts):
                             ZP[l][ll][k][g][gg] = model.addVar(-GRB.INFINITY, GRB.INFINITY, vtype=GRB.CONTINUOUS,
                                                                name='ZP_' + str(l) + '_' + str(ll) + '_' + str(
                                                                    k) + '_' + str(g) + '_' + str(gg))
-                            # ZN[l][ll][k][g][gg] = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS,
-                            #                                    name='ZN_' + str(l) + '_' + str(ll) + '_' + str(
-                            #                                        k) + '_' + str(g) + '_' + str(gg))
     eta = [[model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS,
                          name='eta_' + str(k) + '_' + str(g)) for g in range(data.G_num)] for k in range(data.K_num)]
 
@@ -149,13 +148,6 @@ def master_problem(data, added_cuts):
     model.addConstrs((Z[l][ll][k][g][gg] == gurobipy.abs_(ZP[l][ll][k][g][gg])
                       for l in [0, 1] for ll in [0, 1] for g in range(data.G_num)
                       for gg in range(data.G_num) for k in range(data.K_num) if abs(gg - g) <= 1 and g != gg), "2m")
-    # model.addConstrs(((Theta[l][k][g] - Theta[1-ll][k][gg]) * cf.unit_move_time
-    #                   == ZP[l][ll][k][g][gg] - ZN[l][ll][k][g][gg]
-    #                   for l in [0, 1] for ll in [0, 1] for g in range(data.G_num)
-    #                   for gg in range(data.G_num) for k in range(data.K_num) if abs(gg - g) <= 1 and g != gg), "2l")
-    # model.addConstrs((Z[l][ll][k][g][gg] == ZP[l][ll][k][g][gg] + ZN[l][ll][k][g][gg]
-    #                   for l in [0, 1] for ll in [0, 1] for g in range(data.G_num)
-    #                   for gg in range(data.G_num) for k in range(data.K_num) if abs(gg - g) <= 1 and g != gg), "2m")
     model.addConstrs((eta[k][g] == (Theta[1][k][g] - Theta[0][k][g]) * cf.unit_move_time +
                       quicksum(X[u][j - 1] * data.U_num_set[u] * cf.unit_process_time
                                for u in data.U_g[g] for j in data.J_K[k])
@@ -192,21 +184,10 @@ def master_problem(data, added_cuts):
                  for g in range(data.G_num)] for k in range(data.K_num)]
     model.addConstrs((min_var1[k][g] == gurobipy.min_(Z[l][ll][k][g][g + 1] for l in [0, 1] for ll in [0, 1])
                       for k in range(data.K_num) for g in range(0, data.G_num - 1)), "tmp")
-    # model.addConstrs((min_var[k][0] == gurobipy.min_(Z[l][ll][k][0][gg] for l in [0, 1] for ll in [0, 1]
-    #                                                  for gg in [1, 2]) for k in range(data.K_num)), "tmp")
-    # model.addConstrs((min_var[k][g] == gurobipy.min_(Z[l][ll][k][g][gg] for l in [0, 1] for ll in [0, 1]
-    #                                                  for gg in [g - 1, g + 1, g + 2])
-    #                   for k in range(data.K_num) for g in [data.G_num - 3]), "tmp")
-    # model.addConstrs((min_var[k][g] == gurobipy.min_(Z[l][ll][k][g][gg] for l in [0, 1] for ll in [0, 1]
-    #                                                  for gg in [g - 1, g + 1])
-    #                   for k in range(data.K_num) for g in [data.G_num - 2]), "tmp")
-    # model.addConstrs((min_var[k][g] == gurobipy.min_(Z[l][ll][k][g][gg] for l in [0, 1] for ll in [0, 1]
-    #                                                  for gg in [g - 1])
-    #                   for k in range(data.K_num) for g in [data.G_num - 1]), "tmp")
     model.addConstrs((theta >= cf.unit_move_time * (AA[k] - data.J_K_first[k])
                       + cf.unit_move_time * sum(Theta[1][k][g] - Theta[0][k][g] for g in range(data.G_num))
                       + sum(cf.unit_process_time * data.U_num_set[u] * X[u][j - 1] for u in data.U for j in data.J_K[k])
-                      + cf.unit_move_time * sum(min_var1[k][g] for g in range(data.G_num - 1))
+                      + sum(min_var1[k][g] for g in range(data.G_num - 1))
                       for k in range(data.K_num)), "global lb3")  # todo: g,g+1序列可以调整
 
     # ============== 添加iter cuts ================
@@ -252,13 +233,6 @@ def master_problem(data, added_cuts):
                     continue
                 if abs(X[u][j].X) > 0.00001:
                     master_X[u] = j
-        # test cut
-        k = 0
-        a = cf.unit_move_time * (AA[k].X - data.J_K_first[k]) + cf.unit_move_time * sum(
-            Theta[1][k][g].X - Theta[0][k][g].X for g in range(data.G_num)) + sum(
-            cf.unit_process_time * data.U_num_set[u] * X[u][j - 1].X for u in data.U for j in
-            data.J_K[k]) + cf.unit_move_time * sum(min_var1[k][g].X for g in range(data.G_num - 1))
-
         return master_X, theta.X
 
 
@@ -276,7 +250,7 @@ def sub_problem_help(data, master_X):
     pos = [[min(G_u_pos[g]) * cf.unit_move_time, max(G_u_pos[g]) * cf.unit_move_time]
            for g in range(data.G_num)]  # 每个箱组AB子箱组位置
     pt = [g_num * cf.unit_process_time for g_num in data.G_num_set]
-    return data.G_num, pos, pt, data.J_K_first[0] * cf.unit_move_time
+    return data.G_num, pos, pt, (data.J_K_first[0] - 1) * cf.unit_move_time
 
 
 def sub_problem(N, pos, pt, init_pos):
@@ -337,13 +311,15 @@ def sub_problem(N, pos, pt, init_pos):
         ## k=3
         dp[2][2][0][0], path[2][2][0][0] = g_fuc(i=3, k=0, ii=2, jj=0)
         dp[2][2][1][0], path[2][2][1][0] = g_fuc(i=3, k=0, ii=2, jj=1)
-        dp[3][1][0][0], path[3][1][0][0] = f_fuc(i=1, k=2, ii=3, jj=0)
-        dp[3][1][1][0], path[3][1][1][0] = f_fuc(i=1, k=2, ii=3, jj=1)
+        dp[3][1][0][0], path[3][1][0][0] = g_fuc(i=1, k=2, ii=3, jj=0)
+        dp[3][1][1][0], path[3][1][1][0] = g_fuc(i=1, k=2, ii=3, jj=1)
+        dp[3][1][0][1], path[3][1][0][1] = g_fuc(i=2, k=1, ii=3, jj=0)
+        dp[3][1][1][1], path[3][1][1][1] = g_fuc(i=2, k=1, ii=3, jj=1)
 
     if N > 3:
         dp[4][0][0][0], path[4][0][0][0] = g_fuc(i=1, k=2, ii=4, jj=0)
-        dp[4][0][0][1], path[4][0][0][1] = g_fuc(i=2, k=1, ii=4, jj=0)
         dp[4][0][1][0], path[4][0][1][0] = g_fuc(i=1, k=2, ii=4, jj=1)
+        dp[4][0][0][1], path[4][0][0][1] = g_fuc(i=2, k=1, ii=4, jj=0)
         dp[4][0][1][1], path[4][0][1][1] = g_fuc(i=2, k=1, ii=4, jj=1)
 
     # DP transitions
@@ -353,8 +329,8 @@ def sub_problem(N, pos, pt, init_pos):
         dp[i - 1][2][1][0], path[i - 1][2][1][0] = f_fuc(i=i, k=0, ii=i - 1, jj=1)
 
         dp[i][1][0][0], path[i][1][0][0] = g_fuc(i=i - 2, k=2, ii=i, jj=0)
-        dp[i][1][0][1], path[i][1][0][1] = f_fuc(i=i - 1, k=1, ii=i, jj=0)
         dp[i][1][1][0], path[i][1][1][0] = g_fuc(i=i - 2, k=2, ii=i, jj=1)
+        dp[i][1][0][1], path[i][1][0][1] = f_fuc(i=i - 1, k=1, ii=i, jj=0)
         dp[i][1][1][1], path[i][1][1][1] = f_fuc(i=i - 1, k=1, ii=i, jj=1)
 
         if i < N:
@@ -376,11 +352,14 @@ def sub_problem(N, pos, pt, init_pos):
     max_value = max(max(min(v1, v2), min(v3, v4)), min(v5, v6))
 
     last, worst_path = path[-1][-1][-1], [[path[-1][-1][-1][0], 'A' if path[-1][-1][-1][2] == 0 else 'B']]
+    worst_path_r = [path[-1][-1][-1].__str__()]
     for i in range(N - 1):
+        worst_path_r.append(path[last[0]][last[1]][last[2]][last[3]].__str__())
         last = path[last[0]][last[1]][last[2]][last[3]]
         worst_path.append([last[0], 'A' if last[2] == 0 else 'B'])
     worst_path.reverse()
-    return max_value, worst_path, dp
+    worst_path_r.reverse()
+    return max_value, worst_path, dp, worst_path_r
 
 
 def find_new_sequences(J, original_sequence):
@@ -403,7 +382,7 @@ def find_new_sequences(J, original_sequence):
 def generate_cuts(master_results, sub_results, added_cuts):
     if sub_results is not None:
         X, objVal = master_results
-        max_value, worst_path, dp = sub_results
+        max_value, worst_path, dp, worst_path_r = sub_results
         # optimal_cuts
         added_cuts.append(['Optimal', max_value, [[key, X[key]] for key in X.keys()]])
         # translation cut todo: add多场桥cut
@@ -425,5 +404,5 @@ def generate_cuts(master_results, sub_results, added_cuts):
 
 
 if __name__ == '__main__':
-    data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case4')
+    data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case1')
     CCG(data)

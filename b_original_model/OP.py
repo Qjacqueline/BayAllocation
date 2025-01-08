@@ -35,6 +35,7 @@ def original_problem(data):
     # ============== 生成所有可能序列 ================
     sequence = list(range(data.G_num))
     valid_permutations = generate_permutations(sequence, swapped=None)
+    # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
     pi_num = len(valid_permutations)
 
     # ============== 构造模型 ================
@@ -66,6 +67,10 @@ def original_problem(data):
     C_max = [model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name="C_max_" + str(w)) for w in range(pi_num)]
 
     # ================ 约束 ==================
+    # test
+    res = {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}
+    model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
+
     # Con1
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
     # 对于一个子箱组
@@ -114,7 +119,7 @@ def original_problem(data):
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1o")
     model.addConstrs((Z[w][u][uu][j - 1][jj - 1] >= X[u][j - 1] + X[uu][jj - 1] - 1 for u in data.U + [data.U_num]
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1p")
-    # con10:消除对称性
+    # con10:消除对称性 不同重量不等价，因为会有拼贝情况
     model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
                       for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
                       and data.U_num_set[u] == data.U_num_set[uu]
@@ -127,7 +132,9 @@ def original_problem(data):
     # ============== 构造目标 ================
     obj = model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='obj')  # 线性化模型变量
     model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
-    model.setObjective(obj, gurobipy.GRB.MINIMIZE)
+    model.setObjectiveN(obj, gurobipy.GRB.MINIMIZE, 0)
+    # for w in range(pi_num):
+    #     model.setObjectiveN(C_max[w], gurobipy.GRB.MINIMIZE, 1)
 
     # ============== 求解参数 ================
     # model.Params.OutputFlag = 0
@@ -194,6 +201,21 @@ def original_problem(data):
         plt.savefig("1.png")
         print("obj:", obj.X)
         print("time:", str(time.time() - s_t))
+        k = 0
+        all_v = []
+        for w in range(len(valid_permutations)):
+            pre, v, path = data.U_num, 0, []
+            for i in range(data.U_num):
+                for u in data.U:
+                    if abs(Y[w][pre][u][0].X - 1) <= 0.001:
+                        suc = u
+                        v = v + data.U_num_set[suc] * cf.unit_process_time + sum(
+                            Z[w][pre][suc][j - 1][jj - 1].X * cf.unit_move_time * abs(j - jj)
+                            for j in data.J_K[k] for jj in data.J_K[k])
+                        pre = suc
+                        path.append(v)
+                        break
+            all_v.append(path)
         # print("worst seq",valid_permutations[])
         return obj.X
 
@@ -205,6 +227,6 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case5')
+    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case1')
     obj = original_problem(dataa)
     print(obj)
