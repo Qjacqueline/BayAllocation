@@ -2,6 +2,7 @@
 # @Time    : 2024/12/18 3:47 PM
 # @Author  : JacQ
 # @File    : CCG1.py
+import random
 import time
 from itertools import combinations
 
@@ -9,7 +10,10 @@ import gurobipy
 from gurobipy import *
 from a_data_process.read_data import read_data
 import a_data_process.config as cf
+from b_original_model.OP import generate_permutations
 from d_explore_sp_single_YC_min.DP import find_max_permutation_cost
+
+big_M = 10e10
 
 
 def CCG(data):
@@ -18,18 +22,20 @@ def CCG(data):
     iteration_num = 0
     start_time = time.time()
     added_cuts = []
+    # 求解主问题
+    master_results = init_master_problem()
 
     while 1:
         print("=========================================iteration\t" +
               str(iteration_num) + "=========================================")
 
         # 求解主问题
-        master_results = master_problem(data, added_cuts)
+        master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
         if not master_results:
             print("Master problem is infeasible!")
             return
         LB = max(LB, master_results[1])  # 当前迭代主问题目标值
-        print("Master obj:\t", master_results[1])
+        print("Master obj:\t", master_results[1], "\t", master_results[0])
 
         # 预处理子问题
         N, pos, pt, init_pos = sub_problem_help(data, master_results[0])
@@ -38,8 +44,6 @@ def CCG(data):
         if master_results[0] == {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}:
             a = 1
         sub_results = sub_problem(N, pos, pt, init_pos)
-        if sub_results[0] == 2376:
-            a = 1
         compare_results = find_max_permutation_cost(N, pos, pt, init_pos)
 
         UB = min(UB, sub_results[0])
@@ -67,16 +71,84 @@ def CCG(data):
     return UB
 
 
-def master_problem(data, added_cuts):
+def update_master_problem_adding_cuts(model, variables, added_cuts):
+    X, Z, Theta, theta = variables
+    # ============== 添加随机lb cut ================
+    if pi_num_set and random.random() * 0.2 < 0.5:
+        r_c = random.choice(pi_num_set)
+        pi_num_set.remove(r_c)
+        P = []
+        for i in range(len(valid_permutations[r_c]) - 1):
+            P.append([valid_permutations[r_c][i], valid_permutations[r_c][i + 1]])
+        min_var1 = [[model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS,
+                                  name="min_var1" + '_' + str(k) + '_' + str(g) + '_' + str(r_c))
+                     for g in range(data.G_num + 1)] for k in range(data.K_num)]
+        model.addConstrs((min_var1[k][g] == gurobipy.min_(Z[l][ll][k][g][gg] for l in [0, 1] for ll in [0, 1])
+                          for k in range(data.K_num) for g, gg in P), "tmp")
+        model.addConstrs((min_var1[k][data.G_num] == gurobipy.min_(Theta[l][k][valid_permutations[r_c][0]]
+                                                                   for l in [0, 1]) for k in range(data.K_num)), "tmp")
+        model.addConstrs((theta >= cf.unit_move_time * (- data.J_K_first[k])
+                          + cf.unit_move_time * sum(Theta[1][k][g] - Theta[0][k][g] for g in range(data.G_num))
+                          + sum(
+            cf.unit_process_time * data.U_num_set[u] * X[u][j - 1] for u in data.U for j in data.J_K[k])
+                          + sum(min_var1[k][g] for g in range(data.G_num))
+                          + cf.unit_move_time * min_var1[k][data.G_num]
+                          for k in range(data.K_num)), "global lb3")
+
+    # ============== 添加iter cuts ================
+    for cut in added_cuts:
+        if cut[0] == 'Feasible':
+            v, XX = cut[1], cut[2]
+            rhs = LinExpr(0)
+            for u, j in XX:
+                rhs.addTerms(1, X[u][j])
+            model.addConstr(theta >= big_M * (rhs - len(XX) + 1), "fea cut")
+        elif cut[0] == 'Optimal':
+            v, XX = cut[1], cut[2]
+            rhs = LinExpr(0)
+            for u, j in XX:
+                rhs.addTerms(1, X[u][j])
+            model.addConstr(theta >= v * (rhs - len(XX) + 1), "opt cut")
+        elif cut[0] == 'Translation':
+            for seq in cut[1]:
+                rhs = LinExpr(0)
+                for j in seq:
+                    for u in data.U:
+                        rhs.addTerms(1, X[u][j - 1])
+                model.addConstr(theta >= big_M * (rhs - len(seq) * data.U_num + 1), "trans cut")
+
+    # ============== 求解参数 ================
+    model.optimize()
+    if model.status == GRB.Status.INFEASIBLE:
+        print('Optimization was stopped with status %d' % model.status)
+        # do IIS, find infeasible constraints
+        model.computeIIS()
+        model.write('a.ilp')
+        for c in model.getConstrs():
+            if c.IISConstr:
+                print('%s' % c.constrName)
+        return False
+    else:
+        model.write('master.sol')
+        model.write('master.lp')
+        master_X = {}
+        for u in range(data.U_num):
+            for j in range(60 * data.K_num):
+                if j + 1 not in data.J:
+                    continue
+                if abs(X[u][j].X) > 0.00001:
+                    master_X[u] = j
+        return master_X, theta.X, model, (X, Z, Theta, theta)
+
+
+def init_master_problem():
     """
-        :param data: 数据
-        :param added_cuts: 所有cut的集合
         :return: 不可行，返回 FALSE；
                  可行，返回 master_X, theta.x
                    分别表示 解、theta值
     """
     # ============== 构造模型 ================
-    big_M = 10e10
+
     model = Model("Master problem")
 
     # ============== 定义变量 ================
@@ -118,6 +190,7 @@ def master_problem(data, added_cuts):
     # con1: Each sub-container group must be placed on one bay
     model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U_L), "2b")
     model.addConstrs((quicksum(X[u][j - 1] for j in data.I) == 1 for u in data.U_F), "2c")
+    model.addConstrs((quicksum(X[u][j - 1] for j in set(data.J) - set(data.I)) == 0 for u in data.U_F), "2c")
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "2d")
     # con3:对于40ft的子箱组占了前一个后一个位置就不能被其他使用
@@ -178,38 +251,6 @@ def master_problem(data, added_cuts):
     model.addConstrs((theta >= cf.unit_move_time * (BB[k] - data.J_K_first[k])
                       + sum(cf.unit_process_time * data.U_num_set[u] * X[u][j - 1]
                             for u in data.U for j in data.J_K[k]) for k in range(data.K_num)), "global lb2")
-
-    min_var1 = [[model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS,
-                              name="min_var1" + '_' + str(k) + '_' + str(g))
-                 for g in range(data.G_num)] for k in range(data.K_num)]
-    model.addConstrs((min_var1[k][g] == gurobipy.min_(Z[l][ll][k][g][g + 1] for l in [0, 1] for ll in [0, 1])
-                      for k in range(data.K_num) for g in range(0, data.G_num - 1)), "tmp")
-    model.addConstrs((theta >= cf.unit_move_time * (AA[k] - data.J_K_first[k])
-                      + cf.unit_move_time * sum(Theta[1][k][g] - Theta[0][k][g] for g in range(data.G_num))
-                      + sum(cf.unit_process_time * data.U_num_set[u] * X[u][j - 1] for u in data.U for j in data.J_K[k])
-                      + sum(min_var1[k][g] for g in range(data.G_num - 1))
-                      for k in range(data.K_num)), "global lb3")  # todo: g,g+1序列可以调整
-
-    # ============== 添加iter cuts ================
-    for cut in added_cuts:
-        if cut[0] == 'Feasible':
-            v, XX = cut[1], cut[2]
-            rhs = LinExpr(0)
-            for u, j in XX:
-                rhs.addTerms(1, X[u][j])
-            model.addConstr(theta >= big_M * (rhs - len(XX) + 1), "fea cut")
-        elif cut[0] == 'Optimal':
-            v, XX = cut[1], cut[2]
-            rhs = LinExpr(0)
-            for u, j in XX:
-                rhs.addTerms(1, X[u][j])
-            model.addConstr(theta >= v * (rhs - len(XX) + 1), "opt cut")
-        elif cut[0] == 'Translation':
-            seqs = cut[1]
-            # for seq in seqs:
-            #     a = 1
-            #     rhs = 0
-            #     model.addConstrs(theta >= big_M * (rhs - len(seq) + 1))
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
     model.Params.timelimit = 3600
@@ -233,7 +274,9 @@ def master_problem(data, added_cuts):
                     continue
                 if abs(X[u][j].X) > 0.00001:
                     master_X[u] = j
-        return master_X, theta.X
+        if master_X == {0: 30, 1: 28, 2: 16, 3: 10, 4: 6}:
+            a = 1
+        return master_X, theta.X, model, (X, Z, Theta, theta)
 
 
 def sub_problem_help(data, master_X):
@@ -381,10 +424,12 @@ def find_new_sequences(J, original_sequence):
 
 def generate_cuts(master_results, sub_results, added_cuts):
     if sub_results is not None:
-        X, objVal = master_results
+        X, objVal, _, _ = master_results
         max_value, worst_path, dp, worst_path_r = sub_results
-        # optimal_cuts
+        # optimal_cuts todo 没有区分场桥 optimal delta inactivate
         added_cuts.append(['Optimal', max_value, [[key, X[key]] for key in X.keys()]])
+        # added_cuts.append(['Optimal delta', max_value,
+        #                    [[key, X[key], data.U_num_set[key] * cf.unit_process_time] for key in X.keys()]])
         # translation cut todo: add多场桥cut
         U_k = [[] for _ in range(data.K_num)]
         for pair in X.items():
@@ -393,16 +438,21 @@ def generate_cuts(master_results, sub_results, added_cuts):
         Used_bays = [[pair[1] for pair in U_k_sorted[k]] for k in range(data.K_num)]
         for k in range(data.K_num):
             init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
-            valid_sequences = find_new_sequences(data.J_K[k][init_b_index + 1:], Used_bays[k])
-            if valid_sequences:
-                added_cuts.append(['Translation', valid_sequences])
-
+            invalid_sequences = find_new_sequences(data.J_K[k][init_b_index + 1:], Used_bays[k])
+            if invalid_sequences:
+                added_cuts.append(['Translation', invalid_sequences])
     else:
         # todo:generate infeasible results
         a = 1
+        print("infeasible")
     return added_cuts
 
 
 if __name__ == '__main__':
-    data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case1')
+    data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case3')
+    # ============== 生成所有可能提取序列 ================
+    sequence = list(range(data.G_num))
+    valid_permutations = generate_permutations(sequence, swapped=None)
+    pi_num_set = [i for i in range(len(valid_permutations))]
+    # ============== 求解 ================
     CCG(data)

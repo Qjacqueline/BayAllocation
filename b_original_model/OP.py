@@ -68,8 +68,8 @@ def original_problem(data):
 
     # ================ 约束 ==================
     # test
-    res = {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}
-    model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
+    # res = {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}
+    # model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
 
     # Con1
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
@@ -132,7 +132,7 @@ def original_problem(data):
     # ============== 构造目标 ================
     obj = model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='obj')  # 线性化模型变量
     model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
-    model.setObjectiveN(obj, gurobipy.GRB.MINIMIZE, 0)
+    model.setObjective(obj, gurobipy.GRB.MINIMIZE)
     # for w in range(pi_num):
     #     model.setObjectiveN(C_max[w], gurobipy.GRB.MINIMIZE, 1)
 
@@ -227,6 +227,8 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case1')
+    case = 'case3'
+    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/'+case)
+    print(case)
     obj = original_problem(dataa)
     print(obj)
