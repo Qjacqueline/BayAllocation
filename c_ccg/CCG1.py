@@ -30,7 +30,10 @@ def CCG(data):
               str(iteration_num) + "=========================================")
 
         # 求解主问题
-        master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
+        try:
+            master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
+        except:
+            a = 1
         if not master_results:
             print("Master problem is infeasible!")
             return
@@ -68,6 +71,7 @@ def CCG(data):
     print("Final solution:\t", end_x)
     print("Final UB:\t", UB)
     print("Final LB:\t", LB)
+    print("Time\t", time.time() - start_time)
     return UB
 
 
@@ -225,6 +229,7 @@ def init_master_problem():
                       quicksum(X[u][j - 1] * data.U_num_set[u] * cf.unit_process_time
                                for u in data.U_g[g] for j in data.J_K[k])
                       for k in range(data.K_num) for g in range(data.G_num)), "2n")
+
     # min
     # min_var =[]
 
@@ -243,14 +248,39 @@ def init_master_problem():
     model.addConstrs((BB[k] == gurobipy.max_(Theta[1][k][g] for g in range(data.G_num))
                       for k in range(data.K_num)), "BB")
 
+    # 必要时间估算1
     model.addConstrs((theta >= cf.unit_move_time * (AA[k] - data.J_K_first[k])
                       + cf.unit_move_time * sum(Theta[1][k][g] - Theta[0][k][g] for g in range(data.G_num))
                       + sum(cf.unit_process_time * data.U_num_set[u] * X[u][j - 1]
                             for u in data.U for j in data.J_K[k]) for k in range(data.K_num)), "global lb1")
-
+    # 必要时间估算2
     model.addConstrs((theta >= cf.unit_move_time * (BB[k] - data.J_K_first[k])
                       + sum(cf.unit_process_time * data.U_num_set[u] * X[u][j - 1]
                             for u in data.U for j in data.J_K[k]) for k in range(data.K_num)), "global lb2")
+
+    # 消除对称性：不同重量不等价，因为会有拼贝情况
+    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
+                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+                      and data.U_num_set[u] == data.U_num_set[uu]
+                      and jj < j and u < uu), "1q")
+    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) + big_M * (sum(X[u][jjj - 1] for jjj in data.J) - 1)
+                      + big_M * (sum(X[uu][jjj - 1] for jjj in data.J) - 1)
+                      for u in data.U for uu in data.U for j in data.J
+                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+                      and data.U_num_set[u] != data.U_num_set[uu]
+                      and jj < j and u < uu), "1q")
+    # 连续分配
+    tau = [[0 for _ in range(0, 60 * data.K_num)], [0 for _ in range(0, 60 * data.K_num)]]
+    for j in range(0, 60 * data.K_num):
+        if j + 1 in data.J:
+            tau[0][j] = model.addVar(vtype=GRB.BINARY, name='tau_0_' + str(j))
+            tau[1][j] = model.addVar(vtype=GRB.BINARY, name='tau_1_' + str(j))
+    model.addConstrs((BB[k] - (j - 1) <= big_M * tau[0][j - 1] for k in range(data.K_num)
+                      for j in set(data.I) & set(data.J_K[k])), "continuous cut1")
+    model.addConstrs(((j - 1) - AA[k] <= big_M * tau[1][j - 1] for k in range(data.K_num)
+                      for j in set(data.I) & set(data.J_K[k])), "continuous cut2")
+    model.addConstrs((tau[0][j - 1] + tau[1][j - 1] - 1 <= sum(X[u][j - 1] for u in data.U) for j in data.J),
+                     "continuous cut2")
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
     model.Params.timelimit = 3600
@@ -449,7 +479,7 @@ def generate_cuts(master_results, sub_results, added_cuts):
 
 
 if __name__ == '__main__':
-    data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case3')
+    data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/case11')
     # ============== 生成所有可能提取序列 ================
     sequence = list(range(data.G_num))
     valid_permutations = generate_permutations(sequence, swapped=None)

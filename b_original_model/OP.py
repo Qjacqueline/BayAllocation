@@ -227,8 +227,8 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    case = 'case4'
-    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/'+case)
+    case = 'case11'
+    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/'+case)
     print(case)
     obj = original_problem(dataa)
     print(obj)
