@@ -198,7 +198,7 @@ def original_problem(data):
         ax.set_title('Placement of Box Groups', fontsize=16)
 
         # 显示图形
-        plt.savefig("1.png")
+        plt.savefig("a.png")
         print("obj:", obj.X)
         print("time:", str(time.time() - s_t))
         k = 0
@@ -227,8 +227,8 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    case = 'case4'
-    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/'+case)
+    case = 'case9'
+    dataa = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\'+case)
     print(case)
     obj = original_problem(dataa)
     print(obj)

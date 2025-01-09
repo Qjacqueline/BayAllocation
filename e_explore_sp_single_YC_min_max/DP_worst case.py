@@ -41,7 +41,7 @@ def plot_points(A, B):
     plt.yticks([1, 2], ['A ', 'B'])
     plt.legend()
     plt.grid()
-    plt.savefig("1.png")
+    plt.savefig("case9.png")
 
 
 def generate_initial_perm(pos):
