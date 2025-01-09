@@ -150,8 +150,8 @@ def original_problem(data):
                 print('%s' % c.constrName)
         return False
     else:
-        model.write('OP.sol')
-        model.write('OP.lp')
+        # model.write('OP.sol')
+        # model.write('OP.lp')
         # 输出结果为
         bay_x_dict = {b: [] for b in data.J}
         for u in range(data.U_num):
@@ -227,7 +227,7 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    case = 'case3'
+    case = 'case4'
     dataa = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/'+case)
     print(case)
     obj = original_problem(dataa)

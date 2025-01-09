@@ -129,8 +129,8 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
                 print('%s' % c.constrName)
         return False
     else:
-        model.write('master.sol')
-        model.write('master.lp')
+        # model.write('master.sol')
+        # model.write('master.lp')
         master_X = {}
         for u in range(data.U_num):
             for j in range(60 * data.K_num):
