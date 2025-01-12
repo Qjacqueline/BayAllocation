@@ -3,7 +3,7 @@
 # @Author  : JacQ
 # @File    : OP.py
 import time
-from itertools import permutations
+from itertools import permutations, islice
 
 from gurobipy import *
 from matplotlib import pyplot as plt, patches
@@ -13,7 +13,10 @@ import a_data_process.config as cf
 
 
 def generate_permutations(sequence, swapped=None):
-    all_perms = permutations(sequence)
+    if len(sequence) < 12:
+        all_perms = permutations(sequence)
+    else:
+        all_perms = list(itertools.islice(itertools.permutations(sequence), 1e8))
     valid_perms = [perm for perm in all_perms if valid_permutation(sequence, perm)]
     return valid_perms
 
@@ -32,6 +35,7 @@ def original_problem(data):
         :return:
     """
     s_t = time.time()
+
     # ============== 生成所有可能序列 ================
     sequence = list(range(data.G_num))
     valid_permutations = generate_permutations(sequence, swapped=None)
@@ -68,7 +72,7 @@ def original_problem(data):
 
     # ================ 约束 ==================
     # test
-    # res = {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}
+    # res = {0: 6, 1: 8, 2: 12, 3: 14, 4: 4, 5: 0}
     # model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
 
     # Con1
@@ -226,9 +230,44 @@ def generate_color_groups(g):
     return colors
 
 
+def prune_bays(data):
+    n_bay_num = len(data.U_F) * 2 + len(data.U_L)
+    for k in range(data.K_num):
+        # 正向
+        find_flag = False
+        for j in range(0, len(data.J_K[k]) - n_bay_num):
+            cnt, pos = 1, data.J_K[k][j] + 2
+            while True:
+                if cnt == n_bay_num:
+                    find_flag = True
+                    break
+                if pos in data.J_K[k]:
+                    cnt += 1
+                    pos += 2
+                else:
+                    break
+            if find_flag:
+                break
+        if find_flag:
+            pos_index = data.J_K[k].index(pos)
+            ls = data.J_K[k][pos_index:].copy()
+            for jj in ls:
+                if jj in data.I:
+                    data.I.remove(jj)
+                data.J.remove(jj)
+                data.J_K[k].remove(jj)
+
+        # for j in range(len(data.J_K[k]) - 1, 0, -1):
+        #     S_cnt, last = 0, -1
+        #     for jj in range(j - 1, 0, -1):
+        #         if jj in data.I:
+        #             S_cnt += 1
+
+
 if __name__ == '__main__':
-    case = 'case11'
-    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/'+case)
+    case = 'case2'
+    dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + case)
+    prune_bays(dataa)
     print(case)
     obj = original_problem(dataa)
     print(obj)
