@@ -45,8 +45,10 @@ class Data:
         # todo 处理个数为0的情况
         u = 0
         for q in range(len(self.G_num_set)):
+            c_num = self.G_num_set[q]
+            if c_num == 0:
+                continue
             if q % 2 == 0:
-                c_num = self.G_num_set[q]
                 tmp = math.ceil(c_num / (self.S_num * self.T_num))
                 self.G_sub_num_set.append(tmp)
                 for qq in range(tmp - 1):
@@ -67,7 +69,6 @@ class Data:
                 self.U_L.append(u)
                 u = u + 1
             else:
-                c_num = self.G_num_set[q]
                 tmp = math.ceil(c_num / (self.S_num * self.T_num))
                 self.G_sub_num_set.append(tmp)
                 for qq in range(tmp - 1):
@@ -87,23 +88,14 @@ class Data:
                 self.U_g_set.append(q)
                 self.U_F.append(u)
                 u = u + 1
+        self.G_num = len(self.U_g_set)
         self.U_L_num = len(self.U_L_num_set)
         self.U_F_num = len(self.U_F_num_set)
         self.U_num = self.U_L_num + self.U_F_num
-        # # self.gamma_uu = [[1 for _ in range(self.U_num)] for _ in range(self.U_num)]
-        # self.U_num_set.extend(self.U_L_num_set)
-        # self.U_num_set.extend(self.U_F_num_set)
-        # self.U_g_set.extend(self.U_L_g_set)
-        # self.U_g_set.extend(self.U_F_g_set)
         self.U = [i for i in range(self.U_num)]  # 子箱组标号集合
-        # self.U_L = [i for i in range(self.U_L_num)]  # 20TEU子箱组标号集合
-        # self.U_F = [i for i in range(self.U_L_num, self.U_num)]
         self.U_g = [[] for g in range(self.G_num)]
         for i in range(self.U_num):
             self.U_g[self.U_g_set[i]].append(i)
-        # self.G_sub_index_set = [[] for g in range(self.G_num)]
-        # for u in range(self.U_num):
-        #     self.G_sub_index_set[self.U_g_set[u]].append(u)
 
 
 def read_data(path: str):
@@ -116,7 +108,7 @@ def read_data(path: str):
     data.J = []
     for k in range(data.K_num):
         bays = list(map(int, lines[2 + k].split(" ")))
-        bays = [j + 60 * k for j in bays]
+        bays = [j + cf.bay_number_one_block * k for j in bays]
         data.J_K_first.append(bays[0])
         data.J.extend(bays)
         data.J_K.append(bays)
@@ -127,7 +119,6 @@ def read_data(path: str):
                 data.I.append(j)
     data.G_num_set = []
     data.D_num = int(lines[data.K_num + 2][0])
-    data.G_num = data.D_num * 2
     for k in range(data.D_num):
         groups = list(map(int, lines[data.K_num + k + 3].split(" ")))
         data.G_num_set.extend(groups)

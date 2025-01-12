@@ -16,12 +16,49 @@ from d_explore_sp_single_YC_min.DP import find_max_permutation_cost
 big_M = 10e10
 
 
-def CCG(data):
+def prune_bays():
+    n_bay_num = len(data.U_F) * 2 + len(data.U_L)
+    for k in range(data.K_num):
+        # 正向
+        find_flag = False
+        for j in range(0, len(data.J_K[k]) - n_bay_num):
+            cnt, pos = 1, data.J_K[k][j] + 2
+            while True:
+                if cnt == n_bay_num:
+                    find_flag = True
+                    break
+                if pos in data.J_K[k]:
+                    cnt += 1
+                    pos += 2
+                else:
+                    break
+            if find_flag:
+                break
+        if find_flag:
+            pos_index = data.J_K[k].index(pos)
+            ls = data.J_K[k][pos_index:].copy()
+            for jj in ls:
+                if jj in data.I:
+                    data.I.remove(jj)
+                data.J.remove(jj)
+                data.J_K[k].remove(jj)
+
+        # for j in range(len(data.J_K[k]) - 1, 0, -1):
+        #     S_cnt, last = 0, -1
+        #     for jj in range(j - 1, 0, -1):
+        #         if jj in data.I:
+        #             S_cnt += 1
+
+
+def CCG():
     LB = 0
     UB = float("inf")
     iteration_num = 0
     start_time = time.time()
     added_cuts = []
+    # prune bays
+    prune_bays()
+
     # 求解主问题
     master_results = init_master_problem()
 
@@ -47,7 +84,7 @@ def CCG(data):
         if master_results[0] == {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}:
             a = 1
         sub_results = sub_problem(N, pos, pt, init_pos)
-        compare_results = find_max_permutation_cost(N, pos, pt, init_pos)
+        # compare_results = find_max_permutation_cost(N, pos, pt, init_pos)
 
         UB = min(UB, sub_results[0])
 
@@ -62,6 +99,7 @@ def CCG(data):
             end_time = time.time()
             print("UB:\t", UB)
             print("LB:\t", LB)
+            print("Gap:\t", round((UB - LB) * 100 / UB, 1))
             print("Time:\t", end_time - start_time)
             if end_time - start_time >= 7200:
                 break
@@ -77,8 +115,8 @@ def CCG(data):
 
 def update_master_problem_adding_cuts(model, variables, added_cuts):
     X, Z, Theta, theta = variables
-    # ============== 添加随机lb cut ================
-    if pi_num_set and random.random() * 0.2 < 0.5:
+    # ============== 添加随机lb cut, 依据序列================
+    if pi_num_set and random.random() < random_seed:
         r_c = random.choice(pi_num_set)
         pi_num_set.remove(r_c)
         P = []
@@ -114,12 +152,11 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
                 rhs.addTerms(1, X[u][j])
             model.addConstr(theta >= v * (rhs - len(XX) + 1), "opt cut")
         elif cut[0] == 'Translation':
-            for seq in cut[1]:
-                rhs = LinExpr(0)
-                for j in seq:
-                    for u in data.U:
-                        rhs.addTerms(1, X[u][j - 1])
-                model.addConstr(theta >= big_M * (rhs - len(seq) * data.U_num + 1), "trans cut")
+            rhs = LinExpr(0)
+            for pair in cut[2]:
+                rhs.addTerms(1, X[pair[0]][pair[1] - 1])
+            model.addConstr(theta >= big_M * (rhs - len(cut[2]) + 1), "trans cut")
+            a = 1
 
     # ============== 求解参数 ================
     model.optimize()
@@ -137,11 +174,17 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
         # model.write('master.lp')
         master_X = {}
         for u in range(data.U_num):
-            for j in range(60 * data.K_num):
+            for j in range(cf.bay_number_one_block * data.K_num):
                 if j + 1 not in data.J:
                     continue
                 if abs(X[u][j].X) > 0.00001:
                     master_X[u] = j
+        # master_X[data.U_num + 1] = []
+        # for j in range(cf.bay_number_one_block * data.K_num):
+        #     if j + 1 not in data.J:
+        #         continue
+        #     if abs(X[data.U_num + 1][j].X) > 0.00001:
+        #         master_X[data.U_num + 1].append(j)
         return master_X, theta.X, model, (X, Z, Theta, theta)
 
 
@@ -157,8 +200,8 @@ def init_master_problem():
 
     # ============== 定义变量 ================
     # X_uj: j从0开始 uN+k是虚拟job
-    X = [[[] for _ in range(60 * data.K_num)] for _ in range(data.U_num + 2)]
-    for j in range(0, 60 * data.K_num):
+    X = [[[] for _ in range(cf.bay_number_one_block * data.K_num)] for _ in range(data.U_num + 2)]
+    for j in range(0, cf.bay_number_one_block * data.K_num):
         for u in range(data.U_num + 2):
             if j + 1 not in data.J:
                 X[u][j] = 0
@@ -270,17 +313,20 @@ def init_master_problem():
                       and data.U_num_set[u] != data.U_num_set[uu]
                       and jj < j and u < uu), "1q")
     # 连续分配
-    tau = [[0 for _ in range(0, 60 * data.K_num)], [0 for _ in range(0, 60 * data.K_num)]]
-    for j in range(0, 60 * data.K_num):
+    tau = [[0 for _ in range(0, cf.bay_number_one_block * data.K_num)],
+           [0 for _ in range(0, cf.bay_number_one_block * data.K_num)]]
+    for j in range(0, cf.bay_number_one_block * data.K_num):
         if j + 1 in data.J:
             tau[0][j] = model.addVar(vtype=GRB.BINARY, name='tau_0_' + str(j))
             tau[1][j] = model.addVar(vtype=GRB.BINARY, name='tau_1_' + str(j))
+    model.addConstrs((sum(X[u][j - 1] for u in data.U_F) == X[data.U_num + 1][j + 1] for j in data.I),
+                     "continuous cut0")  # ***********
     model.addConstrs((BB[k] - (j - 1) <= big_M * tau[0][j - 1] for k in range(data.K_num)
                       for j in set(data.I) & set(data.J_K[k])), "continuous cut1")
     model.addConstrs(((j - 1) - AA[k] <= big_M * tau[1][j - 1] for k in range(data.K_num)
                       for j in set(data.I) & set(data.J_K[k])), "continuous cut2")
-    model.addConstrs((tau[0][j - 1] + tau[1][j - 1] - 1 <= sum(X[u][j - 1] for u in data.U) for j in data.J),
-                     "continuous cut2")
+    model.addConstrs((tau[0][j - 1] + tau[1][j - 1] - 1
+                      <= sum(X[u][j - 1] for u in data.U + [data.U_num + 1]) for j in data.J), "continuous cut3")
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
     model.Params.timelimit = 3600
@@ -299,11 +345,17 @@ def init_master_problem():
         model.write('master.lp')
         master_X = {}
         for u in range(data.U_num):
-            for j in range(60 * data.K_num):
+            for j in range(cf.bay_number_one_block * data.K_num):
                 if j + 1 not in data.J:
                     continue
                 if abs(X[u][j].X) > 0.00001:
                     master_X[u] = j
+        # master_X[data.U_num + 1] = []
+        # for j in range(cf.bay_number_one_block * data.K_num):
+        #     if j + 1 not in data.J:
+        #         continue
+        #     if abs(X[data.U_num + 1][j].X) > 0.00001:
+        #         master_X[data.U_num + 1].append(j)
         if master_X == {0: 30, 1: 28, 2: 16, 3: 10, 4: 6}:
             a = 1
         return master_X, theta.X, model, (X, Z, Theta, theta)
@@ -448,7 +500,9 @@ def find_new_sequences(J, original_sequence):
         sorted_candidate = sorted(candidate)
         new_distances = [sorted_candidate[i + 1] - sorted_candidate[i] for i in range(len(sorted_candidate) - 1)]
         if all(new_distances[i] >= original_distances[i] for i in range(len(original_distances))):
+            # if sorted_candidate not in invalid_sequences_r:
             valid_sequences.append(sorted_candidate)
+            invalid_sequences_r.append(sorted_candidate)
     return valid_sequences
 
 
@@ -457,20 +511,29 @@ def generate_cuts(master_results, sub_results, added_cuts):
         X, objVal, _, _ = master_results
         max_value, worst_path, dp, worst_path_r = sub_results
         # optimal_cuts todo 没有区分场桥 optimal delta inactivate
-        added_cuts.append(['Optimal', max_value, [[key, X[key]] for key in X.keys()]])
+        added_cuts.append(['Optimal', max_value, [[key, X[key]] for key in X.keys() if key != data.U_num + 1]])
         # added_cuts.append(['Optimal delta', max_value,
         #                    [[key, X[key], data.U_num_set[key] * cf.unit_process_time] for key in X.keys()]])
         # translation cut todo: add多场桥cut
         U_k = [[] for _ in range(data.K_num)]
         for pair in X.items():
             U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
+            # if isinstance(pair[1], int):
+            #     U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
+            # else:
+            #     for pos in pair[1]:
+            #         if pos + 1 in data.J_K_first:
+            #             continue
+            #         U_k[data.J_K_dict[pos + 1]].append([pair[0], pos])
         U_k_sorted = [sorted(sublist, key=lambda x: x[1]) for sublist in U_k]  # 按照贝位排序
         Used_bays = [[pair[1] for pair in U_k_sorted[k]] for k in range(data.K_num)]
         for k in range(data.K_num):
             init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
             invalid_sequences = find_new_sequences(data.J_K[k][init_b_index + 1:], Used_bays[k])
             if invalid_sequences:
-                added_cuts.append(['Translation', invalid_sequences])
+                added_cuts.append(
+                    ['Translation', max_value, [[U_k_sorted[k][i][0], seq[i]]
+                                                for seq in invalid_sequences for i in range(len(seq))]])
     else:
         # todo:generate infeasible results
         a = 1
@@ -479,10 +542,14 @@ def generate_cuts(master_results, sub_results, added_cuts):
 
 
 if __name__ == '__main__':
-    data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/case11')
+    case = 'case1'
+    data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + case)
+    print(case)
     # ============== 生成所有可能提取序列 ================
     sequence = list(range(data.G_num))
     valid_permutations = generate_permutations(sequence, swapped=None)
     pi_num_set = [i for i in range(len(valid_permutations))]
+    invalid_sequences_r = []
     # ============== 求解 ================
-    CCG(data)
+    random_seed = 0.5  # 加seq cut设置系数
+    CCG()

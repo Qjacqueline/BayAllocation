@@ -4,16 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="debug：worstcase DP">
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加算例">
+      <change afterPath="$PROJECT_DIR$/a_data_process/data/case01" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/a_data_process/data/case9" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/b_original_model/case8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/BayAllocationGit.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BayAllocationGit.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/b_original_model/case11.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/b_original_model/case9.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case8" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/case8" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/b_original_model/1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case1" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/case1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case11" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/case11" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case2" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/case2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/read_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/read_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/e_explore_sp_single_YC_min_max/DP_worst case.py" beforeDir="false" afterPath="$PROJECT_DIR$/e_explore_sp_single_YC_min_max/DP_worst case.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/CCG1.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/a.ilp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/a.lp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/master.lp" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/master.lp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/master.sol" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/master.sol" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +42,7 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="2qS9o4Z5QpzjtMVH0isShixKxfv" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -46,17 +54,18 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/admin/PycharmProjects/BayAllocation/a_data_process/data&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;debugger.dataViews.python.type.renderers&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\admin\PycharmProjects\BayAllocation\a_data_process\data" />
       <recent name="$PROJECT_DIR$/a_data_process/data" />
+      <recent name="$PROJECT_DIR$/../BayAllocation/a_data_process/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/c_ccg" />
+      <recent name="$PROJECT_DIR$/b_original_model" />
+      <recent name="$PROJECT_DIR$/../BayAllocation/c_ccg" />
     </key>
   </component>
   <component name="RunManager" selected="Python.OP">
@@ -64,9 +73,6 @@
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/c_ccg" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -85,9 +91,6 @@
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/b_original_model" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -127,9 +130,6 @@
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_data_process" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -137,7 +137,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_data_process/read_data.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
@@ -152,11 +152,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_data_process" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../BayAllocation/a_data_process" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_data_process/read_data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../BayAllocation/a_data_process/read_data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -173,11 +173,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/z_draft" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../BayAllocation/z_draft" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/z_draft/test.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../BayAllocation/z_draft/test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -187,18 +187,18 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.CCG1" />
-      <item itemvalue="Python.OP" />
       <item itemvalue="Python.main" />
       <item itemvalue="Python.read_data (1)" />
+      <item itemvalue="Python.CCG1" />
+      <item itemvalue="Python.OP" />
       <item itemvalue="Python.read_data" />
       <item itemvalue="Python.test" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.OP" />
-        <item itemvalue="Python.CCG1" />
         <item itemvalue="Python.read_data (1)" />
+        <item itemvalue="Python.CCG1" />
         <item itemvalue="Python.CCG1" />
         <item itemvalue="Python.OP" />
       </list>
@@ -269,13 +269,32 @@
       <option name="project" value="LOCAL" />
       <updated>1736352348825</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="增加算例">
+      <created>1736440795669</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1736440795669</updated>
+    </task>
+    <task id="LOCAL-00010" summary="增加算例">
+      <created>1736459380293</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1736459380293</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+        <entry key="ecd2fd40-ca80-4f9c-8e9b-3dcf4973846a">
           <value>
             <State />
           </value>
@@ -294,28 +313,29 @@
     <MESSAGE value="1.修改整理模型&#10;2.+cut" />
     <MESSAGE value="init" />
     <MESSAGE value="debug：worstcase DP" />
-    <option name="LAST_COMMIT_MESSAGE" value="debug：worstcase DP" />
+    <MESSAGE value="增加算例" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加算例" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
+          <url>file://$PROJECT_DIR$/../BayAllocation/b_original_model/OP.py</url>
           <line>155</line>
           <option name="timeStamp" value="50" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
+          <url>file://$PROJECT_DIR$/../BayAllocation/c_ccg/CCG1.py</url>
           <line>26</line>
           <option name="timeStamp" value="103" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
+          <url>file://$PROJECT_DIR$/../BayAllocation/c_ccg/CCG1.py</url>
           <line>261</line>
           <option name="timeStamp" value="104" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
+          <url>file://$PROJECT_DIR$/../BayAllocation/c_ccg/CCG1.py</url>
           <line>256</line>
           <option name="timeStamp" value="105" />
         </line-breakpoint>
@@ -326,23 +346,33 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>219</line>
+          <line>222</line>
           <option name="timeStamp" value="134" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
-          <line>277</line>
-          <option name="timeStamp" value="141" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>38</line>
+          <line>41</line>
           <option name="timeStamp" value="142" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
+          <line>151</line>
+          <option name="timeStamp" value="155" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
-          <line>76</line>
-          <option name="timeStamp" value="148" />
+          <line>72</line>
+          <option name="timeStamp" value="157" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
+          <line>49</line>
+          <option name="timeStamp" value="173" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
+          <line>155</line>
+          <option name="timeStamp" value="202" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -353,11 +383,5 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="sub_problem(N, pos, pt, init_pos)" language="Python" />
-        <watch expression="[[key, X[key]] for key in X.keys()]" language="Python" />
-      </configuration>
-    </watches-manager>
   </component>
 </project>
