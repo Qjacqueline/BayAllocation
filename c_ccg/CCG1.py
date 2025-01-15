@@ -542,7 +542,7 @@ def generate_cuts(master_results, sub_results, added_cuts):
 
 
 if __name__ == '__main__':
-    case = 'case1'
+    case = 'case3'
     data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + case)
     print(case)
     # ============== 生成所有可能提取序列 ================

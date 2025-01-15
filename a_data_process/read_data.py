@@ -88,7 +88,7 @@ class Data:
                 self.U_g_set.append(q)
                 self.U_F.append(u)
                 u = u + 1
-        self.G_num = len(self.U_g_set)
+        self.G_num = len(set(self.U_g_set))
         self.U_L_num = len(self.U_L_num_set)
         self.U_F_num = len(self.U_F_num_set)
         self.U_num = self.U_L_num + self.U_F_num
@@ -96,6 +96,7 @@ class Data:
         self.U_g = [[] for g in range(self.G_num)]
         for i in range(self.U_num):
             self.U_g[self.U_g_set[i]].append(i)
+        a = 1
 
 
 def read_data(path: str):
