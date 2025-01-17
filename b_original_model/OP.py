@@ -249,8 +249,8 @@ def prune_bays(data):
             if find_flag:
                 break
         if find_flag:
-            pos_index = data.J_K[k].index(pos)
-            ls = data.J_K[k][pos_index:].copy()
+            pos_index = data.J_K[k].index(pos - 2)
+            ls = data.J_K[k][pos_index + 1:].copy()
             for jj in ls:
                 if jj in data.I:
                     data.I.remove(jj)
@@ -265,7 +265,7 @@ def prune_bays(data):
 
 
 if __name__ == '__main__':
-    case = 'case4'
+    case = 'case8'
     dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + case)
     prune_bays(dataa)
     print(case)

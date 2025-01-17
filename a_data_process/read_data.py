@@ -44,6 +44,7 @@ class Data:
     def init_process(self):
         # todo 处理个数为0的情况
         u = 0
+        qqq = 0
         for q in range(len(self.G_num_set)):
             c_num = self.G_num_set[q]
             if c_num == 0:
@@ -54,8 +55,8 @@ class Data:
                 for qq in range(tmp - 1):
                     self.U_L_num_set.append(self.S_num * self.T_num)
                     self.U_num_set.append(self.S_num * self.T_num)
-                    self.U_L_g_set.append(q)
-                    self.U_g_set.append(q)
+                    self.U_L_g_set.append(qqq)
+                    self.U_g_set.append(qqq)
                     self.U_L.append(u)
                     u = u + 1
                 if c_num == 0:
@@ -64,18 +65,19 @@ class Data:
                 else:
                     self.U_L_num_set.append(c_num - (self.S_num * self.T_num) * (tmp - 1))
                     self.U_num_set.append(c_num - (self.S_num * self.T_num) * (tmp - 1))
-                self.U_L_g_set.append(q)
-                self.U_g_set.append(q)
+                self.U_L_g_set.append(qqq)
+                self.U_g_set.append(qqq)
                 self.U_L.append(u)
-                u = u + 1
+                u += 1
+                qqq += 1
             else:
                 tmp = math.ceil(c_num / (self.S_num * self.T_num))
                 self.G_sub_num_set.append(tmp)
                 for qq in range(tmp - 1):
                     self.U_F_num_set.append(self.S_num * self.T_num)
                     self.U_num_set.append(self.S_num * self.T_num)
-                    self.U_F_g_set.append(q)
-                    self.U_g_set.append(q)
+                    self.U_F_g_set.append(qqq)
+                    self.U_g_set.append(qqq)
                     self.U_F.append(u)
                     u = u + 1
                 if c_num == 0:
@@ -84,10 +86,11 @@ class Data:
                 else:
                     self.U_F_num_set.append(int(c_num - (self.S_num * self.T_num) * (tmp - 1)))
                     self.U_num_set.append(int(c_num - (self.S_num * self.T_num) * (tmp - 1)))
-                self.U_F_g_set.append(q)
-                self.U_g_set.append(q)
+                self.U_F_g_set.append(qqq)
+                self.U_g_set.append(qqq)
                 self.U_F.append(u)
                 u = u + 1
+                qqq += 1
         self.G_num = len(set(self.U_g_set))
         self.U_L_num = len(self.U_L_num_set)
         self.U_F_num = len(self.U_F_num_set)
