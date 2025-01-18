@@ -72,8 +72,9 @@ def original_problem(data):
 
     # ================ 约束 ==================
     # test
-    # res = {0: 4, 1: 6, 2: 8, 3: 0, 4: 10, 5: 12, 6: 14, 7: 16, 8: 18, 9: 22}
-    # model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
+    res = {0: 0, 1: 2, 2: 6, 3: 10, 4: 18, 5: 12, 6: 14, 7: 16}
+    model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
+
 
     # Con1
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
@@ -265,7 +266,7 @@ def prune_bays(data):
 
 
 if __name__ == '__main__':
-    case = 'case8'
+    case = 'case10'
     dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + case)
     prune_bays(dataa)
     print(case)

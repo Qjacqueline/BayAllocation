@@ -25,6 +25,8 @@ def generate_bay_permutations(sequence):
 
 
 def calculate_and_merge_inversions(bay_seq, proc_seq):
+    if bay_seq == (1, 4, 0, 5, 2, 3):
+        a = 1
     # 创建seq1的索引字典
     index_map = {value: idx for idx, value in enumerate(bay_seq)}
 
@@ -56,6 +58,7 @@ def calculate_and_merge_inversions(bay_seq, proc_seq):
             merged_min[min_val] = (min(a, b), max(a, b))
     result = []
     cnt = 0
+
     for key, pair in merged_min.items():
         # if cnt != 0:
         #     result += " + "
@@ -69,6 +72,7 @@ def calculate_and_merge_inversions(bay_seq, proc_seq):
                     else:
                         break
                 result.append(a_a)
+                result.append(a_a + "'")
                 d_d = "d" + str(ii + 1)
                 while True:
                     if d_d in result:
@@ -76,6 +80,7 @@ def calculate_and_merge_inversions(bay_seq, proc_seq):
                     else:
                         break
                 result.append(d_d)
+                result.append(d_d + "'")
             else:
                 a_a = "a" + str(bay_seq[ii])
                 while True:
@@ -84,7 +89,18 @@ def calculate_and_merge_inversions(bay_seq, proc_seq):
                     else:
                         break
                 result.append(a_a)
-
+                result.append(a_a + "'")
+    if proc_seq[-1] != bay_seq[-1]:
+        indx = bay_seq.index(proc_seq[-1])
+        lls = bay_seq[indx:]
+        for q in lls:
+            a_variants = [item for item in result if item.startswith("a" + str(q))]
+            a_variants.sort(key=lambda x: x.count("'"), reverse=True)
+            result.remove(a_variants[0])
+        for ii in range(indx, len(bay_seq) - 1):
+            d_variants = [item for item in result if item.startswith("d" + str(ii + 1))]
+            d_variants.sort(key=lambda x: x.count("'"), reverse=True)
+            result.remove(d_variants[0])
     # 输出结果
     return result
 
@@ -93,44 +109,96 @@ def remove_subsets(input_list):
     # 去重并初始化结果列表
     unique_list = []
     for lst in input_list:
-        if lst not in unique_list:
-            unique_list.append(lst)
+        if set(lst) not in unique_list:
+            unique_list.append(set(lst))
 
     result = []
     for i, sublist in enumerate(unique_list):
         # 检查当前子列表是否是其他子列表的子集
         if not any(set(sublist).issubset(set(other)) for j, other in enumerate(unique_list) if i != j):
-            result.append(sublist)
+            result.append(list(sublist))
 
     return result
 
 
+def compare_different(ls1, ls2):
+    set1 = set(ls1)
+    set2 = set(ls2)
+    only_in_ls1 = set1 - set2
+    only_in_ls2 = set2 - set1
+    # if only_in_ls1 is not None and only_in_ls2 is None:
+    #     return []
+    return list(only_in_ls1) + [f"-{item}" for item in only_in_ls2]
+
+
 if __name__ == '__main__':
     # 生成0, 1, 2, 3的全排列
-    nums = [0, 1, 2, 3, 4]
+    nums = [0, 1, 2, 3,4]
     all_bay_permutations = generate_bay_permutations(nums)
     all_seq_permutations = generate_seq_permutations(nums)
-    res = [[0 for _ in range(len(all_seq_permutations))] for _ in range(len(all_bay_permutations))]
+    res_all = [[0 for _ in range(len(all_seq_permutations))] for _ in range(len(all_bay_permutations))]
+    print(all_seq_permutations)
+
+    print("***************************")
     for i in range(len(all_bay_permutations)):
         bay_seq = all_bay_permutations[i]
         for j in range(len(all_seq_permutations)):
             proc_seq = all_seq_permutations[j]
-            res[i][j] = calculate_and_merge_inversions(bay_seq, proc_seq)
+            res_all[i][j] = calculate_and_merge_inversions(bay_seq, proc_seq)
+        res_all[i] = [sorted(sublist) for sublist in remove_subsets(res_all[i])]
+        print(bay_seq, "\t", res_all[i])
 
-        res[i] = [sorted(sublist) for sublist in remove_subsets(res[i])]
-        print(bay_seq, "\t", res[i])
     print("***************************")
+    test_inst = 0
+    test_inst = all_bay_permutations.index((1, 0, 2, 4, 3))
+    compare_res_all = []
+    for i in range(len(res_all[test_inst])):
+        compare_res = []
+        for ii in range(0, len(res_all[test_inst])):
+            compare_res.append(compare_different(res_all[test_inst][ii], res_all[test_inst][i]))
+        print(i, compare_res)
+        compare_res_all.append(compare_res)
+
+    print("***************************")
+    print("test\t", all_bay_permutations[test_inst])
     cnt = 0
-    for ls in res[1:]:
+    candidate_perm = []
+    for p_ls in res_all:
         inter_set = []
-        for sublss in ls:
+        cntt = 0
+        for o_subls in res_all[test_inst]:
             flag = False
-            for subls in res[0]:
-                if set(subls).issubset(set(sublss)):
+            for p_sub_ls in p_ls:
+                if set(o_subls).issubset(set(p_sub_ls)):
                     flag = True
-            if flag:
-                continue
-            else:
-                inter_set.append(sublss)
+                    # break
+            if not flag:
+                tmp_compare_set = [str(cntt)]
+                optimal_flag = True
+                for p_sub_ls in p_ls:
+                    tmp_res = compare_different(p_sub_ls, o_subls)
+                    if tmp_res in compare_res_all[cntt]:
+                        tmp_compare_set.append("equal")
+                    elif all(item.startswith('-') for item in tmp_res):
+                        tmp_compare_set.append("dominated")
+                    else:
+                        tmp_compare_set.append(tmp_res)
+                        optimal_flag = False
+                inter_set.append(tmp_compare_set)
+                if optimal_flag:
+                    candidate_perm.append(all_bay_permutations[cnt])
+                # break
+            cntt += 1
+        if cnt< 1000:
+            print(all_bay_permutations[cnt], inter_set)
         cnt += 1
-        print(all_bay_permutations[cnt], inter_set)
+
+    print("***************************")
+    # seen = set()
+    unique_list = []
+    for item in candidate_perm:
+        if item not in unique_list:
+            unique_list.append(item)
+            # seen.add(item)
+    print(unique_list)
+
