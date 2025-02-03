@@ -48,6 +48,7 @@ def prune_bays():
         #     for jj in range(j - 1, 0, -1):
         #         if jj in data.I:
         #             S_cnt += 1
+        a = 1
 
 
 def CCG():
@@ -241,7 +242,7 @@ def init_master_problem():
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "2d")
     # con3:对于40ft的子箱组占了前一个后一个位置就不能被其他使用
-    model.addConstrs((X[u][j - 1] + X[uu][j + 1] <= 1 for u in data.U_F for uu in data.U for j in data.I), "2e")
+    model.addConstrs((X[u][j - 1] + X[uu][j - 3] <= 1 for u in data.U_F for uu in data.U for j in data.I), "2e")
     # 对于一个贝
     # con4: 一个贝上放置的箱组一般不超过2个
     model.addConstrs((quicksum(X[u][j - 1] for u in data.U) <= 2 for j in data.J), "2f")
@@ -319,7 +320,7 @@ def init_master_problem():
         if j + 1 in data.J:
             tau[0][j] = model.addVar(vtype=GRB.BINARY, name='tau_0_' + str(j))
             tau[1][j] = model.addVar(vtype=GRB.BINARY, name='tau_1_' + str(j))
-    model.addConstrs((sum(X[u][j - 1] for u in data.U_F) == X[data.U_num + 1][j + 1] for j in data.I),
+    model.addConstrs((sum(X[u][j - 3] for u in data.U_F) == X[data.U_num + 1][j - 1] for j in data.I),
                      "continuous cut0")  # ***********
     model.addConstrs((BB[k] - (j - 1) <= big_M * tau[0][j - 1] for k in range(data.K_num)
                       for j in set(data.I) & set(data.J_K[k])), "continuous cut1")

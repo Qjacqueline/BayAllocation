@@ -72,8 +72,8 @@ def original_problem(data):
 
     # ================ 约束 ==================
     # test
-    res = {0: 0, 1: 2, 2: 6, 3: 10, 4: 18, 5: 12, 6: 14, 7: 16}
-    model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
+    # res = {0: 0, 1: 4, 2: 8, 3: 10, 4: 20, 5: 12, 6: 14, 7: 16}
+    # model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
 
 
     # Con1
@@ -85,7 +85,7 @@ def original_problem(data):
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "1f")
     # con3:对于40ft的子箱组占了前一个后一个位置就要被虚拟子箱组占用
-    model.addConstrs((X[u][j - 1] + X[uu][j + 1] <= 1 for u in data.U_F for uu in data.U for j in data.I), "1g")
+    model.addConstrs((X[u][j -1] + X[uu][j - 3] <= 1 for u in data.U_F for uu in data.U for j in data.I), "1g")
     # Con4: 一个贝上放置的箱组一般不超过2个
     model.addConstrs((quicksum(X[u][j - 1] for u in data.U) <= 2 for j in data.J), "1h")
     # con5: 20和40的不能放在一个贝

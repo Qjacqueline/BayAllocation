@@ -28,7 +28,7 @@ class Data:
     U_g_set = []  # 所有子箱组集合记录对应箱组
 
     J = []  # 总贝集合 [3,5,11,...]
-    I = []  # 存在后继贝位的贝位编号 [3]
+    I = []  # 存在前继贝位的贝位编号 [3]
     J_K_first = []  # 每个箱区第一个空贝位置
     J_K = []  # 每个block内bay标号
     J_K_dict = {}  # 每个block内bay标号
@@ -119,7 +119,7 @@ def read_data(path: str):
         for b in bays:
             data.J_K_dict[b] = k
         for j in bays:
-            if j + 2 in bays:
+            if j - 2 in bays:
                 data.I.append(j)
     data.G_num_set = []
     data.D_num = int(lines[data.K_num + 2][0])
