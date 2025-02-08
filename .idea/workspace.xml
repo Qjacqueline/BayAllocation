@@ -4,26 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="debug I的设置为前序">
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/case02" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case1" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case11" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case5" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case6" afterDir="false" />
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="debug I的设置为前序&#10;测试程序">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case01" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/case01" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case1" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/case1" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case3" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/case3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/CCG1.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/a.ilp" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/a.ilp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/master.lp" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/master.lp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/master.sol" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/master.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/z_draft/cal_reverse_order.py" beforeDir="false" afterPath="$PROJECT_DIR$/z_draft/cal_reverse_order.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,14 +35,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard",
-    "settings.editor.selected.configurable": "debugger.dataViews.python.type.renderers"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;debugger.dataViews.python.type.renderers&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/a_data_process/data/standard" />
@@ -76,6 +59,9 @@
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/c_ccg" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -112,6 +98,9 @@
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/z_draft" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -321,7 +310,14 @@
       <option name="project" value="LOCAL" />
       <updated>1738612001062</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="debug I的设置为前序&#10;测试程序">
+      <created>1738972970646</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1738972970646</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -357,7 +353,8 @@
     <MESSAGE value="debug子箱组顺序&#10;增加reverse order计算验证" />
     <MESSAGE value="改进cal reverse test" />
     <MESSAGE value="debug I的设置为前序" />
-    <option name="LAST_COMMIT_MESSAGE" value="debug I的设置为前序" />
+    <MESSAGE value="debug I的设置为前序&#10;测试程序" />
+    <option name="LAST_COMMIT_MESSAGE" value="debug I的设置为前序&#10;测试程序" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -386,11 +383,6 @@
           <url>file://$PROJECT_DIR$/main.py</url>
           <line>3</line>
           <option name="timeStamp" value="106" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>218</line>
-          <option name="timeStamp" value="134" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
@@ -434,8 +426,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>278</line>
+          <line>294</line>
           <option name="timeStamp" value="381" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
+          <line>699</line>
+          <option name="timeStamp" value="388" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

@@ -26,13 +26,12 @@ def valid_permutation(sequence, perm):
     return True
 
 
-def original_problem_robust(data):
+def original_problem_robust(data, res=None, w_obj=None):
     """
         :param data: 数据
         :return:
     """
     s_t = time.time()
-
     # ============== 生成所有可能序列 ================
     sequence = list(range(data.G_num))
     valid_permutations = generate_permutations(sequence, swapped=None)
@@ -68,6 +67,9 @@ def original_problem_robust(data):
     C_max = [model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name="C_max_" + str(w)) for w in range(pi_num)]
 
     # ================ 约束 ==================
+    # test
+    if res is not None:
+        model.addConstrs((X[u][res[u] - 1] == 1 for u in data.U), "res")
 
     # Con1
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
@@ -129,10 +131,14 @@ def original_problem_robust(data):
 
     # ============== 构造目标 ================
     obj = model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='obj')  # 线性化模型变量
-    model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
-    model.setObjective(obj, gurobipy.GRB.MINIMIZE)
-    # for w in range(pi_num):
-    #     model.setObjectiveN(C_max[w], gurobipy.GRB.MINIMIZE, 1)
+    if res is None:
+        model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
+        # model.addConstr((obj >= C_max[7] ), "obj")
+        model.setObjective(obj, gurobipy.GRB.MINIMIZE)
+    else:
+        for w in range(pi_num):
+            model.setObjectiveN(C_max[w], gurobipy.GRB.MINIMIZE, 1)
+        a = 1
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
@@ -152,10 +158,12 @@ def original_problem_robust(data):
         # model.write('OP.lp')
         # 输出结果为
         bay_x_dict = {b: [] for b in data.J}
+        res = {}
         for u in range(data.U_num):
             for b in data.J:
                 if abs(X[u][b - 1].X) > 0.00001:
                     bay_x_dict[b].append(u)
+                    res.setdefault(u, b)
         if print_flag:
             # 画图
             color_groups = generate_color_groups(data.G_num)
@@ -198,9 +206,8 @@ def original_problem_robust(data):
 
             # 显示图形
             plt.savefig(case + ".png")
-
-        print("obj:", obj.X)
-        print("time:", str(time.time() - s_t))
+        # print("obj:", obj.X)
+        # print("time:", str(time.time() - s_t))
         k = 0
         all_v = []
         for w in range(len(valid_permutations)):
@@ -216,8 +223,17 @@ def original_problem_robust(data):
                         path.append(v)
                         break
             all_v.append(path)
+
+        worst_index = -1
+        if w_obj is not None:
+            for w in range(pi_num):
+                if abs(w_obj - C_max[w].X) < 0.0001:
+                    worst_index = w
+                # if C_max[w].X > obj:
+                #     obj = C_max[w].X
+                #     worst_index = w
         # print("worst seq",valid_permutations[])
-        return obj.X
+        return obj.X, res, worst_index
 
 
 def original_problem_robust_test_P_allocation(data):
@@ -426,8 +442,10 @@ def original_problem_robust_test_P_allocation(data):
         return obj.X
 
 
-def original_problem_stochastic(data):
+def original_problem_stochastic(data, res=None, worst_seq_idx=None):
     """
+        :param worst_seq_idx:
+        :param res:
         :param data: 数据
         :return:
     """
@@ -469,8 +487,9 @@ def original_problem_stochastic(data):
 
     # ================ 约束 ==================
     # test
-    # res = {0: 0, 1: 4, 2: 8, 3: 10, 4: 20, 5: 12, 6: 14, 7: 16}
-    # model.addConstrs((X[u][res[u]] == 1 for u in data.U), "res")
+    if res is not None:
+        # res = {0: 0, 1: 4, 2: 8, 3: 10, 4: 20, 5: 12, 6: 14, 7: 16}
+        model.addConstrs((X[u][res[u] - 1] == 1 for u in data.U), "res")
 
     # Con1
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
@@ -532,7 +551,10 @@ def original_problem_stochastic(data):
 
     # ============== 构造目标 ================
     obj = model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='obj')  # 线性化模型变量
-    model.addConstr(obj >= sum(C_max[w] for w in range(pi_num)) / pi_num, "obj")
+    if worst_seq_idx is not None:
+        model.addConstr(obj >= C_max[worst_seq_idx], "obj")
+    else:
+        model.addConstr(obj >= sum(C_max[w] for w in range(pi_num)) / pi_num, "obj")
     model.setObjective(obj, gurobipy.GRB.MINIMIZE)
     # for w in range(pi_num):
     #     model.setObjectiveN(C_max[w], gurobipy.GRB.MINIMIZE, 1)
@@ -556,10 +578,12 @@ def original_problem_stochastic(data):
         # model.write('OP.lp')
         # 输出结果为
         bay_x_dict = {b: [] for b in data.J}
+        res = {}
         for u in range(data.U_num):
             for b in data.J:
                 if abs(X[u][b - 1].X) > 0.00001:
                     bay_x_dict[b].append(u)
+                    res.setdefault(u, b)
         if print_flag:
             # 画图
             color_groups = generate_color_groups(data.G_num)
@@ -602,8 +626,8 @@ def original_problem_stochastic(data):
 
             # 显示图形
             plt.savefig(case + ".png")
-        print("obj:", obj.X)
-        print("time:", str(time.time() - s_t))
+        # print("obj:", obj.X)
+        # print("time:", str(time.time() - s_t))
         k = 0
         all_v = []
         for w in range(len(valid_permutations)):
@@ -620,7 +644,7 @@ def original_problem_stochastic(data):
                         break
             all_v.append(path)
         # print("worst seq",valid_permutations[])
-        return obj.X
+        return obj.X, res
 
 
 def generate_color_groups(g):
@@ -665,19 +689,20 @@ def prune_bays(data):
 
 if __name__ == '__main__':
     print_flag = False
-    for case in ['case11', 'case2', 'case3', 'case4']:
+
+    for case in ['case1', 'case2', 'case3', 'case4', 'case5', 'case6', 'case11']:
         dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
         prune_bays(dataa)
-        print(case)
+        obj1, res1, worst_index1 = original_problem_robust(dataa)
+        #######测试不同随机模型#########
+        obj2, res2, worst_index2 = original_problem_robust(dataa, res1, obj1)
+        obj3, res3 = original_problem_stochastic(dataa)
+        obj4, _ = original_problem_stochastic(dataa, res3, worst_index2)
 
-        print("*********test_P_allocation*********")
-        obj = original_problem_robust_test_P_allocation(dataa)
-        print(obj)
+        #######测试1.5P-allocation到底有多好#########
+        obj5 = original_problem_robust_test_P_allocation(dataa)
 
-        print("*********Robust*********")
-        obj = original_problem_robust(dataa)
-        print(obj)
-
-        print("*********Stochastic*********")
-        obj = original_problem_stochastic(dataa)
-        print(obj)
+        with open("/Users/jacq/PycharmProjects/BayAllocationGit/b_original_model/output.txt", "w") as f:
+            f.write("This is a test output.\n")
+            f.write("Second line of output.\n")
+            f.write(f"{case}\tRobust:\t{obj1}\tStochastic:\t{obj3}\tStochastic-W:\t{obj4}\t1.5P_alloc:\t{obj5}\n")
