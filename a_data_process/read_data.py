@@ -28,7 +28,7 @@ class Data:
     U_g_set = []  # 所有子箱组集合记录对应箱组
 
     J = []  # 总贝集合 [3,5,11,...]
-    I = []  # 存在后继贝位的贝位编号 [3]
+    I = []  # 存在前继贝位的贝位编号 [3]
     J_K_first = []  # 每个箱区第一个空贝位置
     J_K = []  # 每个block内bay标号
     J_K_dict = {}  # 每个block内bay标号
@@ -44,6 +44,7 @@ class Data:
     def init_process(self):
         # todo 处理个数为0的情况
         u = 0
+        qqq = 0
         for q in range(len(self.G_num_set)):
             c_num = self.G_num_set[q]
             if c_num == 0:
@@ -54,8 +55,8 @@ class Data:
                 for qq in range(tmp - 1):
                     self.U_L_num_set.append(self.S_num * self.T_num)
                     self.U_num_set.append(self.S_num * self.T_num)
-                    self.U_L_g_set.append(q)
-                    self.U_g_set.append(q)
+                    self.U_L_g_set.append(qqq)
+                    self.U_g_set.append(qqq)
                     self.U_L.append(u)
                     u = u + 1
                 if c_num == 0:
@@ -64,18 +65,19 @@ class Data:
                 else:
                     self.U_L_num_set.append(c_num - (self.S_num * self.T_num) * (tmp - 1))
                     self.U_num_set.append(c_num - (self.S_num * self.T_num) * (tmp - 1))
-                self.U_L_g_set.append(q)
-                self.U_g_set.append(q)
+                self.U_L_g_set.append(qqq)
+                self.U_g_set.append(qqq)
                 self.U_L.append(u)
-                u = u + 1
+                u += 1
+                qqq += 1
             else:
                 tmp = math.ceil(c_num / (self.S_num * self.T_num))
                 self.G_sub_num_set.append(tmp)
                 for qq in range(tmp - 1):
                     self.U_F_num_set.append(self.S_num * self.T_num)
                     self.U_num_set.append(self.S_num * self.T_num)
-                    self.U_F_g_set.append(q)
-                    self.U_g_set.append(q)
+                    self.U_F_g_set.append(qqq)
+                    self.U_g_set.append(qqq)
                     self.U_F.append(u)
                     u = u + 1
                 if c_num == 0:
@@ -84,11 +86,12 @@ class Data:
                 else:
                     self.U_F_num_set.append(int(c_num - (self.S_num * self.T_num) * (tmp - 1)))
                     self.U_num_set.append(int(c_num - (self.S_num * self.T_num) * (tmp - 1)))
-                self.U_F_g_set.append(q)
-                self.U_g_set.append(q)
+                self.U_F_g_set.append(qqq)
+                self.U_g_set.append(qqq)
                 self.U_F.append(u)
                 u = u + 1
-        self.G_num = len(self.U_g_set)
+                qqq += 1
+        self.G_num = len(set(self.U_g_set))
         self.U_L_num = len(self.U_L_num_set)
         self.U_F_num = len(self.U_F_num_set)
         self.U_num = self.U_L_num + self.U_F_num
@@ -96,6 +99,7 @@ class Data:
         self.U_g = [[] for g in range(self.G_num)]
         for i in range(self.U_num):
             self.U_g[self.U_g_set[i]].append(i)
+        a = 1
 
 
 def read_data(path: str):
@@ -115,7 +119,7 @@ def read_data(path: str):
         for b in bays:
             data.J_K_dict[b] = k
         for j in bays:
-            if j + 2 in bays:
+            if j - 2 in bays:
                 data.I.append(j)
     data.G_num_set = []
     data.D_num = int(lines[data.K_num + 2][0])
