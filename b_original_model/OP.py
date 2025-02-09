@@ -5,6 +5,7 @@
 import time
 from itertools import permutations, islice
 
+import gurobipy
 from gurobipy import *
 from matplotlib import pyplot as plt, patches
 
@@ -137,7 +138,7 @@ def original_problem_robust(data, res=None, w_obj=None):
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
-    model.Params.timelimit = 1800
+    model.Params.timelimit = 7200
     model.optimize()
     if model.status == GRB.Status.INFEASIBLE:
         print('Optimization was stopped with status %d' % model.status)
@@ -347,7 +348,7 @@ def original_problem_robust_test_P_allocation(data):
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
-    model.Params.timelimit = 1800
+    model.Params.timelimit = 7200
     model.optimize()
     if model.status == GRB.Status.INFEASIBLE:
         print('Optimization was stopped with status %d' % model.status)
@@ -544,7 +545,7 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
     # ============== 求解参数 ================
     # model.Params.OutputFlag = 0
     model.Params.OutputFlag = 0
-    model.Params.timelimit = 1800
+    model.Params.timelimit = 7200
     model.optimize()
     if model.status == GRB.Status.INFEASIBLE:
         print('Optimization was stopped with status %d' % model.status)
@@ -676,6 +677,7 @@ if __name__ == '__main__':
         # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\", "a") as f:
         dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
         prune_bays(dataa)
+        pt_sum = sum(tmp*cf.unit_process_time for tmp in dataa.G_num_set)
         # ============== 生成所有可能序列 ================
         sequence = list(range(dataa.G_num))
         valid_permutations = generate_permutations(sequence, swapped=None)
@@ -694,8 +696,7 @@ if __name__ == '__main__':
         #######测试1.5P-allocation到底有多好#########
         obj5 = original_problem_robust_test_P_allocation(dataa)
         # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output.txt", "a") as f:
-        with open("/Users/jacq/PycharmProjects/BayAllocationGit/b_original_model/output.txt", "w") as f:
-            f.write("This is a test output.\n")
-            f.write("Second line of output.\n")
-            f.write(f"{case}\tRobust:\t{obj1}\tStochastic:\t{obj3}\tStochastic-W:\t{obj_w}\t1.5P_alloc:\t{obj5}\n")
-
+        with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output.txt", "a") as f:
+            # f.write("This is a test output.\n")
+            # f.write("Second line of output.\n")
+            f.write(f"{case}\tRobust:\t{obj1-pt_sum}\tStochastic:\t{obj3-pt_sum}\tStochastic-W:\t{obj_w-pt_sum}\t1.5P_alloc:\t{obj5-pt_sum}\n")
