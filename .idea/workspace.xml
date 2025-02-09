@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="不同随机模型and1.5近似测试">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
-    </list>
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="随机模型bug" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -327,7 +324,14 @@
       <option name="project" value="LOCAL" />
       <updated>1738977852246</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="随机模型bug">
+      <created>1739132479060</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1739132479060</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -365,7 +369,8 @@
     <MESSAGE value="debug I的设置为前序" />
     <MESSAGE value="debug I的设置为前序&#10;测试程序" />
     <MESSAGE value="不同随机模型and1.5近似测试" />
-    <option name="LAST_COMMIT_MESSAGE" value="不同随机模型and1.5近似测试" />
+    <MESSAGE value="随机模型bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="随机模型bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -442,7 +447,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>689</line>
+          <line>690</line>
           <option name="timeStamp" value="388" />
         </line-breakpoint>
       </breakpoints>

@@ -689,7 +689,7 @@ if __name__ == '__main__':
         obj_w = 0
         for i in range(pi_num):
             obj4, _ = original_problem_stochastic(dataa, res3, i)
-            obj_w = max(obj4)
+            obj_w = max(obj4, obj_w)
 
         #######测试1.5P-allocation到底有多好#########
         obj5 = original_problem_robust_test_P_allocation(dataa)
