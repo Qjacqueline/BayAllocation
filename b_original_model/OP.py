@@ -32,11 +32,6 @@ def original_problem_robust(data, res=None, w_obj=None):
         :return:
     """
     s_t = time.time()
-    # ============== 生成所有可能序列 ================
-    sequence = list(range(data.G_num))
-    valid_permutations = generate_permutations(sequence, swapped=None)
-    # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
-    pi_num = len(valid_permutations)
 
     # ============== 构造模型 ================
     big_M = 10000000
@@ -243,12 +238,6 @@ def original_problem_robust_test_P_allocation(data):
     """
     s_t = time.time()
 
-    # ============== 生成所有可能序列 ================
-    sequence = list(range(data.G_num))
-    valid_permutations = generate_permutations(sequence, swapped=None)
-    # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
-    pi_num = len(valid_permutations)
-
     # ============== 构造模型 ================
     big_M = 10000000
     model = Model("original problem")
@@ -450,13 +439,6 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
         :return:
     """
     s_t = time.time()
-
-    # ============== 生成所有可能序列 ================
-    sequence = list(range(data.G_num))
-    valid_permutations = generate_permutations(sequence, swapped=None)
-    # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
-    pi_num = len(valid_permutations)
-
     # ============== 构造模型 ================
     big_M = 10000000
     model = Model("original problem")
@@ -691,18 +673,29 @@ if __name__ == '__main__':
     print_flag = False
 
     for case in ['case1', 'case2', 'case3', 'case4', 'case5', 'case6', 'case11']:
+        # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\", "a") as f:
         dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
         prune_bays(dataa)
+        # ============== 生成所有可能序列 ================
+        sequence = list(range(dataa.G_num))
+        valid_permutations = generate_permutations(sequence, swapped=None)
+        # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
+        pi_num = len(valid_permutations)
+
         obj1, res1, worst_index1 = original_problem_robust(dataa)
         #######测试不同随机模型#########
         obj2, res2, worst_index2 = original_problem_robust(dataa, res1, obj1)
         obj3, res3 = original_problem_stochastic(dataa)
-        obj4, _ = original_problem_stochastic(dataa, res3, worst_index2)
+        obj_w = 0
+        for i in range(pi_num):
+            obj4, _ = original_problem_stochastic(dataa, res3, i)
+            obj_w = max(obj4)
 
         #######测试1.5P-allocation到底有多好#########
         obj5 = original_problem_robust_test_P_allocation(dataa)
-
+        # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output.txt", "a") as f:
         with open("/Users/jacq/PycharmProjects/BayAllocationGit/b_original_model/output.txt", "w") as f:
             f.write("This is a test output.\n")
             f.write("Second line of output.\n")
-            f.write(f"{case}\tRobust:\t{obj1}\tStochastic:\t{obj3}\tStochastic-W:\t{obj4}\t1.5P_alloc:\t{obj5}\n")
+            f.write(f"{case}\tRobust:\t{obj1}\tStochastic:\t{obj3}\tStochastic-W:\t{obj_w}\t1.5P_alloc:\t{obj5}\n")
+
