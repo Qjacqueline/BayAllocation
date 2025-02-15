@@ -69,7 +69,7 @@ def sub_problem_help(data, master_X):
                         pos[k][i] = [0, 0]
                     else:
                         pos[k][i] = pos[k][i - 1]
-    return data.G_num, pos, pt, (data.J_K_first[0] - 1) * cf.unit_move_time
+    return data.G_num, pos, pt, [(data.J_K_first[k]) * cf.unit_move_time for k in range(data.K_num)]
 
 
 def sub_problem_multi(N, pos, pt, init_pos):
@@ -83,7 +83,7 @@ def sub_problem_multi(N, pos, pt, init_pos):
         for k in range(data.K_num):
             schedule, min_cost = sub_problem_single_T(N=N, A=[pair[0] for pair in pos[k]],
                                                       B=[pair[1] for pair in pos[k]], pt=pt[k],
-                                                      init_pos=init_pos, st_line=st_line, touch_flag=touch_flag[k])
+                                                      init_pos=init_pos[k], st_line=st_line, touch_flag=touch_flag[k])
             if whole_schedule[k] == schedule:
                 stop_flag[k] = True
             else:
@@ -298,7 +298,8 @@ def original_problem_robust(data, res=None, w_obj=None):
                       and data.U_num_set[u] == data.U_num_set[uu]
                       and jj < j and u < uu), "1q")
     # Con10: 优先级完成时间约束 fixme
-    model.addConstrs((C[w][u] <= C[w][uu] for w in range(pi_num) for u in data.U for uu in data.U
+    model.addConstrs((C[w][u] <= C[w][uu] - data.U_num_set[uu] * cf.unit_process_time
+                      for w in range(pi_num) for u in data.U for uu in data.U
                       if valid_permutations[w].index(data.U_g_set[u])
                       < valid_permutations[w].index(data.U_g_set[uu])), "1r")
 
@@ -323,7 +324,7 @@ def original_problem_robust(data, res=None, w_obj=None):
         return False
     else:
         # model.write('OP.sol')
-        # model.write('OP.lp')
+        model.write('OP.lp')
         # 输出结果为
         bay_x_dict = {b: [] for b in data.J}
         res = {}
@@ -405,10 +406,13 @@ def original_problem_robust(data, res=None, w_obj=None):
                 #     obj = C_max[w].X
                 #     worst_index = w
         # print("worst seq",valid_permutations[])
-        ress = [[] for k in range(data.K_num)]
+        G_u_C = [[[] for _ in range(data.G_num)] for _ in range(data.K_num)]  # 每个箱组子箱组位置
         for u in range(data.U_num):
-            ress[data.J_K_dict[res[u]]].append(C[0][u].X)
-        return obj.X, ress, worst_index
+            j = res[u]
+            k_index = data.J_K_dict[j]
+            G_u_C[k_index][data.U_g_set[u]].append(C[0][u].X)
+
+        return obj.X, G_u_C, worst_index
 
 
 def random_select_nums(lst, n):
@@ -448,7 +452,7 @@ if __name__ == '__main__':
     invalid_sequences_r = []
     # ============== 数据处理 ================
     prune_bays()
-    bays = random_select_nums(data.J, data.G_num)
+    bays = random_select_nums([i for i in data.J if i not in data.J_K_first], data.G_num)
     random.shuffle(bays)
     res = {data.U_g_set[i]: bays[i] for i in range(data.U_num)}
     N, pos, pt, init_pos = sub_problem_help(data, res)

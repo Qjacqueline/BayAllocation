@@ -122,7 +122,8 @@ def original_problem_robust(data, res=None, w_obj=None):
                       and data.U_num_set[u] == data.U_num_set[uu]
                       and jj < j and u < uu), "1q")
     # Con10: 优先级完成时间约束 fixme
-    model.addConstrs((C[w][u] <= C[w][uu] for w in range(pi_num) for u in data.U for uu in data.U
+    model.addConstrs((C[w][u] <= C[w][uu] -data.U_num_set[uu] * cf.unit_process_time
+                      for w in range(pi_num) for u in data.U for uu in data.U
                       if valid_permutations[w].index(data.U_g_set[u])
                       < valid_permutations[w].index(data.U_g_set[uu])), "1r")
 

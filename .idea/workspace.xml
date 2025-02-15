@@ -4,16 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="输出修改">
-      <change afterPath="$PROJECT_DIR$/a_data_process/generate_data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/f_explore_sp_multi_YC/OP.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py" afterDir="false" />
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加multi-DP">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/CCG1.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/master.lp" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/master.lp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/master.sol" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/master.sol" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/DP.py" beforeDir="false" afterPath="$PROJECT_DIR$/f_explore_sp_multi_YC/bottleneck_DP.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/f_explore_sp_multi_YC/OP.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py" beforeDir="false" afterPath="$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -351,7 +347,14 @@
       <option name="project" value="LOCAL" />
       <updated>1739135281033</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="增加multi-DP">
+      <created>1739649056073</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1739649056073</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -391,7 +394,8 @@
     <MESSAGE value="不同随机模型and1.5近似测试" />
     <MESSAGE value="随机模型bug" />
     <MESSAGE value="输出修改" />
-    <option name="LAST_COMMIT_MESSAGE" value="输出修改" />
+    <MESSAGE value="增加multi-DP" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加multi-DP" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -468,12 +472,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>692</line>
+          <line>693</line>
           <option name="timeStamp" value="388" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/OP.py</url>
-          <line>236</line>
+          <line>237</line>
           <option name="timeStamp" value="397" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -493,23 +497,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>462</line>
-          <option name="timeStamp" value="497" />
+          <line>105</line>
+          <option name="timeStamp" value="511" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>456</line>
-          <option name="timeStamp" value="499" />
+          <line>93</line>
+          <option name="timeStamp" value="512" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>410</line>
-          <option name="timeStamp" value="501" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>341</line>
-          <option name="timeStamp" value="507" />
+          <line>278</line>
+          <option name="timeStamp" value="514" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

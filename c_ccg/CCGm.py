@@ -442,7 +442,7 @@ def sub_problem_help(data, master_X):
                         pos[k][i] = [0, 0]
                     else:
                         pos[k][i] = pos[k][i - 1]
-    return data.G_num, pos, pt, (data.J_K_first[0] - 1) * cf.unit_move_time
+    return data.G_num, pos, pt,   [(data.J_K_first[k]) * cf.unit_move_time for k in range(data.K_num)]
 
 
 def sub_problem_multi(N, pos, pt, init_pos):
@@ -456,7 +456,7 @@ def sub_problem_multi(N, pos, pt, init_pos):
         for k in range(data.K_num):
             schedule, min_cost = sub_problem_single_T(N=N, A=[pair[0] for pair in pos[k]],
                                                       B=[pair[1] for pair in pos[k]], pt=pt[k],
-                                                      init_pos=init_pos, st_line=st_line, touch_flag=touch_flag[k])
+                                                      init_pos=init_pos[k], st_line=st_line, touch_flag=touch_flag[k])
             if whole_schedule[k] == schedule:
                 stop_flag[k] = True
             else:

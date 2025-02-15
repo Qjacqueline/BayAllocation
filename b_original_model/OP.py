@@ -528,7 +528,8 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
                       and data.U_num_set[u] == data.U_num_set[uu]
                       and jj < j and u < uu), "1q")
     # Con10: 优先级完成时间约束 fixme
-    model.addConstrs((C[w][u] <= C[w][uu] for w in range(pi_num) for u in data.U for uu in data.U
+    model.addConstrs((C[w][u] <= C[w][uu] - data.U_num_set[uu] * cf.unit_process_time
+                      for w in range(pi_num) for u in data.U for uu in data.U
                       if valid_permutations[w].index(data.U_g_set[u])
                       < valid_permutations[w].index(data.U_g_set[uu])), "1r")
 
@@ -677,7 +678,7 @@ if __name__ == '__main__':
         # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\", "a") as f:
         dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
         prune_bays(dataa)
-        pt_sum = sum(tmp*cf.unit_process_time for tmp in dataa.G_num_set)
+        pt_sum = sum(tmp * cf.unit_process_time for tmp in dataa.G_num_set)
         # ============== 生成所有可能序列 ================
         sequence = list(range(dataa.G_num))
         valid_permutations = generate_permutations(sequence, swapped=None)
@@ -699,4 +700,5 @@ if __name__ == '__main__':
         with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output.txt", "a") as f:
             # f.write("This is a test output.\n")
             # f.write("Second line of output.\n")
-            f.write(f"{case}\tRobust:\t{obj1-pt_sum}\tStochastic:\t{obj3-pt_sum}\tStochastic-W:\t{obj_w-pt_sum}\t1.5P_alloc:\t{obj5-pt_sum}\n")
+            f.write(
+                f"{case}\tRobust:\t{obj1 - pt_sum}\tStochastic:\t{obj3 - pt_sum}\tStochastic-W:\t{obj_w - pt_sum}\t1.5P_alloc:\t{obj5 - pt_sum}\n")
