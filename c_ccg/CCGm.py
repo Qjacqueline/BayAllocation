@@ -11,8 +11,11 @@ from gurobipy import *
 from a_data_process.read_data import read_data
 import a_data_process.config as cf
 from d_explore_sp_single_YC_min.DP import find_max_permutation_cost
+from itertools import count
 
+zeta_cnt = 0
 big_M = 10e10
+eta_cnt = 0
 
 
 def generate_permutations(sequence, swapped=None):
@@ -58,13 +61,6 @@ def prune_bays():
                     data.I.remove(jj)
                 data.J.remove(jj)
                 data.J_K[k].remove(jj)
-    a = 1
-    # for j in range(len(data.J_K[k]) - 1, 0, -1):
-    #     S_cnt, last = 0, -1
-    #     for jj in range(j - 1, 0, -1):
-    #         if jj in data.I:
-    #             S_cnt += 1
-    a = 1
 
 
 def CCG():
@@ -83,11 +79,8 @@ def CCG():
         print("=========================================iteration\t" +
               str(iteration_num) + "=========================================")
 
-        # 求解主问题
-        try:
-            master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
-        except:
-            a = 1
+        master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
+
         if not master_results:
             print("Master problem is infeasible!")
             return
@@ -100,7 +93,10 @@ def CCG():
         # 求解子问题
         if master_results[0] == {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}:
             a = 1
-        sub_results = sub_problem(N, pos, pt, init_pos)
+        if data.K_num == 1:
+            sub_results = sub_problem_single(N, pos, pt, init_pos)
+        else:
+            sub_results = sub_problem_multi(N, pos, pt, init_pos)
         # compare_results = find_max_permutation_cost(N, pos, pt, init_pos)
 
         UB = min(UB, sub_results[0])
@@ -132,11 +128,11 @@ def CCG():
                 break
         iteration_num += 1
 
-
     return UB
 
 
 def update_master_problem_adding_cuts(model, variables, added_cuts):
+    global zeta_cnt, eta_cnt
     X, Z, Theta, theta = variables
     # ============== 添加随机lb cut, 依据序列================
     if pi_num_set and random.random() < random_seed:
@@ -154,8 +150,8 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
                                                                    for l in [0, 1]) for k in range(data.K_num)), "tmp")
         model.addConstrs((theta >= cf.unit_move_time * (- data.J_K_first[k])
                           + cf.unit_move_time * sum(Theta[1][k][g] - Theta[0][k][g] for g in range(data.G_num))
-                          + sum(
-            cf.unit_process_time * data.U_num_set[u] * X[u][j - 1] for u in data.U for j in data.J_K[k])
+                          + sum(cf.unit_process_time * data.U_num_set[u] * X[u][j - 1]
+                                for u in data.U for j in data.J_K[k])
                           + sum(min_var1[k][g] for g in range(data.G_num))
                           + cf.unit_move_time * min_var1[k][data.G_num]
                           for k in range(data.K_num)), "global lb3")
@@ -174,12 +170,29 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
             for u, j in XX:
                 rhs.addTerms(1, X[u][j])
             model.addConstr(theta >= v * (rhs - len(XX) + 1), "opt cut")
-        elif cut[0] == 'Translation':
-            rhs = LinExpr(0)
-            for pair in cut[2]:
-                rhs.addTerms(1, X[pair[0]][pair[1] - 1])
-            model.addConstr(theta >= big_M * (rhs - len(cut[2]) + 1), "trans cut")
-            a = 1
+        # elif cut[0] == 'Translation':
+        #     containers = [[term[0] for term in cut[2][k]] for k in range(data.K_num)]
+        #     rhs1 = LinExpr(0)
+        #     for k in range(data.K_num):
+        #         for pair in cut[2][k]:
+        #             rhs1.addTerms(1, X[pair[0]][pair[1]])
+        #     eta = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='eta_' + str(eta_cnt))
+        #     eta_cnt += 1
+        #     model.addConstr(eta >= big_M * (rhs1 - data.G_num + 1), 'eta_' + str(eta_cnt))
+        #     zeta = [[0 for q in range(len(cut[3][k]))] for k in range(data.K_num)]
+        #     for k in range(data.K_num):
+        #         for q in range(len(cut[3][k])):
+        #             compose = cut[3][k][q]
+        #             rhs2 = LinExpr(0)
+        #             for cnt in range(len(compose)):
+        #                 rhs2.addTerms(1, X[containers[k][cnt]][compose[cnt] - 1])
+        #             zeta[k][q] = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='zeta_' + str(zeta_cnt))
+        #             model.addConstr(zeta[k][q] + eta >= big_M * (rhs2 - data.K_num + 1), 'zeta_' + str(zeta_cnt))
+        #             zeta_cnt += 1
+
+        # elif cut[0] == 'Optimal delta':
+        #     rhs = LinExpr(0)
+        #     model.addConstr(theta >= big_M * (rhs - len(cut[2]) + 1), "opt cut2")
 
     # ============== 求解参数 ================
     model.optimize()
@@ -358,13 +371,14 @@ def init_master_problem():
             tau[0][j] = model.addVar(vtype=GRB.BINARY, name='tau_0_' + str(j))
             tau[1][j] = model.addVar(vtype=GRB.BINARY, name='tau_1_' + str(j))
     model.addConstrs((sum(X[u][j - 1] for u in data.U_F) == X[data.U_num + 1][j - 3] for j in data.I),
-                     "continuous cut0")  # ***********
+                     "continuous cut0")  # fixme m是否成立
     model.addConstrs((BB[k] - (j - 1) <= big_M * tau[0][j - 1] for k in range(data.K_num)
-                      for j in set(data.I) & set(data.J_K[k])), "continuous cut1")
+                      for j in set(data.I) & set(data.J_K[k])), "continuous cut1")  # fixme m是否成立
     model.addConstrs(((j - 1) - AA[k] <= big_M * tau[1][j - 1] for k in range(data.K_num)
-                      for j in set(data.I) & set(data.J_K[k])), "continuous cut2")
+                      for j in set(data.I) & set(data.J_K[k])), "continuous cut2")  # fixme m是否成立
     model.addConstrs((tau[0][j - 1] + tau[1][j - 1] - 1
-                      <= sum(X[u][j - 1] for u in data.U + [data.U_num + 1]) for j in data.J), "continuous cut3")
+                      <= sum(X[u][j - 1] for u in data.U + [data.U_num + 1]) for j in data.J),
+                     "continuous cut3")  # fixme m是否成立
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
     model.Params.timelimit = 3600
@@ -388,12 +402,6 @@ def init_master_problem():
                     continue
                 if abs(X[u][j].X) > 0.00001:
                     master_X[u] = j
-        # master_X[data.U_num + 1] = []
-        # for j in range(cf.bay_number_one_block * data.K_num):
-        #     if j + 1 not in data.J:
-        #         continue
-        #     if abs(X[data.U_num + 1][j].X) > 0.00001:
-        #         master_X[data.U_num + 1].append(j)
         if master_X == {0: 30, 1: 28, 2: 16, 3: 10, 4: 6}:
             a = 1
         return master_X, theta.X, model, (X, Z, Theta, theta)
@@ -406,18 +414,73 @@ def sub_problem_help(data, master_X):
         :return: N 几个箱组
                 pos 对应A，B子箱组位置
     """
-    G_u_pos = [[] for _ in range(data.G_num)]  # 每个箱组子箱组位置
-    for u in range(data.U_num):
-        j = master_X[u]
-        G_u_pos[data.U_g_set[u]].append(j)
-    pos = [[min(G_u_pos[g]) * cf.unit_move_time, max(G_u_pos[g]) * cf.unit_move_time]
-           for g in range(data.G_num)]  # 每个箱组AB子箱组位置
-    pt = [g_num * cf.unit_process_time for g_num in data.G_num_set]
-    pt = [x for x in pt if x != 0]
+    if data.K_num == 1:
+        G_u_pos = [[] for _ in range(data.G_num)]  # 每个箱组子箱组位置
+        for u in range(data.U_num):
+            j = master_X[u]
+            G_u_pos[data.U_g_set[u]].append(j)
+        pos = [[min(G_u_pos[g]) * cf.unit_move_time, max(G_u_pos[g]) * cf.unit_move_time]
+               for g in range(data.G_num)]  # 每个箱组AB子箱组位置
+        pt = [g_num * cf.unit_process_time for g_num in data.G_num_set]
+        pt = [x for x in pt if x != 0]
+    else:
+        G_u_pos = [[[] for _ in range(data.G_num)] for _ in range(data.K_num)]  # 每个箱组子箱组位置
+        for u in range(data.U_num):
+            j = master_X[u]
+            k_index = data.J_K_dict[j + 1]
+            G_u_pos[k_index][data.U_g_set[u]].append(j)
+
+        pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if any(G_u_pos[k][g]) else None,
+                 max(G_u_pos[k][g]) * cf.unit_move_time if any(G_u_pos[k][g]) else None]
+                for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
+        pt = [[data.G_num_set[u] * cf.unit_process_time if data.J_K_dict[master_X[u] + 1] == k else 0
+               for u in range(data.U_num)] for k in range(data.K_num)]  #
+        for k in range(data.K_num):
+            for i in range(data.G_num):
+                if pt[k][i] == 0:
+                    if i == 0:
+                        pos[k][i] = [0, 0]
+                    else:
+                        pos[k][i] = pos[k][i - 1]
     return data.G_num, pos, pt, (data.J_K_first[0] - 1) * cf.unit_move_time
 
 
-def sub_problem(N, pos, pt, init_pos):
+def sub_problem_multi(N, pos, pt, init_pos):
+    # todo:顺序
+    st_line = [0 for _ in range(data.G_num)]
+    whole_schedule = [[] for _ in range(data.K_num)]
+    touch_flag = [[False for _ in range(data.G_num)] for _ in range(data.K_num)]
+    while True:
+        stop_flag = [False for _ in range(data.K_num)]
+        # calculate DP-T
+        for k in range(data.K_num):
+            schedule, min_cost = sub_problem_single_T(N=N, A=[pair[0] for pair in pos[k]],
+                                                      B=[pair[1] for pair in pos[k]], pt=pt[k],
+                                                      init_pos=init_pos, st_line=st_line, touch_flag=touch_flag[k])
+            if whole_schedule[k] == schedule:
+                stop_flag[k] = True
+            else:
+                whole_schedule[k] = schedule  # 创建一个计数器
+        # terminate when no adjustment
+        if all(stop_flag): break
+        # adjustment
+        st_line, touch_flag = [], [[False for _ in range(data.G_num)] for _ in range(data.K_num)]
+        for g in range(data.G_num):
+            max_l = max(whole_schedule[k][g] for k in range(data.K_num))
+            for k in range(data.K_num):
+                if whole_schedule[k][g] == max_l: touch_flag[k][g] = True
+            st_line.append(max_l)
+            if g == data.G_num - 1:
+                break
+            dt = [max_l - whole_schedule[k][g] for k in range(data.K_num)]
+            st = [whole_schedule[k][g + 1] - whole_schedule[k][g] - pt[k][g + 1] for k in range(data.K_num)]
+            for k in range(data.K_num):
+                whole_schedule[k][g + 1] = whole_schedule[k][g] + max(dt[k], st[k]) + pt[k][g + 1]
+        a = 1
+    return st_line[-1], whole_schedule
+
+
+def sub_problem_single(N, pos, pt, init_pos):
     """
         :param N: 几个箱组
         :param pos: 对应A，B子箱组位置
@@ -526,6 +589,69 @@ def sub_problem(N, pos, pt, init_pos):
     return max_value, worst_path, dp, worst_path_r
 
 
+def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
+    dp = [[0] * 2 for _ in range(N + 1)]
+    path = [[0] * 2 for _ in range(N + 1)]  # 用于记录路径选择
+
+    def cal_dp_state(l, ii, ll):
+        pre_pre = A[ii - 1] if l == 0 else B[ii - 1]
+        pre = A[ii] if ll == 0 else B[ii]
+        suc = B[ii] if ll == 0 else A[ii]
+        if ii == 0:
+            return abs(pre - init_pos) + abs(pre - suc) + pt[0]
+        else:
+            if touch_flag[ii - 1]:
+                return dp[ii - 1][l] + abs(pre_pre - pre) + abs(pre - suc) + pt[ii]
+            else:
+                return max(dp[ii - 1][l] + abs(pre_pre - pre), st_line[ii - 1]) + abs(pre - suc) + pt[ii]
+
+    # 初始化
+    dp[0][0] = cal_dp_state(0, 0, 1)  # abs(B[0] - init_pos) + abs(B[0] - A[0]) + pt[0]  # 访问第 0 对时的代价
+    dp[0][1] = cal_dp_state(0, 0, 0)  # abs(A[0] - init_pos) + abs(A[0] - B[0]) + pt[0]  # 访问第 0 对时的代价
+    for i in range(1, N):
+        # max(dp[i - 1][0] + abs(A[i - 1] - B[i]), st_line[i - 1]) + abs(B[i] - A[i]) + pt[i]
+        option1 = cal_dp_state(0, i, 1)
+        # max(dp[i - 1][1] + abs(B[i - 1] - B[i]), st_line[i - 1]) + abs(B[i] - A[i]) + pt[i]
+        option2 = cal_dp_state(1, i, 1)
+        if option1 < option2:
+            dp[i][0] = option1
+            path[i][0] = 0
+        else:
+            dp[i][0] = option2
+            path[i][0] = 1
+
+        # max(dp[i - 1][1] + abs(B[i - 1] - B[i]), st_line[i - 1]) + abs(B[i] - A[i]) + pt[i]
+        option3 = cal_dp_state(0, i, 0)
+        # max(dp[i - 1][1] + abs(B[i - 1] - A[i]), st_line[i - 1]) + abs(A[i] - B[i]) + pt[i]
+        option4 = cal_dp_state(1, i, 0)
+
+        if option3 < option4:
+            dp[i][1] = option3
+            path[i][1] = 0
+        else:
+            dp[i][1] = option4
+            path[i][1] = 1
+
+    min_cost = min(max(dp[N - 1][0], st_line[N - 1]), max(dp[N - 1][1], st_line[N - 1]))
+    last_choice = 0 if dp[N - 1][0] < dp[N - 1][1] else 1
+
+    optimal_path, schedule = [], []
+    for i in range(N - 1, -1, -1):
+        if last_choice == 0:
+            optimal_path.append(('A', i))
+            optimal_path.append(('B', i))
+        else:
+            optimal_path.append(('B', i))
+            optimal_path.append(('A', i))
+        last_choice = path[i][last_choice]
+        schedule.append(dp[i][last_choice])
+
+    optimal_path.reverse()  # 反转路径
+    schedule.reverse()
+
+    return schedule, min_cost
+
+
 def find_new_sequences(J, original_sequence, master_results):
     # Step 1: Calculate original distances
     original_distances = [original_sequence[i + 1] - original_sequence[i] for i in range(len(original_sequence) - 1)]
@@ -543,9 +669,11 @@ def find_new_sequences(J, original_sequence, master_results):
             # if sorted_candidate not in invalid_sequences_r:
             flag = True
             for item in master_results.items():
-                if item[0] in data.U_F and sorted_candidate[original_sequence.index(item[1])] not in data.I:
-                    flag = False
-                    break
+                # print(J, original_sequence, master_results)
+                if item[1] in original_sequence:
+                    if item[0] in data.U_F and sorted_candidate[original_sequence.index(item[1])] not in data.I:
+                        flag = False
+                        break
             if not flag:
                 continue
             valid_sequences.append(sorted_candidate)
@@ -555,41 +683,47 @@ def find_new_sequences(J, original_sequence, master_results):
 
 def generate_cuts(master_results, sub_results, added_cuts):
     if sub_results is not None:
-        X, objVal, _, _ = master_results
-        max_value, worst_path, dp, worst_path_r = sub_results
-        # optimal_cuts todo 没有区分场桥 optimal delta inactivate
-        added_cuts.append(['Optimal', max_value, [[key, X[key]] for key in X.keys() if key != data.U_num + 1]])
-        # added_cuts.append(['Optimal delta', max_value,
-        #                    [[key, X[key], data.U_num_set[key] * cf.unit_process_time] for key in X.keys()]])
-        # translation cut todo: add多场桥cut
-        U_k = [[] for _ in range(data.K_num)]
-        for pair in X.items():
-            U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
-            # if isinstance(pair[1], int):
-            #     U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
-            # else:
-            #     for pos in pair[1]:
-            #         if pos + 1 in data.J_K_first:
-            #             continue
-            #         U_k[data.J_K_dict[pos + 1]].append([pair[0], pos])
-        U_k_sorted = [sorted(sublist, key=lambda x: x[1]) for sublist in U_k]  # 按照贝位排序
-        Used_bays = [[pair[1] for pair in U_k_sorted[k]] for k in range(data.K_num)]
-        for k in range(data.K_num):
-            init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
-            invalid_sequences = find_new_sequences(data.J_K[k][init_b_index:], Used_bays[k], master_results[0])
-            if invalid_sequences:
-                added_cuts.append(
-                    ['Translation', max_value, [[U_k_sorted[k][i][0], seq[i]]
-                                                for seq in invalid_sequences for i in range(len(seq))]])
+        if data.K_num==1:
+            X, objVal, _, _ = master_results
+            max_value, worst_path, dp, worst_path_r = sub_results
+            # optimal_cuts todo: 没有区分场桥 optimal delta inactivate
+            added_cuts.append(['Optimal', max_value, [[key, X[key]] for key in X.keys() if key != data.U_num + 1]])
+            # if data.K_num > 1:
+            #     added_cuts.append(['Optimal delta', max_value,
+            #                        [[key, X[key], data.U_num_set[key] * cf.unit_process_time] for key in X.keys()]])
+            # translation cut todo: add多场桥cut
+            U_k = [[] for _ in range(data.K_num)]
+            for pair in X.items():
+                U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
+                # if isinstance(pair[1], int):
+                #     U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
+                # else:
+                #     for pos in pair[1]:
+                #         if pos + 1 in data.J_K_first:
+                #             continue
+                #         U_k[data.J_K_dict[pos + 1]].append([pair[0], pos])
+            U_k_sorted = [sorted(sublist, key=lambda x: x[1]) for sublist in U_k]  # 按照贝位排序
+            Used_bays = [[pair[1] for pair in U_k_sorted[k]] for k in range(data.K_num)]
+            invalid_sequences = [-1 for _ in range(data.K_num)]
+            for k in range(data.K_num):
+                init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
+                invalid_sequences[k] = find_new_sequences(data.J_K[k][init_b_index:], Used_bays[k], master_results[0])
+            if not all(num == -1 for num in invalid_sequences):
+                added_cuts.append(['Translation', max_value, U_k_sorted, invalid_sequences])
+            a = 1
+        else:
+            a=1
     else:
         # todo:generate infeasible results
         a = 1
         print("infeasible")
+
     return added_cuts
 
 
 if __name__ == '__main__':
-    case = 'case1'
+    case = 'case1m'
+
     data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
     print(case)
     # ============== 生成所有可能提取序列 ================
