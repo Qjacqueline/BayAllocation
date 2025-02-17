@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加算例">
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case12" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case13" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case14" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case15" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case21" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case22" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case23" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
-    </list>
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加算例" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -328,7 +318,14 @@
       <option name="project" value="LOCAL" />
       <updated>1738972970646</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="增加算例">
+      <created>1739824395877</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1739824395877</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -358,14 +355,14 @@
     <MESSAGE value="1.修改整理模型&#10;2.+cut" />
     <MESSAGE value="init" />
     <MESSAGE value="debug：worstcase DP" />
-    <MESSAGE value="增加算例" />
     <MESSAGE value="增加bay prune&#10;cut debug&#10;增加算例" />
     <MESSAGE value="debug子箱组顺序" />
     <MESSAGE value="debug子箱组顺序&#10;增加reverse order计算验证" />
     <MESSAGE value="改进cal reverse test" />
     <MESSAGE value="debug I的设置为前序" />
     <MESSAGE value="debug I的设置为前序&#10;测试程序" />
-    <option name="LAST_COMMIT_MESSAGE" value="debug I的设置为前序&#10;测试程序" />
+    <MESSAGE value="增加算例" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加算例" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
