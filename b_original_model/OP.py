@@ -71,7 +71,7 @@ def original_problem_robust(data, res=None, w_obj=None):
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
     # 对于一个子箱组
     # Con2: Each sub-container group must be placed on one bay
-    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U_L), "1c")
+    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U), "1c")
     model.addConstrs((quicksum(X[u][j - 1] for j in data.I) == 1 for u in data.U_F), "1d")
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "1f")
@@ -285,7 +285,7 @@ def original_problem_robust_test_P_allocation(data):
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
     # 对于一个子箱组
     # Con2: Each sub-container group must be placed on one bay
-    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U_L), "1c")
+    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U), "1c")
     model.addConstrs((quicksum(X[u][j - 1] for j in data.I) == 1 for u in data.U_F), "1d")
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "1f")
@@ -478,7 +478,7 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
     # 对于一个子箱组
     # Con2: Each sub-container group must be placed on one bay
-    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U_L), "1c")
+    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U), "1c")
     model.addConstrs((quicksum(X[u][j - 1] for j in data.I) == 1 for u in data.U_F), "1d")
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "1f")
@@ -707,4 +707,4 @@ if __name__ == '__main__':
             # f.write("This is a test output.\n")
             # f.write("Second line of output.\n")
             f.write(
-                f"{case}\tRobust:\t{obj1 - pt_sum}\tStochastic:\t{obj3 - pt_sum}\tStochastic-W:\t{obj_w - pt_sum}\t1.5P_alloc:\t{obj5 - pt_sum}\n")
+                f"{case}\tRobust:\t{obj1 - pt_sum:.2f}\tStochastic:\t{obj3 - pt_sum:.2f}\tStochastic-W:\t{obj_w - pt_sum:.2f}\t1.5P_alloc:\t{obj5 - pt_sum:.2f}\n")

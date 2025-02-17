@@ -3,9 +3,9 @@
 # @Author  : JacQ
 # @File    : CCG1.py
 import random
-import time
+import time2
 from itertools import combinations, permutations
-
+from matplotlib import pyplot as plt, patches
 import gurobipy
 from gurobipy import *
 from a_data_process.read_data import read_data
@@ -67,7 +67,7 @@ def CCG():
     LB = 0
     UB = float("inf")
     iteration_num = 0
-    start_time = time.time()
+    start_time = time2.time()
     added_cuts = []
     # prune bays
     prune_bays()
@@ -108,10 +108,10 @@ def CCG():
             print("Final solution:\t", end_x)
             print("Final UB:\t", UB)
             print("Final LB:\t", LB)
-            print("Time\t", time.time() - start_time)
+            print("Time\t", time2.time() - start_time)
             break
         else:
-            end_time = time.time()
+            end_time = time2.time()
             print("UB:\t", UB)
             print("LB:\t", LB)
             print("Gap:\t", round((UB - LB) * 100 / UB, 1))
@@ -121,11 +121,11 @@ def CCG():
                 print("Final UB:\t", UB)
                 print("Final LB:\t", LB)
                 print("Gap:\t", round((UB - LB) * 100 / UB, 1))
-                print("Time\t", time.time() - start_time)
+                print("Time\t", time2.time() - start_time)
                 break
         iteration_num += 1
 
-    return UB
+    return UB, LB, round((UB - LB) * 100 / UB, 1), time2.time() - start_time
 
 
 def update_master_problem_adding_cuts(model, variables, added_cuts):
@@ -176,28 +176,30 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
                 rhs.addTerms(pt, X[u][j])
             model.addConstr(theta >= v + rhs - pt_sum, "opt cut")
         elif cut[0] == 'Translation':
-            containers = [[term[0] for term in cut[2][k]] for k in range(data.K_num)]
-            rhs1 = LinExpr(0)
-            for k in range(data.K_num):
-                for pair in cut[2][k]:
-                    rhs1.addTerms(1, X[pair[0]][pair[1]])
-            eta = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='eta_' + str(eta_cnt))
-            eta_cnt += 1
-            model.addConstr(eta >= big_M * (rhs1 - data.G_num + 1), 'eta_' + str(eta_cnt))
-            zeta = [[0 for q in range(len(cut[3][k]))] for k in range(data.K_num)]
-            for k in range(data.K_num):
-                for q in range(len(cut[3][k])):
-                    compose = cut[3][k][q]
-                    rhs2 = LinExpr(0)
-                    for cnt in range(len(compose)):
-                        rhs2.addTerms(1, X[containers[k][cnt]][compose[cnt] - 1])
-                    zeta[k][q] = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='zeta_' + str(zeta_cnt))
-                    model.addConstr(zeta[k][q] + eta >= big_M * (rhs2 - data.K_num + 1), 'zeta_' + str(zeta_cnt))
-                    zeta_cnt += 1
-
-        # elif cut[0] == 'Optimal delta':
-        #     rhs = LinExpr(0)
-        #     model.addConstr(theta >= big_M * (rhs - len(cut[2]) + 1), "opt cut2")
+            a = 1
+            # containers = [[term[0] for term in cut[2][k]] for k in range(data.K_num)]
+            # zeta = [[0 for _ in range(len(cut[3][k]) + 1)] for k in range(data.K_num)]
+            # for k in range(data.K_num):
+            #     for q in range(len(cut[3][k]) + 1):
+            #         if q == len(cut[3][k]):
+            #             compose = [tmp[1] + 1 for tmp in cut[2][k]]
+            #         else:
+            #             compose = cut[3][k][q]
+            #         rhs2 = LinExpr(0)
+            #         for cnt in range(len(compose)):
+            #             rhs2.addTerms(1, X[containers[k][cnt]][compose[cnt] - 1])
+            #         zeta[k][q] = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='zeta_' + str(zeta_cnt))
+            #         model.addConstr(zeta[k][q] >= rhs2 - len(compose) + 1, 'zeta_' + str(zeta_cnt))
+            #         zeta_cnt += 1
+            # rhs1, rhs2 = LinExpr(0), LinExpr(0)
+            # for k in range(data.K_num):
+            #     rhs1.addTerms(1, zeta[k][len(cut[3][k])])
+            # eta2 = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='eta2')
+            # model.addConstr(eta2 >= big_M * (rhs1 - data.K_num + 1), 'eta2')
+            # for k in range(data.K_num):
+            #     for q in range(len(zeta[k])):
+            #         rhs2.addTerms(1, zeta[k][q])
+            # model.addConstr(theta + eta2 >= big_M * (rhs2 - data.K_num + 1), 'eta2')
 
     # ============== 求解参数 ================
     model.optimize()
@@ -435,8 +437,8 @@ def sub_problem_help(data, master_X, pi_index=0):
             k_index = data.J_K_dict[j + 1]
             G_u_pos[k_index][data.U_g_set[u]].append(j)
         pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None,
-                     max(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None]
-                    for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
+                 max(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None]
+                for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
         pt = [[data.G_num_set[u] * cf.unit_process_time if data.J_K_dict[master_X[u] + 1] == k else 0
                for u in range(data.U_num)] for k in range(data.K_num)]  #
         pi_ls = valid_permutations[pi_index]
@@ -450,8 +452,6 @@ def sub_problem_help(data, master_X, pi_index=0):
                         pos[k][i] = [0, 0]
                     else:
                         pos[k][i] = pos[k][i - 1]
-    if pos[0][0] == [None, None]:
-        a = 1
     return data.G_num, pos, pt, [(data.J_K_first[k]) * cf.unit_move_time for k in range(data.K_num)]
 
 
@@ -718,10 +718,38 @@ def generate_cuts(master_results, sub_results, added_cuts):
         if data.K_num == 1:
             X, objVal, _, _ = master_results
             max_value, worst_path, dp, worst_path_r = sub_results
-            # optimal_cuts todo: 没有区分场桥 optimal delta inactivate
+            # optimal_cuts
             added_cuts.append(['Optimal', max_value, [[key, X[key]] for key in X.keys() if key != data.U_num + 1]])
 
-            # translation cut todo: add多场桥cut
+            # translation cut
+            U_k = [[] for _ in range(data.K_num)]
+            for pair in X.items():
+                U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
+                # if isinstance(pair[1], int):
+                #     U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
+                # else:
+                #     for pos in pair[1]:
+                #         if pos + 1 in data.J_K_first:
+                #             continue
+                #         U_k[data.J_K_dict[pos + 1]].append([pair[0], pos])
+            U_k_sorted = [sorted(sublist, key=lambda x: x[1]) for sublist in U_k]  # 按照贝位排序
+            Used_bays = [[pair[1] for pair in U_k_sorted[k]] for k in range(data.K_num)]
+            for k in range(data.K_num):
+                init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
+                invalid_sequences = find_new_sequences(data.J_K[k][init_b_index:], Used_bays[k], master_results[0])
+                if invalid_sequences:
+                    added_cuts.append(['Translation', max_value, [[U_k_sorted[k][i][0], seq[i]]
+                                                                  for seq in invalid_sequences for i in
+                                                                  range(len(seq))]])
+            a = 1
+        else:
+            X, objVal, _, _ = master_results
+            v, pi, schedule = sub_results
+            # optimal_cuts
+            added_cuts.append(['Optimal', v, [[key, X[key]] for key in X.keys() if key != data.U_num + 1]])
+            added_cuts.append(['Optimal_Delta', v,
+                               [[key, X[key], data.U_num_set[key] * cf.unit_process_time] for key in X.keys()]])
+            # translation cut
             U_k = [[] for _ in range(data.K_num)]
             for pair in X.items():
                 U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
@@ -739,17 +767,7 @@ def generate_cuts(master_results, sub_results, added_cuts):
                 init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
                 invalid_sequences[k] = find_new_sequences(data.J_K[k][init_b_index:], Used_bays[k], master_results[0])
             if not all(num == -1 for num in invalid_sequences):
-                added_cuts.append(['Translation', max_value, U_k_sorted, invalid_sequences])
-            a = 1
-        else:
-            X, objVal, _, _ = master_results
-            v, pi, schedule = sub_results
-            # optimal_cuts
-            added_cuts.append(['Optimal', v, [[key, X[key]] for key in X.keys() if key != data.U_num + 1]])
-            added_cuts.append(['Optimal_Delta', v,
-                               [[key, X[key], data.U_num_set[key] * cf.unit_process_time] for key in X.keys()]])
-            # translation cut
-
+                added_cuts.append(['Translation', v, U_k_sorted, invalid_sequences])
 
 
     else:
@@ -760,9 +778,220 @@ def generate_cuts(master_results, sub_results, added_cuts):
     return added_cuts
 
 
+def original_problem_robust(data, res=None, w_obj=None):
+    """
+        :param data: 数据
+        :return:
+    """
+    s_t = time2.time()
+
+    # ============== 构造模型 ================
+    model = Model("original problem")
+
+    # ============== 定义变量 ================
+    # X_uj: j从0开始 uN+k是虚拟job
+    X = [[model.addVar(0, 1, vtype=GRB.BINARY, name='X_' + str(u) + "_" + str(j)) if j + 1 in data.J else 0
+          for j in range(60 * data.K_num)] for u in range(data.U_num + 2)]
+
+    # y^w_uuk : 每个场桥作业顺序 最后两个job分别为初始和末尾节点
+    Y = [[[[model.addVar(0, 1, vtype=GRB.BINARY, name='Y_' + str(w) + "_" + str(u) + "_" + str(uu) + "_" + str(k))
+            for k in range(data.K_num)] for uu in range(data.U_num + 2)] for u in range(data.U_num + 1)]
+         for w in range(pi_num)]
+
+    # z^w_uujj : 每个场桥作业顺序
+    Z = [[[[[model.addVar(0, 1, vtype=GRB.BINARY,
+                          name='Z_' + str(w) + "_" + str(u) + "_" + str(uu) + "_" + str(j) + "_" + str(jj))
+             if j + 1 in data.J and jj + 1 in data.J else 0
+             for jj in range(60 * data.K_num)] for j in range(60 * data.K_num)]
+           for uu in range(data.U_num + 2)] for u in range(data.U_num + 2)] for w in range(pi_num)]
+
+    # C^w_u : 完成时间
+    C = [[model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name="C_" + str(w) + "_" + str(u))
+          for u in range(data.U_num + 2)] for w in range(pi_num)]
+
+    # Cmax^w: 最大完成时间
+    C_max = [model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name="C_max_" + str(w)) for w in range(pi_num)]
+
+    # ================ 约束 ==================
+    # test
+    if res is not None:
+        model.addConstrs((X[u][res[u] - 1] == 1 for u in data.U), "res")
+
+    # Con1
+    model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
+    # 对于一个子箱组
+    # Con2: Each sub-container group must be placed on one bay
+    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U), "1c")
+    model.addConstrs((quicksum(X[u][j - 1] for j in data.I) == 1 for u in data.U_F), "1d")
+    # con2: Initial position restrictions
+    model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "1f")
+    # con3:对于40ft的子箱组占了前一个后一个位置就要被虚拟子箱组占用
+    model.addConstrs((X[u][j - 1] + X[uu][j - 3] <= 1 for u in data.U_F for uu in data.U for j in data.I), "1g")
+    # Con4: 一个贝上放置的箱组一般不超过2个
+    model.addConstrs((quicksum(X[u][j - 1] for u in data.U) <= 2 for j in data.J), "1h")
+    # con5: 20和40的不能放在一个贝
+    model.addConstrs((X[u][j - 1] + X[uu][j - 1] <= 1 for j in data.J for u in data.U_L for uu in data.U_F), "1i")
+    # Con6: 放置集装箱数不超过贝位的最大容量
+    model.addConstrs((quicksum(data.U_num_set[u] * X[u][j - 1] for u in data.U) <= data.S_num * data.T_num
+                      for j in data.J), "1j")
+    # Con7: x，y关系约束
+    model.addConstrs((quicksum(X[u][j - 1] for j in data.J_K[k]) + quicksum(X[uu][j - 1] for j in data.J_K[k])
+                      + big_M * (1 - Y[w][u][uu][k]) >= 2 for k in range(data.K_num)
+                      for u in data.U for uu in data.U for w in range(pi_num)), "1k")
+    model.addConstrs((quicksum(Y[w][u][uu][k] for u in data.U + [data.U_num] if u != uu) -
+                      quicksum(X[uu][j - 1] for j in data.J_K[k]) == 0 for uu in data.U
+                      for k in range(data.K_num) for w in range(pi_num)), "1l")
+    model.addConstrs((quicksum(Y[w][u][uu][k] for uu in data.U + [data.U_num + 1] if u != uu) -
+                      quicksum(X[u][j - 1] for j in data.J_K[k]) == 0 for u in data.U
+                      for k in range(data.K_num) for w in range(pi_num)), "1m")
+    model.addConstrs((quicksum(Y[w][u][data.U_num + 1][k] for u in data.U + [data.U_num]) == 1
+                      for k in range(data.K_num) for w in range(pi_num)), "1l")
+    model.addConstrs((quicksum(Y[w][data.U_num][uu][k] for uu in data.U + [data.U_num + 1]) == 1
+                      for k in range(data.K_num) for w in range(pi_num)), "1m")
+    # con8: 时序约束 pt+st
+    model.addConstrs((C[w][uu] + big_M * (1 - Y[w][data.U_num][uu][k]) >=
+                      data.U_num_set[uu] * cf.unit_process_time
+                      + quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                 for j in data.J_K[k] for jj in data.J_K[k]) for uu in data.U
+                      for k in range(data.K_num) for w in range(pi_num)), "1n")
+    model.addConstrs((C[w][uu] - C[w][u] + big_M * (1 - Y[w][u][uu][k]) >=
+                      data.U_num_set[uu] * cf.unit_process_time
+                      + quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                 for j in data.J_K[k] for jj in data.J_K[k])
+                      for u in data.U for uu in data.U
+                      for k in range(data.K_num) for w in range(pi_num)), "1n")
+    # Con9: z和x的关系
+    model.addConstrs((2 * Z[w][u][uu][j - 1][jj - 1] <= X[u][j - 1] + X[uu][jj - 1] for u in data.U + [data.U_num]
+                      for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1o")
+    model.addConstrs((Z[w][u][uu][j - 1][jj - 1] >= X[u][j - 1] + X[uu][jj - 1] - 1 for u in data.U + [data.U_num]
+                      for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1p")
+    # con10:消除对称性 不同重量不等价，因为会有拼贝情况
+    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
+                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+                      and data.U_num_set[u] == data.U_num_set[uu]
+                      and jj < j and u < uu), "1q")
+    # Con10: 优先级完成时间约束 fixme
+    model.addConstrs((C[w][u] <= C[w][uu] for w in range(pi_num) for u in data.U for uu in data.U
+                      if valid_permutations[w].index(data.U_g_set[u])
+                      < valid_permutations[w].index(data.U_g_set[uu])), "1r")
+
+    # ============== 构造目标 ================
+    obj = model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='obj')  # 线性化模型变量
+    if res is None:
+        model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
+        # model.addConstr((obj >= C_max[7] ), "obj")
+        model.setObjective(obj, gurobipy.GRB.MINIMIZE)
+    else:
+        for w in range(pi_num):
+            model.setObjectiveN(C_max[w], gurobipy.GRB.MINIMIZE, 1)
+        a = 1
+
+    # ============== 求解参数 ================
+    model.Params.OutputFlag = 0
+    model.Params.timelimit = 7200
+    model.optimize()
+    if model.status == GRB.Status.INFEASIBLE:
+        print('Optimization was stopped with status %d' % model.status)
+        # do IIS, find infeasible constraints
+        model.computeIIS()
+        model.write('a.ilp')
+        for c in model.getConstrs():
+            if c.IISConstr:
+                print('%s' % c.constrName)
+        return False
+    else:
+        # model.write('OP.sol')
+        # model.write('OP.lp')
+        # 输出结果为
+        bay_x_dict = {b: [] for b in data.J}
+        res = {}
+        for u in range(data.U_num):
+            for b in data.J:
+                if abs(X[u][b - 1].X) > 0.00001:
+                    bay_x_dict[b].append(u)
+                    res.setdefault(u, b)
+        if print_flag:
+            # 画图
+            color_groups = generate_color_groups(data.G_num)
+            fig, ax = plt.subplots(figsize=(10, 6))
+            bar_width = 1  # 长方形宽度
+            space = 0  # 长方形间隔
+            for b in data.J:
+                x_pos = b * (bar_width + space) - 1.5  # 长方形的x坐标
+                if len(bay_x_dict[b]) == 1:
+                    g = data.U_g_set[bay_x_dict[b][0]]
+                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor=color_groups[g], edgecolor='black')
+                    ax.add_patch(rect)
+                    ax.text(x_pos + bar_width / 2, 0.5, f'g{g}\nu{bay_x_dict[b][0]}',
+                            ha='center', va='center', fontsize=8, color='black')
+                elif len(bay_x_dict[b]) == 2:
+                    g1, g2 = data.U_g_set[bay_x_dict[b][0]], data.U_g_set[bay_x_dict[b][1]]
+                    rect1 = patches.Rectangle((x_pos, 0.5), bar_width, 0.5, facecolor=color_groups[g1],
+                                              edgecolor='black')
+                    ax.add_patch(rect1)
+                    # 下半部分
+                    rect2 = patches.Rectangle((x_pos, 0), bar_width, 0.5, facecolor=color_groups[g2], edgecolor='black')
+                    ax.add_patch(rect2)
+                    # 在上半部分添加 g1 和 bay_x_dict[b][0]
+                    ax.text(x_pos + bar_width / 2, 0.75, f'g{g1}\nu{bay_x_dict[b][0]}',
+                            ha='center', va='center', fontsize=8, color='black')
+                    # 在下半部分添加 g2 和 bay_x_dict[b][1]
+                    ax.text(x_pos + bar_width / 2, 0.25, f'g{g2}\nu{bay_x_dict[b][1]}',
+                            ha='center', va='center', fontsize=8, color='black')
+                else:
+                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor='grey', edgecolor='black')
+                    ax.add_patch(rect)
+            ax.set_xlim(-space, int(60 * (bar_width + space)) - space)
+            ax.set_xticks([x for x in range(0, int(60 * (bar_width + space)), 2)])
+            ax.set_xticklabels([str(x) for x in range(1, 60, 2)])
+
+            ax.set_ylim(0, 1.2)
+            ax.set_yticks([])
+            ax.set_xlabel('Positions', fontsize=14)
+            ax.set_title('Placement of Box Groups', fontsize=16)
+
+            # 显示图形
+            plt.savefig(case + ".png")
+        # print("obj:", obj.X)
+        # print("time:", str(time.time() - s_t))
+        k = 0
+        all_v = []
+        for w in range(len(valid_permutations)):
+            pre, v, path = data.U_num, 0, []
+            for i in range(data.U_num):
+                for u in data.U:
+                    if abs(Y[w][pre][u][0].X - 1) <= 0.001:
+                        suc = u
+                        v = v + data.U_num_set[suc] * cf.unit_process_time + \
+                            sum(Z[w][pre][suc][j - 1][jj - 1].X * cf.unit_move_time * abs(j - jj)
+                                for j in data.J_K[k] for jj in data.J_K[k])
+                        pre = suc
+                        path.append(v)
+                        break
+            all_v.append(path)
+
+        worst_index = -1
+        if w_obj is not None:
+            for w in range(pi_num):
+                if abs(w_obj - C_max[w].X) < 0.0001:
+                    worst_index = w
+                # if C_max[w].X > obj:
+                #     obj = C_max[w].X
+                #     worst_index = w
+        # print("worst seq",valid_permutations[])
+        return obj.X, res, worst_index, time2.time() - s_t
+
+
+def generate_color_groups(g):
+    cmap = plt.cm.get_cmap('tab10', g)  # 从 'tab10' 调色板中生成 g 种颜色
+    colors = [cmap(i) for i in range(g)]
+    return colors
+
+
 if __name__ == '__main__':
     case = 'case1m'
-
+    print_flag = False
+    # data = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
     data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
     print(case)
     # ============== 生成所有可能提取序列 ================
@@ -773,4 +1002,16 @@ if __name__ == '__main__':
     invalid_sequences_r = []
     # ============== 求解 ================
     random_seed = 0.2  # 加seq cut设置系数
-    CCG()
+    res = original_problem_robust(data)
+    if res is False:
+        obj1, time1 = -1, 7200
+    else:
+        obj1, res1, worst_index1, time1 = res
+
+    ub, lb, gap, time2 = CCG()
+    # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output_m.txt", "a") as f:
+    with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output_m.txt", "a") as f:
+        # f.write("This is a test output.\n")
+        # f.write("Second line of output.\n")
+        f.write(f"{case}\tOP:obj-\t{obj1}\ttime-\t{time1:.2f}\t"
+                f"CCG:ub-\t{ub:.2f}\tlb-\t{lb:.2f}\tgap-\t{gap:.2f}\ttime-\t{time2:.2f}\n")

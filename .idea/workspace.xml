@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="修改multi OP bug">
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="修改any bug">
+      <change afterPath="$PROJECT_DIR$/a_data_process/data/CS BNS/CS_6_BNS_2_5.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case1m" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case3m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py" beforeDir="false" afterPath="$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -366,7 +369,14 @@
       <option name="project" value="LOCAL" />
       <updated>1739759610184</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="修改any bug">
+      <created>1739761667955</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1739761667955</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -408,7 +418,8 @@
     <MESSAGE value="输出修改" />
     <MESSAGE value="增加multi-DP" />
     <MESSAGE value="修改multi OP bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="修改multi OP bug" />
+    <MESSAGE value="修改any bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改any bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -494,11 +505,6 @@
           <option name="timeStamp" value="397" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>179</line>
-          <option name="timeStamp" value="433" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
           <line>525</line>
           <option name="timeStamp" value="441" />
@@ -515,13 +521,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>628</line>
+          <line>627</line>
           <option name="timeStamp" value="595" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>454</line>
-          <option name="timeStamp" value="597" />
+          <line>826</line>
+          <option name="timeStamp" value="612" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -532,5 +538,10 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="cut" language="Python" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>
