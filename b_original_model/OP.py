@@ -5,6 +5,7 @@
 import time
 from itertools import permutations, islice
 
+import gurobipy
 from gurobipy import *
 from matplotlib import pyplot as plt, patches
 
@@ -32,11 +33,6 @@ def original_problem_robust(data, res=None, w_obj=None):
         :return:
     """
     s_t = time.time()
-    # ============== 生成所有可能序列 ================
-    sequence = list(range(data.G_num))
-    valid_permutations = generate_permutations(sequence, swapped=None)
-    # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
-    pi_num = len(valid_permutations)
 
     # ============== 构造模型 ================
     big_M = 10000000
@@ -69,7 +65,10 @@ def original_problem_robust(data, res=None, w_obj=None):
     # ================ 约束 ==================
     # test
     if res is not None:
-        model.addConstrs((X[u][res[u] - 1] == 1 for u in data.U), "res")
+        try:
+            model.addConstrs((X[u][res[u] - 1] == 1 for u in data.U), "res")
+        except:
+            a = 1
 
     # Con1
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
@@ -142,16 +141,16 @@ def original_problem_robust(data, res=None, w_obj=None):
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
-    model.Params.timelimit = 1800
+    model.Params.timelimit = 7200
     model.optimize()
     if model.status == GRB.Status.INFEASIBLE:
         print('Optimization was stopped with status %d' % model.status)
         # do IIS, find infeasible constraints
         model.computeIIS()
         model.write('a.ilp')
-        for c in model.getConstrs():
-            if c.IISConstr:
-                print('%s' % c.constrName)
+        # for c in model.getConstrs():
+        #     if c.IISConstr:
+        #         # print('%s' % c.constrName)
         return False
     else:
         # model.write('OP.sol')
@@ -242,12 +241,6 @@ def original_problem_robust_test_P_allocation(data):
         :return:
     """
     s_t = time.time()
-
-    # ============== 生成所有可能序列 ================
-    sequence = list(range(data.G_num))
-    valid_permutations = generate_permutations(sequence, swapped=None)
-    # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
-    pi_num = len(valid_permutations)
 
     # ============== 构造模型 ================
     big_M = 10000000
@@ -358,16 +351,16 @@ def original_problem_robust_test_P_allocation(data):
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
-    model.Params.timelimit = 1800
+    model.Params.timelimit = 7200
     model.optimize()
     if model.status == GRB.Status.INFEASIBLE:
         print('Optimization was stopped with status %d' % model.status)
         # do IIS, find infeasible constraints
         model.computeIIS()
         model.write('a.ilp')
-        for c in model.getConstrs():
-            if c.IISConstr:
-                print('%s' % c.constrName)
+        # for c in model.getConstrs():
+        #     if c.IISConstr:
+        #         print('%s' % c.constrName)
         return False
     else:
         # model.write('OP.sol')
@@ -421,8 +414,8 @@ def original_problem_robust_test_P_allocation(data):
             # 显示图形
             plt.savefig(case + ".png")
 
-        print("obj:", obj.X)
-        print("time:", str(time.time() - s_t))
+        # print("obj:", obj.X)
+        # print("time:", str(time.time() - s_t))
         k = 0
         all_v = []
         for w in range(len(valid_permutations)):
@@ -450,13 +443,6 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
         :return:
     """
     s_t = time.time()
-
-    # ============== 生成所有可能序列 ================
-    sequence = list(range(data.G_num))
-    valid_permutations = generate_permutations(sequence, swapped=None)
-    # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
-    pi_num = len(valid_permutations)
-
     # ============== 构造模型 ================
     big_M = 10000000
     model = Model("original problem")
@@ -489,7 +475,10 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
     # test
     if res is not None:
         # res = {0: 0, 1: 4, 2: 8, 3: 10, 4: 20, 5: 12, 6: 14, 7: 16}
-        model.addConstrs((X[u][res[u] - 1] == 1 for u in data.U), "res")
+        try:
+            model.addConstrs((X[u][res[u] - 1] == 1 for u in data.U), "res")
+        except:
+            return -1, 0
 
     # Con1
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
@@ -562,16 +551,16 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
     # ============== 求解参数 ================
     # model.Params.OutputFlag = 0
     model.Params.OutputFlag = 0
-    model.Params.timelimit = 1800
+    model.Params.timelimit = 7200
     model.optimize()
     if model.status == GRB.Status.INFEASIBLE:
         print('Optimization was stopped with status %d' % model.status)
         # do IIS, find infeasible constraints
         model.computeIIS()
         model.write('a.ilp')
-        for c in model.getConstrs():
-            if c.IISConstr:
-                print('%s' % c.constrName)
+        # for c in model.getConstrs():
+        #     if c.IISConstr:
+        #         print('%s' % c.constrName)
         return False
     else:
         # model.write('OP.sol')
@@ -690,19 +679,43 @@ def prune_bays(data):
 if __name__ == '__main__':
     print_flag = False
 
-    for case in ['case1', 'case2', 'case3', 'case4', 'case5', 'case6', 'case11']:
-        dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
+    for case in [ 'case23']:  # 'case2','case14',
+        print(case)
+        dataa = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
         prune_bays(dataa)
-        obj1, res1, worst_index1 = original_problem_robust(dataa)
-        #######测试不同随机模型#########
-        obj2, res2, worst_index2 = original_problem_robust(dataa, res1, obj1)
-        obj3, res3 = original_problem_stochastic(dataa)
-        obj4, _ = original_problem_stochastic(dataa, res3, worst_index2)
+        pt_sum = sum(tmp * cf.unit_process_time for tmp in dataa.G_num_set)
+        # ============== 生成所有可能序列 ================
+        sequence = list(range(dataa.G_num))
+        valid_permutations = generate_permutations(sequence, swapped=None)
+        # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
+        pi_num = len(valid_permutations)
+        try:
+            obj1, res1, worst_index1 = original_problem_robust(dataa)
+            print("worked1")
+            # #######测试不同随机模型#########
+            obj2, res2, worst_index2 = original_problem_robust(dataa, res1, obj1)
+            print("worked2")
+            obj3, res3 = original_problem_stochastic(dataa)
+            print("worked3")
+            obj_w = 0
+            # res3 = {0: 5, 1: 3, 2: 7, 3: 11, 4: 13, 5: 17, 6: 19, 7: 23}
+            for i in range(pi_num):
+                obj4, _ = original_problem_stochastic(dataa, res3, i)
+                print(i)
+                if obj4 == -1:
+                    print(obj4, _)
+                    print(valid_permutations[i])
+                obj_w = max(obj4, obj_w)
+            print("worked4")
 
-        #######测试1.5P-allocation到底有多好#########
-        obj5 = original_problem_robust_test_P_allocation(dataa)
+            #######测试1.5P-allocation到底有多好#########
+            obj5 = original_problem_robust_test_P_allocation(dataa)
+            print("worked5")
 
-        with open("/Users/jacq/PycharmProjects/BayAllocationGit/b_original_model/output.txt", "w") as f:
-            f.write("This is a test output.\n")
-            f.write("Second line of output.\n")
-            f.write(f"{case}\tRobust:\t{obj1}\tStochastic:\t{obj3}\tStochastic-W:\t{obj4}\t1.5P_alloc:\t{obj5}\n")
+            with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output.txt", "a") as f:
+                # f.write("This is a test output.\n")
+                # f.write("Second line of output.\n")
+                f.write(
+                    f"{case}\tRobust:\t{obj1 - pt_sum:.2f}\tStochastic:\t{obj3 - pt_sum:.2f}\tStochastic-W:\t{obj_w - pt_sum:.2f}\t1.5P_alloc:\t{obj5 - pt_sum:.2f}\n")
+        except:
+            a = 1
