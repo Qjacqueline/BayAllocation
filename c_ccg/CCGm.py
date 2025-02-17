@@ -101,6 +101,7 @@ def CCG():
         # 添加cuts
         added_cuts = generate_cuts(master_results, sub_results, added_cuts)
 
+        end_x = None
         # 判断迭代终止条件
         if UB - LB < 0.00001:
             end_x = master_results[0]
