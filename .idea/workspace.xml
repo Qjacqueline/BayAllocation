@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加test m">
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="小bug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/standard/case1m" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/standard/case1m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/standard/case2m" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/standard/case2m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -381,7 +380,21 @@
       <option name="project" value="LOCAL" />
       <updated>1739818926077</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="ccg区分40大小">
+      <created>1739824268726</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1739824268726</updated>
+    </task>
+    <task id="LOCAL-00027" summary="小bug">
+      <created>1739824374986</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1739824374986</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -426,7 +439,9 @@
     <MESSAGE value="修改any bug" />
     <MESSAGE value="增加test" />
     <MESSAGE value="增加test m" />
-    <option name="LAST_COMMIT_MESSAGE" value="增加test m" />
+    <MESSAGE value="ccg区分40大小" />
+    <MESSAGE value="小bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="小bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -518,23 +533,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>110</line>
+          <line>116</line>
           <option name="timeStamp" value="574" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>476</line>
+          <line>482</line>
           <option name="timeStamp" value="586" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>634</line>
-          <option name="timeStamp" value="595" />
+          <line>639</line>
+          <option name="timeStamp" value="623" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>469</line>
-          <option name="timeStamp" value="619" />
+          <line>478</line>
+          <option name="timeStamp" value="624" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
+          <line>455</line>
+          <option name="timeStamp" value="625" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

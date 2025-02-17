@@ -426,7 +426,7 @@ def sub_problem_help(data, master_X, pi_index=0):
         G_u_pos = [[] for _ in range(data.G_num)]  # 每个箱组子箱组位置
         for u in range(data.U_num):
             j = master_X[u]
-            G_u_pos[data.U_g_set[u]].append(j+1)
+            G_u_pos[data.U_g_set[u]].append(j + 1)
         pos = [[min(G_u_pos[g]) * cf.unit_move_time if g not in data.U_F else (min(G_u_pos[g]) - 2) * cf.unit_move_time,
                 max(G_u_pos[g]) * cf.unit_move_time] for g in range(data.G_num)]  # 每个箱组AB子箱组位置
         pt = [g_num * cf.unit_process_time for g_num in data.G_num_set]
@@ -446,8 +446,9 @@ def sub_problem_help(data, master_X, pi_index=0):
                     pos[k][g] = [min(G_u_pos[k][g]) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
                 else:
                     pos[k][g] = [(min(G_u_pos[k][g]) - 2) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
-        pt = [[data.G_num_set[u] * cf.unit_process_time if data.J_K_dict[master_X[u] + 1] == k else 0
-               for u in range(data.U_num)] for k in range(data.K_num)]  #
+        pt = [[sum(data.U_num_set[u] * cf.unit_process_time
+                   if data.J_K_dict[master_X[u] + 1] == k and data.U_g_set[u] == g else 0
+                   for u in range(data.U_num)) for g in range(data.G_num)] for k in range(data.K_num)]
         pi_ls = valid_permutations[pi_index]
         # 根据pi调整ls顺序
         pos = [[pos[k][index] for index in pi_ls] for k in range(data.K_num)]
@@ -456,9 +457,9 @@ def sub_problem_help(data, master_X, pi_index=0):
             for i in range(data.G_num):
                 if pt[k][i] == 0:
                     if i == 0:
-                        pos[k][i] = [0, 0]
+                        pos[k][i] = [(data.J_K_first[k]) * cf.unit_move_time, (data.J_K_first[k]) * cf.unit_move_time]
                     else:
-                        pos[k][i] = pos[k][i - 1]
+                        pos[k][i] = [None, None]
     return data.G_num, pos, pt, [(data.J_K_first[k]) * cf.unit_move_time for k in range(data.K_num)]
 
 
@@ -624,15 +625,12 @@ def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
     dp = [[0] * 2 for _ in range(N + 1)]
     path = [[0] * 2 for _ in range(N + 1)]  # 用于记录路径选择
 
-    def cal_dp_state(l, ii, ll):
+    def cal_dp_state(l, ii, ll, flag=True):
         pre_pre = A[ii - 1] if l == 0 else B[ii - 1]
         pre = A[ii] if ll == 0 else B[ii]
         suc = B[ii] if ll == 0 else A[ii]
         if ii == 0:
-            try:
-                return abs(pre - init_pos) + abs(pre - suc) + pt[0]
-            except:
-                a = 2
+            return abs(pre - init_pos) + abs(pre - suc) + pt[0]
         else:
             if touch_flag[ii - 1]:
                 return dp[ii - 1][l] + abs(pre_pre - pre) + abs(pre - suc) + pt[ii]
@@ -645,7 +643,18 @@ def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
     path[0][0] = 0
     path[0][1] = 1
     for i in range(1, N):
-        # max(dp[i - 1][0] + abs(A[i - 1] - B[i]), st_line[i - 1]) + abs(B[i] - A[i]) + pt[i]
+        if A[i] is None:
+            if touch_flag[i - 1]:
+                dp[i][0] = dp[i - 1][0]
+                dp[i][1] = dp[i - 1][1]
+            else:
+                dp[i][0] = max(dp[i - 1][0], st_line[i - 1])
+                dp[i][1] = max(dp[i - 1][1], st_line[i - 1])
+            path[i][0] = 0
+            path[i][1] = 1
+            A[i] = A[i - 1]
+            B[i] = B[i - 1]
+            continue
         option1 = cal_dp_state(0, i, 1)
         # max(dp[i - 1][1] + abs(B[i - 1] - B[i]), st_line[i - 1]) + abs(B[i] - A[i]) + pt[i]
         option2 = cal_dp_state(1, i, 1)
@@ -667,29 +676,21 @@ def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
         else:
             dp[i][1] = option4
             path[i][1] = 1
-
-    min_cost = min(max(dp[N - 1][0], st_line[N - 1]), max(dp[N - 1][1], st_line[N - 1]))
+    min_cost = min(dp[N - 1][0], dp[N - 1][1])
+    # min_cost = min(max(dp[N - 1][0], st_line[N - 1]), max(dp[N - 1][1], st_line[N - 1]))
     if dp[N - 1][0] < dp[N - 1][1]:
         last_choice = 0
     else:
         last_choice = 1
-
     optimal_path, schedule = [], []
     for i in range(N - 1, -1, -1):
-        if last_choice == 0:
-            optimal_path.append(('A', i))
-            optimal_path.append(('B', i))
-        else:
-            optimal_path.append(('B', i))
-            optimal_path.append(('A', i))
-        last_choice = path[i][last_choice]
         schedule.append(dp[i][last_choice])
+        last_choice = path[i][last_choice]
 
     optimal_path.reverse()  # 反转路径
     schedule.reverse()
 
     return schedule, min_cost
-
 
 def find_new_sequences(J, original_sequence, master_results):
     # Step 1: Calculate original distances
@@ -1003,8 +1004,8 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    case = 'case1m'
-    print_flag, CCG_show_flag = True, False
+    case = 'case3m'
+    print_flag, CCG_show_flag = True, True
     # data = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
     data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
     print(case)
@@ -1017,6 +1018,8 @@ if __name__ == '__main__':
     # ============== 求解 ================
     random_seed = 0.2  # 加seq cut设置系数
     res = original_problem_robust(data)
+    # res = False
+    print(res)
     if res is False:
         obj1, time1, res1 = -1, 7200, []
     else:
