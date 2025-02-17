@@ -45,9 +45,10 @@ def sub_problem_help(data, master_X):
         G_u_pos = [[] for _ in range(data.G_num)]  # 每个箱组子箱组位置
         for u in range(data.U_num):
             j = master_X[u]
-            G_u_pos[data.U_g_set[u]].append(j)
-        pos = [[min(G_u_pos[g]) * cf.unit_move_time, max(G_u_pos[g]) * cf.unit_move_time]
-               for g in range(data.G_num)]  # 每个箱组AB子箱组位置
+            G_u_pos[data.U_g_set[u]].append(j + 1)
+        pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None,
+                 max(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None]
+                for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
         pt = [g_num * cf.unit_process_time for g_num in data.G_num_set]
         pt = [x for x in pt if x != 0]
     else:
@@ -55,11 +56,16 @@ def sub_problem_help(data, master_X):
         for u in range(data.U_num):
             j = master_X[u]
             k_index = data.J_K_dict[j]
-            G_u_pos[k_index][data.U_g_set[u]].append(j)
-
-        pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g])!=0 else None,
-                 max(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g])!=0 else None]
-                for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
+            G_u_pos[k_index][data.U_g_set[u]].append(j + 1)
+        pos = [[[] for g in range(data.G_num)] for k in range(data.K_num)]
+        for k in range(data.K_num):
+            for g in range(data.G_num):
+                if len(G_u_pos[k][g]) == 0:
+                    pos[k][g] = [None, None]
+                elif g not in data.U_F:
+                    pos[k][g] = [min(G_u_pos[k][g]) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
+                else:
+                    pos[k][g] = [(min(G_u_pos[k][g]) - 2) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
         pt = [[sum(data.U_num_set[u] * cf.unit_process_time
                    if data.J_K_dict[master_X[u]] == k and data.U_g_set[u] == g else 0
                    for u in range(data.U_num)) for g in range(data.G_num)] for k in range(data.K_num)]

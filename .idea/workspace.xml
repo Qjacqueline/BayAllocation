@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="修改any bug">
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/CS BNS/CS_6_BNS_2_5.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case1m" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case3m" afterDir="false" />
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加test m">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/standard/case1m" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/standard/case1m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
     </list>
@@ -376,7 +374,14 @@
       <option name="project" value="LOCAL" />
       <updated>1739761667955</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="增加test m">
+      <created>1739818926077</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1739818926077</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -419,7 +424,9 @@
     <MESSAGE value="增加multi-DP" />
     <MESSAGE value="修改multi OP bug" />
     <MESSAGE value="修改any bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="修改any bug" />
+    <MESSAGE value="增加test" />
+    <MESSAGE value="增加test m" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加test m" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -491,12 +498,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>284</line>
+          <line>295</line>
           <option name="timeStamp" value="381" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>699</line>
+          <line>681</line>
           <option name="timeStamp" value="388" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -521,13 +528,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>627</line>
+          <line>634</line>
           <option name="timeStamp" value="595" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>826</line>
-          <option name="timeStamp" value="612" />
+          <line>469</line>
+          <option name="timeStamp" value="619" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

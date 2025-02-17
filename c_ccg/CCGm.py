@@ -3,10 +3,10 @@
 # @Author  : JacQ
 # @File    : CCG1.py
 import random
-import time2
+import time
 from itertools import combinations, permutations
 from matplotlib import pyplot as plt, patches
-import gurobipy
+import gurobipy as gp
 from gurobipy import *
 from a_data_process.read_data import read_data
 import a_data_process.config as cf
@@ -67,7 +67,7 @@ def CCG():
     LB = 0
     UB = float("inf")
     iteration_num = 0
-    start_time = time2.time()
+    start_time = time.time()
     added_cuts = []
     # prune bays
     prune_bays()
@@ -76,16 +76,16 @@ def CCG():
     master_results = init_master_problem()
 
     while 1:
-        print("=========================================iteration\t" +
-              str(iteration_num) + "=========================================")
+        if CCG_show_flag: print("=========================================iteration\t" +
+                                str(iteration_num) + "=========================================")
 
         master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
 
         if not master_results:
-            print("Master problem is infeasible!")
+            if CCG_show_flag: print("Master problem is infeasible!")
             return
         LB = max(LB, master_results[1])  # 当前迭代主问题目标值
-        print("Master obj:\t", master_results[1], "\t", master_results[0])
+        if CCG_show_flag: print("Master obj:\t", master_results[1], "\t", master_results[0])
 
         # 求解子问题
         if master_results[0] == {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}:
@@ -108,24 +108,24 @@ def CCG():
             print("Final solution:\t", end_x)
             print("Final UB:\t", UB)
             print("Final LB:\t", LB)
-            print("Time\t", time2.time() - start_time)
+            print("Time\t", time.time() - start_time)
             break
         else:
-            end_time = time2.time()
-            print("UB:\t", UB)
-            print("LB:\t", LB)
-            print("Gap:\t", round((UB - LB) * 100 / UB, 1))
-            print("Time:\t", end_time - start_time)
+            end_time = time.time()
+            if CCG_show_flag: print("UB:\t", UB)
+            if CCG_show_flag: print("LB:\t", LB)
+            if CCG_show_flag: print("Gap:\t", round((UB - LB) * 100 / UB, 1))
+            if CCG_show_flag: print("Time:\t", end_time - start_time)
             if end_time - start_time >= 7200:
                 print("=========================================Final results=========================================")
                 print("Final UB:\t", UB)
                 print("Final LB:\t", LB)
                 print("Gap:\t", round((UB - LB) * 100 / UB, 1))
-                print("Time\t", time2.time() - start_time)
+                print("Time\t", time.time() - start_time)
                 break
         iteration_num += 1
 
-    return UB, LB, round((UB - LB) * 100 / UB, 1), time2.time() - start_time
+    return UB, LB, round((UB - LB) * 100 / UB, 1), time.time() - start_time, end_x
 
 
 def update_master_problem_adding_cuts(model, variables, added_cuts):
@@ -425,9 +425,9 @@ def sub_problem_help(data, master_X, pi_index=0):
         G_u_pos = [[] for _ in range(data.G_num)]  # 每个箱组子箱组位置
         for u in range(data.U_num):
             j = master_X[u]
-            G_u_pos[data.U_g_set[u]].append(j)
-        pos = [[min(G_u_pos[g]) * cf.unit_move_time, max(G_u_pos[g]) * cf.unit_move_time]
-               for g in range(data.G_num)]  # 每个箱组AB子箱组位置
+            G_u_pos[data.U_g_set[u]].append(j+1)
+        pos = [[min(G_u_pos[g]) * cf.unit_move_time if g not in data.U_F else (min(G_u_pos[g]) - 2) * cf.unit_move_time,
+                max(G_u_pos[g]) * cf.unit_move_time] for g in range(data.G_num)]  # 每个箱组AB子箱组位置
         pt = [g_num * cf.unit_process_time for g_num in data.G_num_set]
         pt = [x for x in pt if x != 0]
     else:
@@ -435,10 +435,16 @@ def sub_problem_help(data, master_X, pi_index=0):
         for u in range(data.U_num):
             j = master_X[u]
             k_index = data.J_K_dict[j + 1]
-            G_u_pos[k_index][data.U_g_set[u]].append(j)
-        pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None,
-                 max(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None]
-                for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
+            G_u_pos[k_index][data.U_g_set[u]].append(j + 1)
+        pos = [[[] for g in range(data.G_num)] for k in range(data.K_num)]
+        for k in range(data.K_num):
+            for g in range(data.G_num):
+                if len(G_u_pos[k][g]) == 0:
+                    pos[k][g] = [None, None]
+                elif g not in data.U_F:
+                    pos[k][g] = [min(G_u_pos[k][g]) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
+                else:
+                    pos[k][g] = [(min(G_u_pos[k][g]) - 2) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
         pt = [[data.G_num_set[u] * cf.unit_process_time if data.J_K_dict[master_X[u] + 1] == k else 0
                for u in range(data.U_num)] for k in range(data.K_num)]  #
         pi_ls = valid_permutations[pi_index]
@@ -783,7 +789,7 @@ def original_problem_robust(data, res=None, w_obj=None):
         :param data: 数据
         :return:
     """
-    s_t = time2.time()
+    s_t = time.time()
 
     # ============== 构造模型 ================
     model = Model("original problem")
@@ -849,17 +855,23 @@ def original_problem_robust(data, res=None, w_obj=None):
     model.addConstrs((quicksum(Y[w][data.U_num][uu][k] for uu in data.U + [data.U_num + 1]) == 1
                       for k in range(data.K_num) for w in range(pi_num)), "1m")
     # con8: 时序约束 pt+st
-    model.addConstrs((C[w][uu] + big_M * (1 - Y[w][data.U_num][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k]) for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
-    model.addConstrs((C[w][uu] - C[w][u] + big_M * (1 - Y[w][u][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k])
-                      for u in data.U for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
+    for uu in data.U:
+        for k in range(data.K_num):
+            for w in range(pi_num):
+                # 当 Y[w][data.U_num][uu][k] = 1 时的约束
+                expr = data.U_num_set[uu] * cf.unit_process_time + \
+                       gp.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                   for j in data.J_K[k] for jj in data.J_K[k])
+                model.addConstr((Y[w][data.U_num][uu][k] == 1) >> (C[w][uu] >= expr), "1n")
+    for u in data.U:
+        for uu in data.U:
+            for k in range(data.K_num):
+                for w in range(pi_num):
+                    # 当 Y[w][u][uu][k] = 1 时的约束
+                    expr = data.U_num_set[uu] * cf.unit_process_time + \
+                           gp.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                       for j in data.J_K[k] for jj in data.J_K[k])
+                    model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
     model.addConstrs((2 * Z[w][u][uu][j - 1][jj - 1] <= X[u][j - 1] + X[uu][jj - 1] for u in data.U + [data.U_num]
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1o")
@@ -871,20 +883,17 @@ def original_problem_robust(data, res=None, w_obj=None):
                       and data.U_num_set[u] == data.U_num_set[uu]
                       and jj < j and u < uu), "1q")
     # Con10: 优先级完成时间约束 fixme
-    model.addConstrs((C[w][u] <= C[w][uu] for w in range(pi_num) for u in data.U for uu in data.U
+    model.addConstrs((C[w][u] <= C[w][uu] - data.U_num_set[uu] * cf.unit_process_time
+                      for w in range(pi_num) for u in data.U for uu in data.U
                       if valid_permutations[w].index(data.U_g_set[u])
                       < valid_permutations[w].index(data.U_g_set[uu])), "1r")
 
     # ============== 构造目标 ================
     obj = model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='obj')  # 线性化模型变量
-    if res is None:
-        model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
-        # model.addConstr((obj >= C_max[7] ), "obj")
-        model.setObjective(obj, gurobipy.GRB.MINIMIZE)
-    else:
-        for w in range(pi_num):
-            model.setObjectiveN(C_max[w], gurobipy.GRB.MINIMIZE, 1)
-        a = 1
+    model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
+    # model.addConstr((obj >= C_max[7] ), "obj")
+    model.setObjective(obj, gurobipy.GRB.MINIMIZE)
+    model.setParam('MIPGap', 0.0001)
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
@@ -912,40 +921,44 @@ def original_problem_robust(data, res=None, w_obj=None):
                     res.setdefault(u, b)
         if print_flag:
             # 画图
+            gap = 1.5
             color_groups = generate_color_groups(data.G_num)
             fig, ax = plt.subplots(figsize=(10, 6))
             bar_width = 1  # 长方形宽度
             space = 0  # 长方形间隔
             for b in data.J:
-                x_pos = b * (bar_width + space) - 1.5  # 长方形的x坐标
+                x_pos = b % 60 * (bar_width + space) - 1.5  # 长方形的x坐标
+                k = data.K_num - data.J_K_dict[b]
                 if len(bay_x_dict[b]) == 1:
                     g = data.U_g_set[bay_x_dict[b][0]]
-                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor=color_groups[g], edgecolor='black')
+                    rect = patches.Rectangle((x_pos, k * gap), bar_width, 1, facecolor=color_groups[g],
+                                             edgecolor='black')
                     ax.add_patch(rect)
-                    ax.text(x_pos + bar_width / 2, 0.5, f'g{g}\nu{bay_x_dict[b][0]}',
+                    ax.text(x_pos + bar_width / 2, 0.5 + k * gap, f'g{g}\nu{bay_x_dict[b][0]}',
                             ha='center', va='center', fontsize=8, color='black')
                 elif len(bay_x_dict[b]) == 2:
                     g1, g2 = data.U_g_set[bay_x_dict[b][0]], data.U_g_set[bay_x_dict[b][1]]
-                    rect1 = patches.Rectangle((x_pos, 0.5), bar_width, 0.5, facecolor=color_groups[g1],
+                    rect1 = patches.Rectangle((x_pos, 0.5 + k * gap), bar_width, 0.5, facecolor=color_groups[g1],
                                               edgecolor='black')
                     ax.add_patch(rect1)
                     # 下半部分
-                    rect2 = patches.Rectangle((x_pos, 0), bar_width, 0.5, facecolor=color_groups[g2], edgecolor='black')
+                    rect2 = patches.Rectangle((x_pos, k * gap), bar_width, 0.5, facecolor=color_groups[g2],
+                                              edgecolor='black')
                     ax.add_patch(rect2)
                     # 在上半部分添加 g1 和 bay_x_dict[b][0]
-                    ax.text(x_pos + bar_width / 2, 0.75, f'g{g1}\nu{bay_x_dict[b][0]}',
+                    ax.text(x_pos + bar_width / 2, 0.75 + k * gap, f'g{g1}\nu{bay_x_dict[b][0]}',
                             ha='center', va='center', fontsize=8, color='black')
                     # 在下半部分添加 g2 和 bay_x_dict[b][1]
-                    ax.text(x_pos + bar_width / 2, 0.25, f'g{g2}\nu{bay_x_dict[b][1]}',
+                    ax.text(x_pos + bar_width / 2, 0.25 + k * gap, f'g{g2}\nu{bay_x_dict[b][1]}',
                             ha='center', va='center', fontsize=8, color='black')
                 else:
-                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor='grey', edgecolor='black')
+                    rect = patches.Rectangle((x_pos, k * gap), bar_width, 1, facecolor='grey', edgecolor='black')
                     ax.add_patch(rect)
             ax.set_xlim(-space, int(60 * (bar_width + space)) - space)
             ax.set_xticks([x for x in range(0, int(60 * (bar_width + space)), 2)])
             ax.set_xticklabels([str(x) for x in range(1, 60, 2)])
 
-            ax.set_ylim(0, 1.2)
+            ax.set_ylim(0, 3 * data.K_num)
             ax.set_yticks([])
             ax.set_xlabel('Positions', fontsize=14)
             ax.set_title('Placement of Box Groups', fontsize=16)
@@ -962,9 +975,9 @@ def original_problem_robust(data, res=None, w_obj=None):
                 for u in data.U:
                     if abs(Y[w][pre][u][0].X - 1) <= 0.001:
                         suc = u
-                        v = v + data.U_num_set[suc] * cf.unit_process_time + \
-                            sum(Z[w][pre][suc][j - 1][jj - 1].X * cf.unit_move_time * abs(j - jj)
-                                for j in data.J_K[k] for jj in data.J_K[k])
+                        v = v + data.U_num_set[suc] * cf.unit_process_time + sum(
+                            Z[w][pre][suc][j - 1][jj - 1].X * cf.unit_move_time * abs(j - jj)
+                            for j in data.J_K[k] for jj in data.J_K[k])
                         pre = suc
                         path.append(v)
                         break
@@ -979,7 +992,7 @@ def original_problem_robust(data, res=None, w_obj=None):
                 #     obj = C_max[w].X
                 #     worst_index = w
         # print("worst seq",valid_permutations[])
-        return obj.X, res, worst_index, time2.time() - s_t
+        return obj.X, res, worst_index, time.time() - s_t
 
 
 def generate_color_groups(g):
@@ -990,7 +1003,7 @@ def generate_color_groups(g):
 
 if __name__ == '__main__':
     case = 'case1m'
-    print_flag = False
+    print_flag, CCG_show_flag = True, False
     # data = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
     data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
     print(case)
@@ -1004,14 +1017,20 @@ if __name__ == '__main__':
     random_seed = 0.2  # 加seq cut设置系数
     res = original_problem_robust(data)
     if res is False:
-        obj1, time1 = -1, 7200
+        obj1, time1, res1 = -1, 7200, []
     else:
         obj1, res1, worst_index1, time1 = res
 
-    ub, lb, gap, time2 = CCG()
+    ub, lb, gap, time2, res2 = CCG()
+    print("================================================================================")
+    print(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"
+          f"CCG:ub\t{ub:.2f}\tlb\t{lb:.2f}\tgap\t{gap:.2f}\ttime\t{time2:.2f}")
+    print(res1)
+    print(res2)
+
     # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output_m.txt", "a") as f:
     with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output_m.txt", "a") as f:
         # f.write("This is a test output.\n")
         # f.write("Second line of output.\n")
-        f.write(f"{case}\tOP:obj-\t{obj1}\ttime-\t{time1:.2f}\t"
-                f"CCG:ub-\t{ub:.2f}\tlb-\t{lb:.2f}\tgap-\t{gap:.2f}\ttime-\t{time2:.2f}\n")
+        f.write(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"
+                f"CCG:ub\t{ub:.2f}\tlb\t{lb:.2f}\tgap\t{gap:.2f}\ttime\t{time2:.2f}\n")

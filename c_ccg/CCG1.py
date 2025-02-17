@@ -410,8 +410,8 @@ def sub_problem_help(data, master_X):
     for u in range(data.U_num):
         j = master_X[u]
         G_u_pos[data.U_g_set[u]].append(j)
-    pos = [[min(G_u_pos[g]) * cf.unit_move_time, max(G_u_pos[g]) * cf.unit_move_time]
-           for g in range(data.G_num)]  # 每个箱组AB子箱组位置
+    pos = [[min(G_u_pos[g]) * cf.unit_move_time if g not in data.U_F else (min(G_u_pos[g]) - 2) * cf.unit_move_time,
+            max(G_u_pos[g]) * cf.unit_move_time] for g in range(data.G_num)]  # 每个箱组AB子箱组位置
     pt = [g_num * cf.unit_process_time for g_num in data.G_num_set]
     pt = [x for x in pt if x != 0]
     return data.G_num, pos, pt, (data.J_K_first[0] - 1) * cf.unit_move_time

@@ -5,7 +5,7 @@
 import time
 from itertools import permutations, islice
 
-import gurobipy
+import gurobipy as gp
 from gurobipy import *
 from matplotlib import pyplot as plt, patches
 
@@ -99,17 +99,23 @@ def original_problem_robust(data, res=None, w_obj=None):
     model.addConstrs((quicksum(Y[w][data.U_num][uu][k] for uu in data.U + [data.U_num + 1]) == 1
                       for k in range(data.K_num) for w in range(pi_num)), "1m")
     # con8: 时序约束 pt+st
-    model.addConstrs((C[w][uu] + big_M * (1 - Y[w][data.U_num][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k]) for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
-    model.addConstrs((C[w][uu] - C[w][u] + big_M * (1 - Y[w][u][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k])
-                      for u in data.U for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
+    for uu in data.U:
+        for k in range(data.K_num):
+            for w in range(pi_num):
+                # 当 Y[w][data.U_num][uu][k] = 1 时的约束
+                expr = data.U_num_set[uu] * cf.unit_process_time + \
+                       gp.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                   for j in data.J_K[k] for jj in data.J_K[k])
+                model.addConstr((Y[w][data.U_num][uu][k] == 1) >> (C[w][uu] >= expr), "1n")
+    for u in data.U:
+        for uu in data.U:
+            for k in range(data.K_num):
+                for w in range(pi_num):
+                    # 当 Y[w][u][uu][k] = 1 时的约束
+                    expr = data.U_num_set[uu] * cf.unit_process_time + \
+                           gp.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                       for j in data.J_K[k] for jj in data.J_K[k])
+                    model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
     model.addConstrs((2 * Z[w][u][uu][j - 1][jj - 1] <= X[u][j - 1] + X[uu][jj - 1] for u in data.U + [data.U_num]
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1o")
@@ -121,7 +127,8 @@ def original_problem_robust(data, res=None, w_obj=None):
                       and data.U_num_set[u] == data.U_num_set[uu]
                       and jj < j and u < uu), "1q")
     # Con10: 优先级完成时间约束 fixme
-    model.addConstrs((C[w][u] <= C[w][uu] for w in range(pi_num) for u in data.U for uu in data.U
+    model.addConstrs((C[w][u] <= C[w][uu] - data.U_num_set[uu] * cf.unit_process_time
+                      for w in range(pi_num) for u in data.U for uu in data.U
                       if valid_permutations[w].index(data.U_g_set[u])
                       < valid_permutations[w].index(data.U_g_set[uu])), "1r")
 
@@ -162,40 +169,44 @@ def original_problem_robust(data, res=None, w_obj=None):
                     res.setdefault(u, b)
         if print_flag:
             # 画图
+            gap = 1.5
             color_groups = generate_color_groups(data.G_num)
             fig, ax = plt.subplots(figsize=(10, 6))
             bar_width = 1  # 长方形宽度
             space = 0  # 长方形间隔
             for b in data.J:
-                x_pos = b * (bar_width + space) - 1.5  # 长方形的x坐标
+                x_pos = b % 60 * (bar_width + space) - 1.5  # 长方形的x坐标
+                k = data.K_num - data.J_K_dict[b]
                 if len(bay_x_dict[b]) == 1:
                     g = data.U_g_set[bay_x_dict[b][0]]
-                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor=color_groups[g], edgecolor='black')
+                    rect = patches.Rectangle((x_pos, k * gap), bar_width, 1, facecolor=color_groups[g],
+                                             edgecolor='black')
                     ax.add_patch(rect)
-                    ax.text(x_pos + bar_width / 2, 0.5, f'g{g}\nu{bay_x_dict[b][0]}',
+                    ax.text(x_pos + bar_width / 2, 0.5 + k * gap, f'g{g}\nu{bay_x_dict[b][0]}',
                             ha='center', va='center', fontsize=8, color='black')
                 elif len(bay_x_dict[b]) == 2:
                     g1, g2 = data.U_g_set[bay_x_dict[b][0]], data.U_g_set[bay_x_dict[b][1]]
-                    rect1 = patches.Rectangle((x_pos, 0.5), bar_width, 0.5, facecolor=color_groups[g1],
+                    rect1 = patches.Rectangle((x_pos, 0.5 + k * gap), bar_width, 0.5, facecolor=color_groups[g1],
                                               edgecolor='black')
                     ax.add_patch(rect1)
                     # 下半部分
-                    rect2 = patches.Rectangle((x_pos, 0), bar_width, 0.5, facecolor=color_groups[g2], edgecolor='black')
+                    rect2 = patches.Rectangle((x_pos, k * gap), bar_width, 0.5, facecolor=color_groups[g2],
+                                              edgecolor='black')
                     ax.add_patch(rect2)
                     # 在上半部分添加 g1 和 bay_x_dict[b][0]
-                    ax.text(x_pos + bar_width / 2, 0.75, f'g{g1}\nu{bay_x_dict[b][0]}',
+                    ax.text(x_pos + bar_width / 2, 0.75 + k * gap, f'g{g1}\nu{bay_x_dict[b][0]}',
                             ha='center', va='center', fontsize=8, color='black')
                     # 在下半部分添加 g2 和 bay_x_dict[b][1]
-                    ax.text(x_pos + bar_width / 2, 0.25, f'g{g2}\nu{bay_x_dict[b][1]}',
+                    ax.text(x_pos + bar_width / 2, 0.25 + k * gap, f'g{g2}\nu{bay_x_dict[b][1]}',
                             ha='center', va='center', fontsize=8, color='black')
                 else:
-                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor='grey', edgecolor='black')
+                    rect = patches.Rectangle((x_pos, k * gap), bar_width, 1, facecolor='grey', edgecolor='black')
                     ax.add_patch(rect)
             ax.set_xlim(-space, int(60 * (bar_width + space)) - space)
             ax.set_xticks([x for x in range(0, int(60 * (bar_width + space)), 2)])
             ax.set_xticklabels([str(x) for x in range(1, 60, 2)])
 
-            ax.set_ylim(0, 1.2)
+            ax.set_ylim(0, 3 * data.K_num)
             ax.set_yticks([])
             ax.set_xlabel('Positions', fontsize=14)
             ax.set_title('Placement of Box Groups', fontsize=16)
@@ -313,17 +324,23 @@ def original_problem_robust_test_P_allocation(data):
     model.addConstrs((quicksum(Y[w][data.U_num][uu][k] for uu in data.U + [data.U_num + 1]) == 1
                       for k in range(data.K_num) for w in range(pi_num)), "1m")
     # con8: 时序约束 pt+st
-    model.addConstrs((C[w][uu] + big_M * (1 - Y[w][data.U_num][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k]) for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
-    model.addConstrs((C[w][uu] - C[w][u] + big_M * (1 - Y[w][u][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k])
-                      for u in data.U for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
+    for uu in data.U:
+        for k in range(data.K_num):
+            for w in range(pi_num):
+                # 当 Y[w][data.U_num][uu][k] = 1 时的约束
+                expr = data.U_num_set[uu] * cf.unit_process_time + \
+                       gp.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                   for j in data.J_K[k] for jj in data.J_K[k])
+                model.addConstr((Y[w][data.U_num][uu][k] == 1) >> (C[w][uu] >= expr), "1n")
+    for u in data.U:
+        for uu in data.U:
+            for k in range(data.K_num):
+                for w in range(pi_num):
+                    # 当 Y[w][u][uu][k] = 1 时的约束
+                    expr = data.U_num_set[uu] * cf.unit_process_time + \
+                           gp.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                       for j in data.J_K[k] for jj in data.J_K[k])
+                    model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
     model.addConstrs((2 * Z[w][u][uu][j - 1][jj - 1] <= X[u][j - 1] + X[uu][jj - 1] for u in data.U + [data.U_num]
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1o")
@@ -335,7 +352,8 @@ def original_problem_robust_test_P_allocation(data):
                       and data.U_num_set[u] == data.U_num_set[uu]
                       and jj < j and u < uu), "1q")
     # Con10: 优先级完成时间约束 fixme
-    model.addConstrs((C[w][u] <= C[w][uu] for w in range(pi_num) for u in data.U for uu in data.U
+    model.addConstrs((C[w][u] <= C[w][uu] - data.U_num_set[uu] * cf.unit_process_time
+                      for w in range(pi_num) for u in data.U for uu in data.U
                       if valid_permutations[w].index(data.U_g_set[u])
                       < valid_permutations[w].index(data.U_g_set[uu])), "1r")
 
@@ -361,55 +379,15 @@ def original_problem_robust_test_P_allocation(data):
         return False
     else:
         # model.write('OP.sol')
-        # model.write('OP.lp')
+        model.write('OP.lp')
         # 输出结果为
         bay_x_dict = {b: [] for b in data.J}
+        res = {}
         for u in range(data.U_num):
             for b in data.J:
                 if abs(X[u][b - 1].X) > 0.00001:
                     bay_x_dict[b].append(u)
-        if print_flag:
-            # 画图
-            color_groups = generate_color_groups(data.G_num)
-            fig, ax = plt.subplots(figsize=(10, 6))
-            bar_width = 1  # 长方形宽度
-            space = 0  # 长方形间隔
-            for b in data.J:
-                x_pos = b * (bar_width + space) - 1.5  # 长方形的x坐标
-                if len(bay_x_dict[b]) == 1:
-                    g = data.U_g_set[bay_x_dict[b][0]]
-                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor=color_groups[g], edgecolor='black')
-                    ax.add_patch(rect)
-                    ax.text(x_pos + bar_width / 2, 0.5, f'g{g}\nu{bay_x_dict[b][0]}',
-                            ha='center', va='center', fontsize=8, color='black')
-                elif len(bay_x_dict[b]) == 2:
-                    g1, g2 = data.U_g_set[bay_x_dict[b][0]], data.U_g_set[bay_x_dict[b][1]]
-                    rect1 = patches.Rectangle((x_pos, 0.5), bar_width, 0.5, facecolor=color_groups[g1],
-                                              edgecolor='black')
-                    ax.add_patch(rect1)
-                    # 下半部分
-                    rect2 = patches.Rectangle((x_pos, 0), bar_width, 0.5, facecolor=color_groups[g2], edgecolor='black')
-                    ax.add_patch(rect2)
-                    # 在上半部分添加 g1 和 bay_x_dict[b][0]
-                    ax.text(x_pos + bar_width / 2, 0.75, f'g{g1}\nu{bay_x_dict[b][0]}',
-                            ha='center', va='center', fontsize=8, color='black')
-                    # 在下半部分添加 g2 和 bay_x_dict[b][1]
-                    ax.text(x_pos + bar_width / 2, 0.25, f'g{g2}\nu{bay_x_dict[b][1]}',
-                            ha='center', va='center', fontsize=8, color='black')
-                else:
-                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor='grey', edgecolor='black')
-                    ax.add_patch(rect)
-            ax.set_xlim(-space, int(60 * (bar_width + space)) - space)
-            ax.set_xticks([x for x in range(0, int(60 * (bar_width + space)), 2)])
-            ax.set_xticklabels([str(x) for x in range(1, 60, 2)])
-
-            ax.set_ylim(0, 1.2)
-            ax.set_yticks([])
-            ax.set_xlabel('Positions', fontsize=14)
-            ax.set_title('Placement of Box Groups', fontsize=16)
-
-            # 显示图形
-            plt.savefig(case + ".png")
+                    res.setdefault(u, b)
 
         print("obj:", obj.X)
         print("time:", str(time.time() - s_t))
@@ -511,7 +489,7 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
             for w in range(pi_num):
                 # 当 Y[w][data.U_num][uu][k] = 1 时的约束
                 expr = data.U_num_set[uu] * cf.unit_process_time + \
-                       gurobipy.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                       gp.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
                                    for j in data.J_K[k] for jj in data.J_K[k])
                 model.addConstr((Y[w][data.U_num][uu][k] == 1) >> (C[w][uu] >= expr), "1n")
     for u in data.U:
@@ -520,7 +498,7 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
                 for w in range(pi_num):
                     # 当 Y[w][u][uu][k] = 1 时的约束
                     expr = data.U_num_set[uu] * cf.unit_process_time + \
-                           gurobipy.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                           gp.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
                                        for j in data.J_K[k] for jj in data.J_K[k])
                     model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
@@ -576,40 +554,44 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
                     res.setdefault(u, b)
         if print_flag:
             # 画图
+            gap = 1.5
             color_groups = generate_color_groups(data.G_num)
             fig, ax = plt.subplots(figsize=(10, 6))
             bar_width = 1  # 长方形宽度
             space = 0  # 长方形间隔
             for b in data.J:
-                x_pos = b * (bar_width + space) - 1.5  # 长方形的x坐标
+                x_pos = b % 60 * (bar_width + space) - 1.5  # 长方形的x坐标
+                k = data.K_num - data.J_K_dict[b]
                 if len(bay_x_dict[b]) == 1:
                     g = data.U_g_set[bay_x_dict[b][0]]
-                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor=color_groups[g], edgecolor='black')
+                    rect = patches.Rectangle((x_pos, k * gap), bar_width, 1, facecolor=color_groups[g],
+                                             edgecolor='black')
                     ax.add_patch(rect)
-                    ax.text(x_pos + bar_width / 2, 0.5, f'g{g}\nu{bay_x_dict[b][0]}',
+                    ax.text(x_pos + bar_width / 2, 0.5 + k * gap, f'g{g}\nu{bay_x_dict[b][0]}',
                             ha='center', va='center', fontsize=8, color='black')
                 elif len(bay_x_dict[b]) == 2:
                     g1, g2 = data.U_g_set[bay_x_dict[b][0]], data.U_g_set[bay_x_dict[b][1]]
-                    rect1 = patches.Rectangle((x_pos, 0.5), bar_width, 0.5, facecolor=color_groups[g1],
+                    rect1 = patches.Rectangle((x_pos, 0.5 + k * gap), bar_width, 0.5, facecolor=color_groups[g1],
                                               edgecolor='black')
                     ax.add_patch(rect1)
                     # 下半部分
-                    rect2 = patches.Rectangle((x_pos, 0), bar_width, 0.5, facecolor=color_groups[g2], edgecolor='black')
+                    rect2 = patches.Rectangle((x_pos, k * gap), bar_width, 0.5, facecolor=color_groups[g2],
+                                              edgecolor='black')
                     ax.add_patch(rect2)
                     # 在上半部分添加 g1 和 bay_x_dict[b][0]
-                    ax.text(x_pos + bar_width / 2, 0.75, f'g{g1}\nu{bay_x_dict[b][0]}',
+                    ax.text(x_pos + bar_width / 2, 0.75 + k * gap, f'g{g1}\nu{bay_x_dict[b][0]}',
                             ha='center', va='center', fontsize=8, color='black')
                     # 在下半部分添加 g2 和 bay_x_dict[b][1]
-                    ax.text(x_pos + bar_width / 2, 0.25, f'g{g2}\nu{bay_x_dict[b][1]}',
+                    ax.text(x_pos + bar_width / 2, 0.25 + k * gap, f'g{g2}\nu{bay_x_dict[b][1]}',
                             ha='center', va='center', fontsize=8, color='black')
                 else:
-                    rect = patches.Rectangle((x_pos, 0), bar_width, 1, facecolor='grey', edgecolor='black')
+                    rect = patches.Rectangle((x_pos, k * gap), bar_width, 1, facecolor='grey', edgecolor='black')
                     ax.add_patch(rect)
             ax.set_xlim(-space, int(60 * (bar_width + space)) - space)
             ax.set_xticks([x for x in range(0, int(60 * (bar_width + space)), 2)])
             ax.set_xticklabels([str(x) for x in range(1, 60, 2)])
 
-            ax.set_ylim(0, 1.2)
+            ax.set_ylim(0, 3 * data.K_num)
             ax.set_yticks([])
             ax.set_xlabel('Positions', fontsize=14)
             ax.set_title('Placement of Box Groups', fontsize=16)
