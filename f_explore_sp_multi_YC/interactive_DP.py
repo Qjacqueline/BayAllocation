@@ -6,14 +6,14 @@ import random
 import time
 from itertools import combinations, permutations
 
-import gurobipy
+import gurobipy as gp
 from gurobipy import *
 from a_data_process.read_data import read_data
 import a_data_process.config as cf
 from matplotlib import pyplot as plt, patches
 
 zeta_cnt = 0
-big_M = 10e10
+big_M = 10e4
 eta_cnt = 0
 
 
@@ -60,15 +60,16 @@ def sub_problem_help(data, master_X):
         pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if any(G_u_pos[k][g]) else None,
                  max(G_u_pos[k][g]) * cf.unit_move_time if any(G_u_pos[k][g]) else None]
                 for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
-        pt = [[data.G_num_set[u] * cf.unit_process_time if data.J_K_dict[master_X[u]] == k else 0
-               for u in range(data.U_num)] for k in range(data.K_num)]  #
+        pt = [[sum(data.U_num_set[u] * cf.unit_process_time
+                   if data.J_K_dict[master_X[u]] == k and data.U_g_set[u] == g else 0
+                   for u in range(data.U_num)) for g in range(data.G_num)] for k in range(data.K_num)]
         for k in range(data.K_num):
             for i in range(data.G_num):
                 if pt[k][i] == 0:
                     if i == 0:
-                        pos[k][i] = [0, 0]
+                        pos[k][i] = [(data.J_K_first[k]) * cf.unit_move_time, (data.J_K_first[k]) * cf.unit_move_time]
                     else:
-                        pos[k][i] = pos[k][i - 1]
+                        pos[k][i] = [None, None]
     return data.G_num, pos, pt, [(data.J_K_first[k]) * cf.unit_move_time for k in range(data.K_num)]
 
 
@@ -77,7 +78,9 @@ def sub_problem_multi(N, pos, pt, init_pos):
     st_line = [0 for _ in range(data.G_num)]
     whole_schedule = [[] for _ in range(data.K_num)]
     touch_flag = [[False for _ in range(data.G_num)] for _ in range(data.K_num)]
+    cnt = 0
     while True:
+        cnt += 1
         stop_flag = [False for _ in range(data.K_num)]
         # calculate DP-T
         for k in range(data.K_num):
@@ -92,6 +95,8 @@ def sub_problem_multi(N, pos, pt, init_pos):
         if all(stop_flag): break
         # adjustment
         st_line, touch_flag = [], [[False for _ in range(data.G_num)] for _ in range(data.K_num)]
+        st = [[whole_schedule[k][g + 1] - whole_schedule[k][g] - pt[k][g + 1] for g in range(data.G_num - 1)] for k in
+              range(data.K_num)]
         for g in range(data.G_num):
             max_l = max(whole_schedule[k][g] for k in range(data.K_num))
             for k in range(data.K_num):
@@ -100,10 +105,11 @@ def sub_problem_multi(N, pos, pt, init_pos):
             if g == data.G_num - 1:
                 break
             dt = [max_l - whole_schedule[k][g] for k in range(data.K_num)]
-            st = [whole_schedule[k][g + 1] - whole_schedule[k][g] - pt[k][g + 1] for k in range(data.K_num)]
+            # st = [whole_schedule[k][g + 1] - whole_schedule[k][g] - pt[k][g + 1] for k in range(data.K_num)]
             for k in range(data.K_num):
-                whole_schedule[k][g + 1] = whole_schedule[k][g] + max(dt[k], st[k]) + pt[k][g + 1]
+                whole_schedule[k][g + 1] = whole_schedule[k][g] + max(dt[k], st[k][g]) + pt[k][g + 1]
         a = 1
+    print(cnt)
     return st_line[-1], whole_schedule
 
 
@@ -111,7 +117,7 @@ def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
     dp = [[0] * 2 for _ in range(N + 1)]
     path = [[0] * 2 for _ in range(N + 1)]  # 用于记录路径选择
 
-    def cal_dp_state(l, ii, ll):
+    def cal_dp_state(l, ii, ll, flag=True):
         pre_pre = A[ii - 1] if l == 0 else B[ii - 1]
         pre = A[ii] if ll == 0 else B[ii]
         suc = B[ii] if ll == 0 else A[ii]
@@ -126,8 +132,21 @@ def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
     # 初始化
     dp[0][0] = cal_dp_state(0, 0, 1)  # abs(B[0] - init_pos) + abs(B[0] - A[0]) + pt[0]  # 访问第 0 对时的代价
     dp[0][1] = cal_dp_state(0, 0, 0)  # abs(A[0] - init_pos) + abs(A[0] - B[0]) + pt[0]  # 访问第 0 对时的代价
+    path[0][0] = 0
+    path[0][1] = 1
     for i in range(1, N):
-        # max(dp[i - 1][0] + abs(A[i - 1] - B[i]), st_line[i - 1]) + abs(B[i] - A[i]) + pt[i]
+        if A[i] is None:
+            if touch_flag[i - 1]:
+                dp[i][0] = dp[i - 1][0]
+                dp[i][1] = dp[i - 1][1]
+            else:
+                dp[i][0] = max(dp[i - 1][0], st_line[i - 1])
+                dp[i][1] = max(dp[i - 1][1], st_line[i - 1])
+            path[i][0] = 0
+            path[i][1] = 1
+            A[i] = A[i - 1]
+            B[i] = B[i - 1]
+            continue
         option1 = cal_dp_state(0, i, 1)
         # max(dp[i - 1][1] + abs(B[i - 1] - B[i]), st_line[i - 1]) + abs(B[i] - A[i]) + pt[i]
         option2 = cal_dp_state(1, i, 1)
@@ -149,20 +168,16 @@ def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
         else:
             dp[i][1] = option4
             path[i][1] = 1
-
-    min_cost = min(max(dp[N - 1][0], st_line[N - 1]), max(dp[N - 1][1], st_line[N - 1]))
-    last_choice = 0 if dp[N - 1][0] < dp[N - 1][1] else 1
-
+    min_cost = min(dp[N - 1][0], dp[N - 1][1])
+    # min_cost = min(max(dp[N - 1][0], st_line[N - 1]), max(dp[N - 1][1], st_line[N - 1]))
+    if dp[N - 1][0] < dp[N - 1][1]:
+        last_choice = 0
+    else:
+        last_choice = 1
     optimal_path, schedule = [], []
     for i in range(N - 1, -1, -1):
-        if last_choice == 0:
-            optimal_path.append(('A', i))
-            optimal_path.append(('B', i))
-        else:
-            optimal_path.append(('B', i))
-            optimal_path.append(('A', i))
-        last_choice = path[i][last_choice]
         schedule.append(dp[i][last_choice])
+        last_choice = path[i][last_choice]
 
     optimal_path.reverse()  # 反转路径
     schedule.reverse()
@@ -248,7 +263,7 @@ def original_problem_robust(data, res=None, w_obj=None):
     model.addConstrs((C[w][u] <= C_max[w] for w in range(pi_num) for u in data.U), "1b")
     # 对于一个子箱组
     # Con2: Each sub-container group must be placed on one bay
-    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U_L), "1c")
+    model.addConstrs((quicksum(X[u][j - 1] for j in data.J) == 1 for u in data.U_L + data.U_F), "1c")
     model.addConstrs((quicksum(X[u][j - 1] for j in data.I) == 1 for u in data.U_F), "1d")
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "1f")
@@ -276,27 +291,33 @@ def original_problem_robust(data, res=None, w_obj=None):
     model.addConstrs((quicksum(Y[w][data.U_num][uu][k] for uu in data.U + [data.U_num + 1]) == 1
                       for k in range(data.K_num) for w in range(pi_num)), "1m")
     # con8: 时序约束 pt+st
-    model.addConstrs((C[w][uu] + big_M * (1 - Y[w][data.U_num][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k]) for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
-    model.addConstrs((C[w][uu] - C[w][u] + big_M * (1 - Y[w][u][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k])
-                      for u in data.U for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
+    for uu in data.U:
+        for k in range(data.K_num):
+            for w in range(pi_num):
+                # 当 Y[w][data.U_num][uu][k] = 1 时的约束
+                expr = data.U_num_set[uu] * cf.unit_process_time + \
+                       gp.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                   for j in data.J_K[k] for jj in data.J_K[k])
+                model.addConstr((Y[w][data.U_num][uu][k] == 1) >> (C[w][uu] >= expr), "1n")
+    for u in data.U:
+        for uu in data.U:
+            for k in range(data.K_num):
+                for w in range(pi_num):
+                    # 当 Y[w][u][uu][k] = 1 时的约束
+                    expr = data.U_num_set[uu] * cf.unit_process_time + \
+                           gp.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                       for j in data.J_K[k] for jj in data.J_K[k])
+                    model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
     model.addConstrs((2 * Z[w][u][uu][j - 1][jj - 1] <= X[u][j - 1] + X[uu][jj - 1] for u in data.U + [data.U_num]
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1o")
     model.addConstrs((Z[w][u][uu][j - 1][jj - 1] >= X[u][j - 1] + X[uu][jj - 1] - 1 for u in data.U + [data.U_num]
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1p")
     # con10:消除对称性 不同重量不等价，因为会有拼贝情况
-    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
-                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
-                      and data.U_num_set[u] == data.U_num_set[uu]
-                      and jj < j and u < uu), "1q")
+    # model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
+    #                   for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+    #                   and data.U_num_set[u] == data.U_num_set[uu]
+    #                   and jj < j and u < uu), "1q")
     # Con10: 优先级完成时间约束 fixme
     model.addConstrs((C[w][u] <= C[w][uu] - data.U_num_set[uu] * cf.unit_process_time
                       for w in range(pi_num) for u in data.U for uu in data.U
@@ -308,6 +329,7 @@ def original_problem_robust(data, res=None, w_obj=None):
     model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
     # model.addConstr((obj >= C_max[7] ), "obj")
     model.setObjective(obj, gurobipy.GRB.MINIMIZE)
+    model.setParam('MIPGap', 0.0001)
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
@@ -342,7 +364,7 @@ def original_problem_robust(data, res=None, w_obj=None):
             space = 0  # 长方形间隔
             for b in data.J:
                 x_pos = b % 60 * (bar_width + space) - 1.5  # 长方形的x坐标
-                k = data.J_K_dict[b]
+                k = data.K_num - data.J_K_dict[b]
                 if len(bay_x_dict[b]) == 1:
                     g = data.U_g_set[bay_x_dict[b][0]]
                     rect = patches.Rectangle((x_pos, k * gap), bar_width, 1, facecolor=color_groups[g],
@@ -372,7 +394,7 @@ def original_problem_robust(data, res=None, w_obj=None):
             ax.set_xticks([x for x in range(0, int(60 * (bar_width + space)), 2)])
             ax.set_xticklabels([str(x) for x in range(1, 60, 2)])
 
-            ax.set_ylim(0, 3)
+            ax.set_ylim(0, 3 * data.K_num)
             ax.set_yticks([])
             ax.set_xlabel('Positions', fontsize=14)
             ax.set_title('Placement of Box Groups', fontsize=16)
@@ -439,7 +461,7 @@ def random_select_nums(lst, n):
 
 
 if __name__ == '__main__':
-    case = 'case1m'
+    case = 'case3m'
     random.seed(42)
     print_flag = True
     data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
@@ -452,16 +474,23 @@ if __name__ == '__main__':
     invalid_sequences_r = []
     # ============== 数据处理 ================
     prune_bays()
-    bays = random_select_nums([i for i in data.J if i not in data.J_K_first], data.G_num)
-    random.shuffle(bays)
-    res = {data.U_g_set[i]: bays[i] for i in range(data.U_num)}
+    bays = [1, 3, 11, 65, 91, 123, 71, 135, 187, 193, 213, 199, 203, 207, 183, 215, 143, 147]
+    # bays=random_select_nums([i for i in data.J if i not in data.J_K_first], data.G_num)
+    # random.shuffle(bays)
+    res = {i: bays[i] for i in range(data.U_num)}
     N, pos, pt, init_pos = sub_problem_help(data, res)
     # ============== 求解 ================
     # OP求解
+    st = time.time()
     obj1, res1, worst_index1 = original_problem_robust(data, res)
-    print(obj1, res1)
+    print(obj1)
+    for item in res1:
+        print([max(tmp) if any(tmp) else 0 for tmp in item])
+    print(time.time() - st)
     # DP求解
+    stt = time.time()
     sub_results = sub_problem_multi(N, pos, pt, init_pos)
-    print(sub_results)
-
-    a = 1
+    print(sub_results[0])
+    for item in sub_results[1]:
+        print(item)
+    print(time.time() - stt)

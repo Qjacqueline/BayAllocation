@@ -100,17 +100,23 @@ def original_problem_robust(data, res=None, w_obj=None):
     model.addConstrs((quicksum(Y[w][data.U_num][uu][k] for uu in data.U + [data.U_num + 1]) == 1
                       for k in range(data.K_num) for w in range(pi_num)), "1m")
     # con8: 时序约束 pt+st
-    model.addConstrs((C[w][uu] + big_M * (1 - Y[w][data.U_num][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k]) for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
-    model.addConstrs((C[w][uu] - C[w][u] + big_M * (1 - Y[w][u][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k])
-                      for u in data.U for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
+    for uu in data.U:
+        for k in range(data.K_num):
+            for w in range(pi_num):
+                # 当 Y[w][data.U_num][uu][k] = 1 时的约束
+                expr = data.U_num_set[uu] * cf.unit_process_time + \
+                       gurobipy.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                   for j in data.J_K[k] for jj in data.J_K[k])
+                model.addConstr((Y[w][data.U_num][uu][k] == 1) >> (C[w][uu] >= expr), "1n")
+    for u in data.U:
+        for uu in data.U:
+            for k in range(data.K_num):
+                for w in range(pi_num):
+                    # 当 Y[w][u][uu][k] = 1 时的约束
+                    expr = data.U_num_set[uu] * cf.unit_process_time + \
+                           gurobipy.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                       for j in data.J_K[k] for jj in data.J_K[k])
+                    model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
     model.addConstrs((2 * Z[w][u][uu][j - 1][jj - 1] <= X[u][j - 1] + X[uu][jj - 1] for u in data.U + [data.U_num]
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1o")
@@ -312,17 +318,23 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
     model.addConstrs((quicksum(Y[w][data.U_num][uu][k] for uu in data.U + [data.U_num + 1]) == 1
                       for k in range(data.K_num) for w in range(pi_num)), "1m")
     # con8: 时序约束 pt+st
-    model.addConstrs((C[w][uu] + big_M * (1 - Y[w][data.U_num][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k]) for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
-    model.addConstrs((C[w][uu] - C[w][u] + big_M * (1 - Y[w][u][uu][k]) >=
-                      data.U_num_set[uu] * cf.unit_process_time
-                      + quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                 for j in data.J_K[k] for jj in data.J_K[k])
-                      for u in data.U for uu in data.U
-                      for k in range(data.K_num) for w in range(pi_num)), "1n")
+    for uu in data.U:
+        for k in range(data.K_num):
+            for w in range(pi_num):
+                # 当 Y[w][data.U_num][uu][k] = 1 时的约束
+                expr = data.U_num_set[uu] * cf.unit_process_time + \
+                       gurobipy.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                   for j in data.J_K[k] for jj in data.J_K[k])
+                model.addConstr((Y[w][data.U_num][uu][k] == 1) >> (C[w][uu] >= expr), "1n")
+    for u in data.U:
+        for uu in data.U:
+            for k in range(data.K_num):
+                for w in range(pi_num):
+                    # 当 Y[w][u][uu][k] = 1 时的约束
+                    expr = data.U_num_set[uu] * cf.unit_process_time + \
+                           gurobipy.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                       for j in data.J_K[k] for jj in data.J_K[k])
+                    model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
     model.addConstrs((2 * Z[w][u][uu][j - 1][jj - 1] <= X[u][j - 1] + X[uu][jj - 1] for u in data.U + [data.U_num]
                       for uu in data.U for j in data.J for jj in data.J for w in range(pi_num)), "1o")

@@ -4,10 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加multi-DP">
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="修改multi OP bug">
+      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case2m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/b_original_model/OP.lp" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/b_original_model/OP.sol" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/a.ilp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/a.lp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/master.lp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/master.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/master1.sol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/d_explore_sp_single_YC_min/model_d.ilp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/e_explore_sp_single_YC_min_max/1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/3.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/4.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/f_explore_sp_multi_YC/OP.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py" beforeDir="false" afterPath="$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py" afterDir="false" />
     </list>
@@ -42,14 +56,14 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/jacq/PycharmProjects/BayAllocationGit/c_ccg&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;debugger.dataViews.python.type.renderers&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/c_ccg" />
       <recent name="$PROJECT_DIR$/a_data_process/data/standard" />
+      <recent name="$PROJECT_DIR$/c_ccg" />
       <recent name="$PROJECT_DIR$/a_data_process/data/CS BNS" />
       <recent name="$PROJECT_DIR$/a_data_process/data/CS BS" />
       <recent name="$PROJECT_DIR$/a_data_process/data" />
@@ -59,7 +73,7 @@
       <recent name="$PROJECT_DIR$/../BayAllocation/c_ccg" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.interactive_DP">
+  <component name="RunManager" selected="Python.CCGm">
     <configuration name="CCG1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -120,7 +134,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="interactive_DP" type="PythonConfigurationType" factoryName="Python" singleton="false" nameIsGenerated="true">
+    <configuration name="interactive_DP" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true" nameIsGenerated="true">
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -190,8 +204,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.interactive_DP" />
         <item itemvalue="Python.CCGm" />
+        <item itemvalue="Python.interactive_DP" />
         <item itemvalue="Python.CCG1" />
         <item itemvalue="Python.OP" />
         <item itemvalue="Python.read_data (1)" />
@@ -354,7 +368,14 @@
       <option name="project" value="LOCAL" />
       <updated>1739649056073</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="修改multi OP bug">
+      <created>1739652433786</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1739652433786</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -395,7 +416,8 @@
     <MESSAGE value="随机模型bug" />
     <MESSAGE value="输出修改" />
     <MESSAGE value="增加multi-DP" />
-    <option name="LAST_COMMIT_MESSAGE" value="增加multi-DP" />
+    <MESSAGE value="修改multi OP bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改multi OP bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -472,17 +494,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>693</line>
+          <line>699</line>
           <option name="timeStamp" value="388" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/OP.py</url>
-          <line>237</line>
+          <line>243</line>
           <option name="timeStamp" value="397" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>174</line>
+          <line>177</line>
           <option name="timeStamp" value="433" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -491,24 +513,19 @@
           <option name="timeStamp" value="441" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
+          <line>110</line>
+          <option name="timeStamp" value="574" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
+          <line>476</line>
+          <option name="timeStamp" value="586" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>90</line>
-          <option name="timeStamp" value="495" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>105</line>
-          <option name="timeStamp" value="511" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>93</line>
-          <option name="timeStamp" value="512" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
-          <line>278</line>
-          <option name="timeStamp" value="514" />
+          <line>170</line>
+          <option name="timeStamp" value="594" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
