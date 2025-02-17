@@ -57,8 +57,8 @@ def sub_problem_help(data, master_X):
             k_index = data.J_K_dict[j]
             G_u_pos[k_index][data.U_g_set[u]].append(j)
 
-        pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if any(G_u_pos[k][g]) else None,
-                 max(G_u_pos[k][g]) * cf.unit_move_time if any(G_u_pos[k][g]) else None]
+        pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g])!=0 else None,
+                 max(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g])!=0 else None]
                 for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
         pt = [[sum(data.U_num_set[u] * cf.unit_process_time
                    if data.J_K_dict[master_X[u]] == k and data.U_g_set[u] == g else 0

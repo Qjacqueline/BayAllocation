@@ -434,10 +434,9 @@ def sub_problem_help(data, master_X, pi_index=0):
             j = master_X[u]
             k_index = data.J_K_dict[j + 1]
             G_u_pos[k_index][data.U_g_set[u]].append(j)
-
-        pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if any(G_u_pos[k][g]) else None,
-                 max(G_u_pos[k][g]) * cf.unit_move_time if any(G_u_pos[k][g]) else None]
-                for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
+        pos = [[[min(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None,
+                     max(G_u_pos[k][g]) * cf.unit_move_time if len(G_u_pos[k][g]) != 0 else None]
+                    for g in range(data.G_num)] for k in range(data.K_num)]  # 每个箱组AB子箱组位置
         pt = [[data.G_num_set[u] * cf.unit_process_time if data.J_K_dict[master_X[u] + 1] == k else 0
                for u in range(data.U_num)] for k in range(data.K_num)]  #
         pi_ls = valid_permutations[pi_index]
@@ -451,6 +450,8 @@ def sub_problem_help(data, master_X, pi_index=0):
                         pos[k][i] = [0, 0]
                     else:
                         pos[k][i] = pos[k][i - 1]
+    if pos[0][0] == [None, None]:
+        a = 1
     return data.G_num, pos, pt, [(data.J_K_first[k]) * cf.unit_move_time for k in range(data.K_num)]
 
 
@@ -621,7 +622,10 @@ def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
         pre = A[ii] if ll == 0 else B[ii]
         suc = B[ii] if ll == 0 else A[ii]
         if ii == 0:
-            return abs(pre - init_pos) + abs(pre - suc) + pt[0]
+            try:
+                return abs(pre - init_pos) + abs(pre - suc) + pt[0]
+            except:
+                a = 2
         else:
             if touch_flag[ii - 1]:
                 return dp[ii - 1][l] + abs(pre_pre - pre) + abs(pre - suc) + pt[ii]
