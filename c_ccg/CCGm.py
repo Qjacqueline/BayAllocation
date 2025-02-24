@@ -2,6 +2,7 @@
 # @Time    : 2024/12/18 3:47 PM
 # @Author  : JacQ
 # @File    : CCG1.py
+import copy
 import random
 import time
 from itertools import combinations, permutations
@@ -54,8 +55,8 @@ def prune_bays():
             if find_flag:
                 break
         if find_flag:
-            pos_index = data.J_K[k].index(pos)
-            ls = data.J_K[k][pos_index:].copy()
+            pos_index = data.J_K[k].index(pos - 2)
+            ls = data.J_K[k][pos_index + 1:].copy()
             for jj in ls:
                 if jj in data.I:
                     data.I.remove(jj)
@@ -69,8 +70,6 @@ def CCG():
     iteration_num = 0
     start_time = time.time()
     added_cuts = []
-    # prune bays
-    prune_bays()
 
     # 求解主问题
     master_results = init_master_problem()
@@ -142,10 +141,10 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
         min_var1 = [[model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS,
                                   name="min_var1" + '_' + str(k) + '_' + str(g) + '_' + str(r_c))
                      for g in range(data.G_num + 1)] for k in range(data.K_num)]
-        model.addConstrs((min_var1[k][g] == gurobipy.min_(Z[l][ll][k][g][gg] for l in [0, 1] for ll in [0, 1])
+        model.addConstrs((min_var1[k][g] == gp.min_(Z[l][ll][k][g][gg] for l in [0, 1] for ll in [0, 1])
                           for k in range(data.K_num) for g, gg in P), "tmp")
-        model.addConstrs((min_var1[k][data.G_num] == gurobipy.min_(Theta[l][k][valid_permutations[r_c][0]]
-                                                                   for l in [0, 1]) for k in range(data.K_num)), "tmp")
+        model.addConstrs((min_var1[k][data.G_num] == gp.min_(Theta[l][k][valid_permutations[r_c][0]]
+                                                             for l in [0, 1]) for k in range(data.K_num)), "tmp")
         model.addConstrs((theta >= cf.unit_move_time * (- data.J_K_first[k])
                           + cf.unit_move_time * sum(Theta[1][k][g] - Theta[0][k][g] for g in range(data.G_num))
                           + sum(cf.unit_process_time * data.U_num_set[u] * X[u][j - 1]
@@ -168,39 +167,39 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
             for u, j in XX:
                 rhs.addTerms(1, X[u][j])
             model.addConstr(theta >= v * (rhs - len(XX) + 1), "opt cut")
-        elif cut[0] == 'Optimal_Delta':
-            v, XX = cut[1], cut[2]
-            rhs = LinExpr(0)
-            pt_sum = 0
-            for u, j, pt in XX:
-                pt_sum += pt
-                rhs.addTerms(pt, X[u][j])
-            model.addConstr(theta >= v + rhs - pt_sum, "opt cut")
+        # elif cut[0] == 'Optimal_Delta':
+        #     v, XX = cut[1], cut[2]
+        #     rhs = LinExpr(0)
+        #     pt_sum = 0
+        #     for u, j, pt in XX:
+        #         pt_sum += pt
+        #         rhs.addTerms(pt, X[u][j])
+        #     model.addConstr(theta >= v + rhs - pt_sum, "opt cut")
         elif cut[0] == 'Translation':
             a = 1
-            # containers = [[term[0] for term in cut[2][k]] for k in range(data.K_num)]
-            # zeta = [[0 for _ in range(len(cut[3][k]) + 1)] for k in range(data.K_num)]
-            # for k in range(data.K_num):
-            #     for q in range(len(cut[3][k]) + 1):
-            #         if q == len(cut[3][k]):
-            #             compose = [tmp[1] + 1 for tmp in cut[2][k]]
-            #         else:
-            #             compose = cut[3][k][q]
-            #         rhs2 = LinExpr(0)
-            #         for cnt in range(len(compose)):
-            #             rhs2.addTerms(1, X[containers[k][cnt]][compose[cnt] - 1])
-            #         zeta[k][q] = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='zeta_' + str(zeta_cnt))
-            #         model.addConstr(zeta[k][q] >= rhs2 - len(compose) + 1, 'zeta_' + str(zeta_cnt))
-            #         zeta_cnt += 1
-            # rhs1, rhs2 = LinExpr(0), LinExpr(0)
-            # for k in range(data.K_num):
-            #     rhs1.addTerms(1, zeta[k][len(cut[3][k])])
-            # eta2 = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='eta2')
-            # model.addConstr(eta2 >= big_M * (rhs1 - data.K_num + 1), 'eta2')
-            # for k in range(data.K_num):
-            #     for q in range(len(zeta[k])):
-            #         rhs2.addTerms(1, zeta[k][q])
-            # model.addConstr(theta + eta2 >= big_M * (rhs2 - data.K_num + 1), 'eta2')
+            containers = [[term[0] for term in cut[2][k]] for k in range(data.K_num)]
+            zeta = [[0 for _ in range(len(cut[3][k]) + 1)] for k in range(data.K_num)]
+            for k in range(data.K_num):
+                for q in range(len(cut[3][k]) + 1):
+                    if q == len(cut[3][k]):
+                        compose = [tmp[1] + 1 for tmp in cut[2][k]]
+                    else:
+                        compose = cut[3][k][q]
+                    rhs2 = LinExpr(0)
+                    for cnt in range(len(compose)):
+                        rhs2.addTerms(1, X[containers[k][cnt]][compose[cnt] - 1])
+                    zeta[k][q] = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='zeta_' + str(zeta_cnt))
+                    model.addConstr(zeta[k][q] >= rhs2 - len(compose) + 1, 'zeta_' + str(zeta_cnt))
+                    zeta_cnt += 1
+            rhs1, rhs2 = LinExpr(0), LinExpr(0)
+            for k in range(data.K_num):
+                rhs1.addTerms(1, zeta[k][len(cut[3][k])])
+            eta2 = model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS, name='eta2')
+            model.addConstr(eta2 >= big_M * (rhs1 - data.K_num + 1), 'eta2')
+            for k in range(data.K_num):
+                for q in range(len(zeta[k])):
+                    rhs2.addTerms(1, zeta[k][q])
+            model.addConstr(theta + eta2 >= big_M * (rhs2 - data.K_num + 1), 'eta2')
 
     # ============== 求解参数 ================
     model.optimize()
@@ -239,7 +238,6 @@ def init_master_problem():
                    分别表示 解、theta值
     """
     # ============== 构造模型 ================
-
     model = Model("Master problem")
 
     # ============== 定义变量 ================
@@ -276,9 +274,6 @@ def init_master_problem():
     eta = [[model.addVar(0, GRB.INFINITY, vtype=GRB.CONTINUOUS,
                          name='eta_' + str(k) + '_' + str(g)) for g in range(data.G_num)] for k in range(data.K_num)]
 
-    # res = {0: 5, 1: 3, 2: 7, 3: 11, 4: 13, 5: 17}
-    # model.addConstrs((X[u][res[u]-1] == 1 for u in data.U), "res")
-
     # ================ 约束 ==================
     # 对于一个子箱组
     # con1: Each sub-container group must be placed on one bay
@@ -303,16 +298,16 @@ def init_master_problem():
     model.addConstrs((tmpp_var[k][u] == quicksum(j * X[u][j - 1] for j in data.J_K[k])
                       for k in range(data.K_num) for u in data.U), "tmpp_var")
     # con8: 找A_kg, B_kg的位置
-    model.addConstrs((Theta[0][k][g] == gurobipy.min_(tmpp_var[k][u] for u in data.U_g[g])
+    model.addConstrs((Theta[0][k][g] == gp.min_(tmpp_var[k][u] for u in data.U_g[g])
                       for k in range(data.K_num) for g in range(data.G_num)), "2i")
-    model.addConstrs((Theta[1][k][g] == gurobipy.max_(tmpp_var[k][u] for u in data.U_g[g])
+    model.addConstrs((Theta[1][k][g] == gp.max_(tmpp_var[k][u] for u in data.U_g[g])
                       for k in range(data.K_num) for g in range(data.G_num)), "2k")
     # con9:
     model.addConstrs((ZP[l][ll][k][g][gg] == (Theta[l][k][g] - Theta[1 - ll][k][gg]) * cf.unit_move_time
                       for l in [0, 1] for ll in [0, 1]
                       for g in range(data.G_num) for gg in range(data.G_num)
                       for k in range(data.K_num) if abs(gg - g) <= 1 and g != gg), "2l")
-    model.addConstrs((Z[l][ll][k][g][gg] == gurobipy.abs_(ZP[l][ll][k][g][gg])
+    model.addConstrs((Z[l][ll][k][g][gg] == gp.abs_(ZP[l][ll][k][g][gg])
                       for l in [0, 1] for ll in [0, 1] for g in range(data.G_num)
                       for gg in range(data.G_num) for k in range(data.K_num) if abs(gg - g) <= 1 and g != gg), "2m")
     model.addConstrs((eta[k][g] == (Theta[1][k][g] - Theta[0][k][g]) * cf.unit_move_time +
@@ -320,22 +315,19 @@ def init_master_problem():
                                for u in data.U_g[g] for j in data.J_K[k])
                       for k in range(data.K_num) for g in range(data.G_num)), "2n")
 
-    # min
-    # min_var =[]
-
     # ============== 构造目标 ================
     theta = model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='theta')  # 线性化模型变量
     obj = LinExpr(0)
     obj.addTerms(1, theta)
-    model.setObjective(obj, gurobipy.GRB.MINIMIZE)
+    model.setObjective(obj, gp.GRB.MINIMIZE)
 
     # ============== 添加global cuts ================
     # extreme bay indices
     AA = [model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='AA' + str(k)) for k in range(data.K_num)]
     BB = [model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='BB' + str(k)) for k in range(data.K_num)]
-    model.addConstrs((AA[k] == gurobipy.min_(Theta[1][k][g] for g in range(data.G_num))
+    model.addConstrs((AA[k] == gp.min_(Theta[1][k][g] for g in range(data.G_num))
                       for k in range(data.K_num)), "BB")
-    model.addConstrs((BB[k] == gurobipy.max_(Theta[1][k][g] for g in range(data.G_num))
+    model.addConstrs((BB[k] == gp.max_(Theta[1][k][g] for g in range(data.G_num))
                       for k in range(data.K_num)), "BB")
 
     # 必要时间估算1
@@ -352,24 +344,42 @@ def init_master_problem():
     model.addConstrs((theta >= cf.unit_move_time * 2 * BB[k] - cf.unit_move_time * AA[k]
                       - cf.unit_move_time * data.J_K_first[k]
                       + sum(cf.unit_process_time * data.U_num_set[u] * X[u][j - 1]
-                            for u in data.U for j in data.J_K[k]) for k in range(data.K_num)), "global lb3")
+                            for u in data.U for j in data.J_K[k]) for k in range(data.K_num)), "global lb4")
 
-    # 消除对称性：不同重量不等价，因为会有拼贝情况
-    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
-                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
-                      and data.U_num_set[u] == data.U_num_set[uu]
-                      and jj < j and u < uu), "1q")
-    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) + big_M * (sum(X[u][jjj - 1] for jjj in data.J) - 1)
-                      + big_M * (sum(X[uu][jjj - 1] for jjj in data.J) - 1)
-                      for u in data.U for uu in data.U for j in data.J
-                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
-                      and data.U_num_set[u] != data.U_num_set[uu]
-                      and jj < j and u < uu), "1q")
+    if data.K_num > 1:
+        # model.addConstr(
+        #     theta >= sum(math.ceil(len(data.U_g[g]) / data.K_num) * (cf.unit_process_time * 12 + cf.unit_move_time * 2)
+        #                  if data.U_g[g][0] not in data.I
+        #                  else math.ceil(len(data.U_g[g]) / data.K_num) * (
+        #             cf.unit_process_time * 12 + cf.unit_move_time * 4)
+        #                  for g in range(data.G_num)), name="global lb5")
+        model.addConstr(theta >= sum(math.ceil(len(data.U_g[g]) / data.K_num) * (cf.unit_process_time * 12)
+                                     for g in range(data.G_num))
+                        + math.ceil(len(data.U_g[0]) / data.K_num) * (cf.unit_move_time * 2), name="global lb5")
+        # model.addConstr(
+        #     theta >= sum(
+        #         math.floor(len(data.U_g[g]) / data.K_num) * (cf.unit_process_time * 12 + cf.unit_move_time * 2) for g in
+        #         range(data.G_num)), name="global lb6")
 
-    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
-                      for jj in data.J if ({u, uu}.issubset(data.U_L) or {u, uu}.issubset(data.U_F))
-                      and data.U_num_set[u] == data.U_num_set[uu]
-                      and jj < j and u < uu), "1q")
+        model.addConstr(
+            theta >=
+            math.floor(sum(len(data.U_g[g]) for g in range(data.G_num) if data.U_g[g][0] in data.I) / data.K_num)
+            * (cf.unit_process_time * 12 + cf.unit_move_time * 4)
+            + math.floor(sum(len(data.U_g[g]) for g in range(data.G_num) if data.U_g[g][0] in data.I) / data.K_num)
+            * (cf.unit_process_time * 12 + cf.unit_move_time * 8), name="global lb7")
+
+        B_neighbor = [[model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='AN' + str(g) + "_" + str(k))
+                       for g in range(data.G_num)] for k in range(data.K_num)]
+        neighbor_set = [[] for _ in range(data.G_num)]
+        for g in range(data.G_num):
+            neighbor_set[g].extend([g - i for i in range(1, 4) if g - i >= 0])
+            neighbor_set[g].extend([g + i for i in range(1, 4) if g + i <= data.G_num - 1])
+        model.addConstrs((B_neighbor[k][g] == gp.max_(Theta[1][k][gg] for gg in neighbor_set[g])
+                          for k in range(data.K_num) for g in range(data.G_num)), "neighbor B")
+        model.addConstrs((theta >= sum(math.ceil(len(data.U_g[g]) / data.K_num) * (cf.unit_process_time * 12)
+                                       for g in range(data.G_num))
+                          + B_neighbor[k][g] * cf.unit_move_time - Theta[0][k][g] * cf.unit_move_time
+                          for g in range(data.G_num) for k in range(data.K_num)), name="global lb8")
 
     # 连续分配
     tau = [[0 for _ in range(0, cf.bay_number_one_block * data.K_num)],
@@ -387,6 +397,20 @@ def init_master_problem():
     model.addConstrs((tau[0][j - 1] + tau[1][j - 1] - 1
                       <= sum(X[u][j - 1] for u in data.U + [data.U_num + 1]) for j in data.J),
                      "continuous cut3")  # fixme m是否成立
+
+    cnt, K_taken, rhs = 0, copy.deepcopy(data.J_K_first), LinExpr(0)
+    for u in data.U:
+        k = cnt % data.K_num
+        j = K_taken[k] - 1
+        if u in data.U_F:
+            rhs.addTerms(1, X[u][j + 2])
+            K_taken[k] = K_taken[k] + 4
+        else:
+            rhs.addTerms(1, X[u][j])
+            K_taken[k] = K_taken[k] + 2
+        cnt += 1
+    init_constraint = model.addConstr(rhs == data.U_num, "init")
+
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
     model.Params.timelimit = 3600
@@ -401,6 +425,7 @@ def init_master_problem():
                 print('%s' % c.constrName)
         return False
     else:
+
         model.write('master.sol')
         model.write('master.lp')
         master_X = {}
@@ -412,6 +437,30 @@ def init_master_problem():
                     master_X[u] = j
         if master_X == {0: 30, 1: 28, 2: 16, 3: 10, 4: 6}:
             a = 1
+        # 删除初始解
+        model.remove(init_constraint)
+        # 消除对称性：不同重量不等价，因为会有拼贝情况
+        model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
+                          for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+                          and data.U_num_set[u] == data.U_num_set[uu]
+                          and jj < j and u < uu), "1q")
+        model.addConstrs(
+            (X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) + big_M * (sum(X[u][jjj - 1] for jjj in data.J) - 1)
+             + big_M * (sum(X[uu][jjj - 1] for jjj in data.J) - 1)
+             for u in data.U for uu in data.U for j in data.J
+             for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+             and data.U_num_set[u] != data.U_num_set[uu]
+             and jj < j and u < uu), "1q")
+
+        model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
+                          for jj in data.J if ({u, uu}.issubset(data.U_L) or {u, uu}.issubset(data.U_F))
+                          and data.U_num_set[u] == data.U_num_set[uu]
+                          and jj < j and u < uu), "1q")
+        # 消除对称性：不同场桥
+        model.addConstrs((sum(X[u][j] * data.U_g_set[u] for u in data.U for j in data.J_K[k]) <=
+                          sum(X[u][j] * data.U_g_set[u] for u in data.U for j in data.J_K[k + 1])
+                          for k in range(data.K_num - 1)), "symmetry k")
+
         return master_X, theta.X, model, (X, Z, Theta, theta)
 
 
@@ -692,6 +741,7 @@ def sub_problem_single_T(N, A, B, pt, init_pos, st_line, touch_flag):
 
     return schedule, min_cost
 
+
 def find_new_sequences(J, original_sequence, master_results):
     # Step 1: Calculate original distances
     original_distances = [original_sequence[i + 1] - original_sequence[i] for i in range(len(original_sequence) - 1)]
@@ -719,6 +769,10 @@ def find_new_sequences(J, original_sequence, master_results):
             valid_sequences.append(sorted_candidate)
             invalid_sequences_r.append(sorted_candidate)
     return valid_sequences
+
+
+def find_new_sequences2(J, original_sequence, master_results):
+    a = 1
 
 
 def generate_cuts(master_results, sub_results, added_cuts):
@@ -761,19 +815,17 @@ def generate_cuts(master_results, sub_results, added_cuts):
             U_k = [[] for _ in range(data.K_num)]
             for pair in X.items():
                 U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
-                # if isinstance(pair[1], int):
-                #     U_k[data.J_K_dict[pair[1] + 1]].append([pair[0], pair[1]])
-                # else:
-                #     for pos in pair[1]:
-                #         if pos + 1 in data.J_K_first:
-                #             continue
-                #         U_k[data.J_K_dict[pos + 1]].append([pair[0], pos])
             U_k_sorted = [sorted(sublist, key=lambda x: x[1]) for sublist in U_k]  # 按照贝位排序
             Used_bays = [[pair[1] for pair in U_k_sorted[k]] for k in range(data.K_num)]
             invalid_sequences = [-1 for _ in range(data.K_num)]
             for k in range(data.K_num):
-                init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
-                invalid_sequences[k] = find_new_sequences(data.J_K[k][init_b_index:], Used_bays[k], master_results[0])
+                if any(Used_bays[k]):
+                    init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
+                    invalid_sequences[k] = find_new_sequences(data.J_K[k][init_b_index:], Used_bays[k], master_results[0])
+                else:
+                    invalid_sequences[k] = []
+                find_new_sequences2(data.J_K, Used_bays[k], master_results[0])
+
             if not all(num == -1 for num in invalid_sequences):
                 added_cuts.append(['Translation', v, U_k_sorted, invalid_sequences])
 
@@ -894,7 +946,19 @@ def original_problem_robust(data, res=None, w_obj=None):
     obj = model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name='obj')  # 线性化模型变量
     model.addConstrs((obj >= C_max[w] for w in range(pi_num)), "obj")
     # model.addConstr((obj >= C_max[7] ), "obj")
-    model.setObjective(obj, gurobipy.GRB.MINIMIZE)
+
+    if test_flag:
+        model.addConstr(obj >= sum(math.ceil(len(data.U_g[g]) / data.K_num) * (cf.unit_process_time * 12)
+                                   for g in range(data.G_num))
+                        + math.ceil(len(data.U_g[0]) / data.K_num) * (cf.unit_move_time * 2), name="global lb5")
+        model.addConstr(
+            obj >=
+            math.floor(sum(len(data.U_g[g]) for g in range(data.G_num) if data.U_g[g][0] in data.I) / data.K_num)
+            * (cf.unit_process_time * 12 + cf.unit_move_time * 4)
+            + math.floor(sum(len(data.U_g[g]) for g in range(data.G_num) if data.U_g[g][0] in data.I) / data.K_num)
+            * (cf.unit_process_time * 12 + cf.unit_move_time * 8), name="global lb7")
+
+    model.setObjective(obj, gp.GRB.MINIMIZE)
     model.setParam('MIPGap', 0.0001)
 
     # ============== 求解参数 ================
@@ -911,6 +975,7 @@ def original_problem_robust(data, res=None, w_obj=None):
                 print('%s' % c.constrName)
         return False
     else:
+
         # model.write('OP.sol')
         # model.write('OP.lp')
         # 输出结果为
@@ -1004,11 +1069,12 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    case = 'case3m'
+    case = 'case1m'
     print_flag, CCG_show_flag = True, True
     # data = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
     data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
     print(case)
+    prune_bays()
     # ============== 生成所有可能提取序列 ================
     sequence = list(range(data.G_num))
     valid_permutations = generate_permutations(sequence, swapped=None)
@@ -1017,8 +1083,9 @@ if __name__ == '__main__':
     invalid_sequences_r = []
     # ============== 求解 ================
     random_seed = 0.2  # 加seq cut设置系数
-    res = original_problem_robust(data)
-    # res = False
+    test_flag = True  # 是否开下界测试
+    # res = original_problem_robust(data)
+    res = False
     print(res)
     if res is False:
         obj1, time1, res1 = -1, 7200, []

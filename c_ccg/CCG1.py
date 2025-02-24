@@ -84,10 +84,8 @@ def CCG():
               str(iteration_num) + "=========================================")
 
         # 求解主问题
-        try:
-            master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
-        except:
-            a = 1
+        master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
+
         if not master_results:
             print("Master problem is infeasible!")
             return
