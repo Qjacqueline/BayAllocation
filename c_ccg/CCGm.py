@@ -378,6 +378,7 @@ def init_master_problem():
                           for k in range(data.K_num) for g in range(data.G_num)), "neighbor B")
         model.addConstrs((theta >= sum(math.ceil(len(data.U_g[g]) / data.K_num) * (cf.unit_process_time * 12)
                                        for g in range(data.G_num))
+                          * quicksum(X[u][j - 1] for u in data.U_g[g] for j in data.J_K[k])
                           + B_neighbor[k][g] * cf.unit_move_time - Theta[0][k][g] * cf.unit_move_time
                           for g in range(data.G_num) for k in range(data.K_num)), name="global lb8")
 
@@ -821,7 +822,8 @@ def generate_cuts(master_results, sub_results, added_cuts):
             for k in range(data.K_num):
                 if any(Used_bays[k]):
                     init_b_index = data.J_K[k].index(Used_bays[k][0] + 1)
-                    invalid_sequences[k] = find_new_sequences(data.J_K[k][init_b_index:], Used_bays[k], master_results[0])
+                    invalid_sequences[k] = find_new_sequences(data.J_K[k][init_b_index:], Used_bays[k],
+                                                              master_results[0])
                 else:
                     invalid_sequences[k] = []
                 find_new_sequences2(data.J_K, Used_bays[k], master_results[0])
