@@ -75,32 +75,28 @@ def CCG():
     master_results = init_master_problem()
 
     while 1:
+
         if CCG_show_flag: print("=========================================iteration\t" +
                                 str(iteration_num) + "=========================================")
-
-        master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
-
         if not master_results:
             if CCG_show_flag: print("Master problem is infeasible!")
             return
-        LB = max(LB, master_results[1])  # 当前迭代主问题目标值
+        LB = max(
+            [LB] + (master_results[1] if isinstance(master_results[1], list) else [master_results[1]]))  # 当前迭代主问题目标值
         if CCG_show_flag: print("Master obj:\t", master_results[1], "\t", master_results[0])
-        if abs(LB - 4356) <= 0.1:
-            a = 1
 
         # 求解子问题
-        if master_results[0] == {0: 60, 1: 2, 2: 4, 3: 64, 4: 66, 5: 8}:
-            a = 1
-        if data.K_num == 1:
-            sub_results = sub_problem_single(data, master_results[0])
-        else:
-            sub_results = sub_problem_multi(data,  master_results[0])
-        # compare_results = find_max_permutation_cost(N, pos, pt, init_pos)
-
-        UB = min(UB, sub_results[0])
-
-        # 添加cuts
-        added_cuts = generate_cuts(master_results, sub_results, added_cuts)
+        added_cuts = []
+        for cnt in range(len(master_results[0])):
+            master_X = [master_results[0][cnt], master_results[1][cnt]]
+            if data.K_num == 1:
+                sub_results = sub_problem_single(data, master_X[0])
+            else:
+                sub_results = sub_problem_multi(data, master_X[0])
+            UB = min(UB, sub_results[0])
+            # 添加cuts
+            added_cuts.extend(generate_cuts(master_X, sub_results, added_cuts))
+        master_results = update_master_problem_adding_cuts(master_results[2], master_results[3], added_cuts)
 
         end_x = None
         # 判断迭代终止条件
@@ -230,7 +226,7 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
         #         continue
         #     if abs(X[data.U_num + 1][j].X) > 0.00001:
         #         master_X[data.U_num + 1].append(j)
-        return master_X, theta.X, model, (X, Z, Theta, theta)
+        return [master_X], [theta.X], model, (X, Z, Theta, theta)
 
 
 def init_master_problem():
@@ -403,6 +399,57 @@ def init_master_problem():
                       <= sum(X[u][j - 1] for u in data.U + [data.U_num + 1]) for j in data.J),
                      "continuous cut3")  # fixme m是否成立
 
+    # 初始解1
+    # master_X, obj_1, obj = None, float("inf"), float("inf")
+    return_res = False
+    init_num = 0
+    # master_X, obj, model, (X, Z, Theta, theta)
+    res_1 = init_solu_1(model, X)
+    if res1 is not False:
+        master_X1, obj_1 = res_1
+        return_res = [[master_X1, obj_1, model, (X, Z, Theta, theta)]]
+        init_num += 1
+    # 初始解2：按照长度分
+    res_2 = init_solu_2(model, X)
+    if res_2 is not False:
+        master_X2, obj_2 = res_2
+        return_res.append([master_X2, obj_2, model, (X, Z, Theta, theta)])
+        init_num += 1
+    # 初始解3：循环给解
+    res_3 = init_solu_3(model, X)
+    if res_3 is not False:
+        master_X3, obj_3 = res_3
+        return_res.append([master_X3, obj_3, model, (X, Z, Theta, theta)])
+        init_num += 1
+    # 补充消除对称性约束：不同重量不等价，因为会有拼贝情况
+    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
+                      for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+                      and data.U_num_set[u] == data.U_num_set[uu]
+                      and jj < j and u < uu), "1q")
+    model.addConstrs(
+        (X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) + big_M * (sum(X[u][jjj - 1] for jjj in data.J) - 1)
+         + big_M * (sum(X[uu][jjj - 1] for jjj in data.J) - 1)
+         for u in data.U for uu in data.U for j in data.J
+         for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
+         and data.U_num_set[u] != data.U_num_set[uu]
+         and jj < j and u < uu), "1q")
+
+    model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
+                      for jj in data.J if ({u, uu}.issubset(data.U_L) or {u, uu}.issubset(data.U_F))
+                      and data.U_num_set[u] == data.U_num_set[uu]
+                      and jj < j and u < uu), "1q")
+    # 消除对称性：不同场桥
+    model.addConstrs((sum(X[u][j] * data.U_g_set[u] for u in data.U for j in data.J_K[k]) <=
+                      sum(X[u][j] * data.U_g_set[u] for u in data.U for j in data.J_K[k + 1])
+                      for k in range(data.K_num - 1)), "symmetry k")
+    if return_res is False:
+        return return_res
+    else:
+        return [return_res[q][0] for q in range(init_num)], [return_res[q][1] for q in range(init_num)], \
+               return_res[1][2], return_res[1][3]
+
+
+def init_solu_1(model, X):
     cnt, K_taken, rhs = 0, copy.deepcopy(data.J_K_first), LinExpr(0)
     for u in data.U:
         k = cnt % data.K_num
@@ -425,6 +472,52 @@ def init_master_problem():
         # do IIS, find infeasible constraints
         model.computeIIS()
         model.write('a.ilp')
+        model.remove(init_constraint)
+        for c in model.getConstrs():
+            if c.IISConstr:
+                print('%s' % c.constrName)
+        return False
+    else:
+        # model.write('master.sol')
+        # model.write('master.lp')
+        master_X = {}
+        for u in range(data.U_num):
+            for j in range(cf.bay_number_one_block * data.K_num):
+                if j + 1 not in data.J:
+                    continue
+                if abs(X[u][j].X) > 0.00001:
+                    master_X[u] = j
+        # 删除初始解
+        model.remove(init_constraint)
+
+        return master_X, model.objVal
+
+
+def init_solu_2(model, X):
+    cnt, K_taken, rhs = 0, copy.deepcopy(data.J_K_first), LinExpr(0)
+    for u in data.U:
+        c_ls = [num % 60 for num in K_taken]
+        k = c_ls.index(min(c_ls))
+        j = K_taken[k] - 1
+        if u in data.U_F:
+            rhs.addTerms(1, X[u][j + 2])
+            K_taken[k] = K_taken[k] + 4
+        else:
+            rhs.addTerms(1, X[u][j])
+            K_taken[k] = K_taken[k] + 2
+        cnt += 1
+    init_constraint = model.addConstr(rhs == data.U_num, "init")
+
+    # ============== 求解参数 ================
+    model.Params.OutputFlag = 0
+    model.Params.timelimit = 3600
+    model.optimize()
+    if model.status == GRB.Status.INFEASIBLE:
+        print('Optimization was stopped with status %d' % model.status)
+        # do IIS, find infeasible constraints
+        model.computeIIS()
+        model.write('a.ilp')
+        model.remove(init_constraint)
         for c in model.getConstrs():
             if c.IISConstr:
                 print('%s' % c.constrName)
@@ -440,33 +533,72 @@ def init_master_problem():
                     continue
                 if abs(X[u][j].X) > 0.00001:
                     master_X[u] = j
-        if master_X == {0: 30, 1: 28, 2: 16, 3: 10, 4: 6}:
-            a = 1
         # 删除初始解
         model.remove(init_constraint)
-        # 消除对称性：不同重量不等价，因为会有拼贝情况
-        model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
-                          for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
-                          and data.U_num_set[u] == data.U_num_set[uu]
-                          and jj < j and u < uu), "1q")
-        model.addConstrs(
-            (X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) + big_M * (sum(X[u][jjj - 1] for jjj in data.J) - 1)
-             + big_M * (sum(X[uu][jjj - 1] for jjj in data.J) - 1)
-             for u in data.U for uu in data.U for j in data.J
-             for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
-             and data.U_num_set[u] != data.U_num_set[uu]
-             and jj < j and u < uu), "1q")
 
-        model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
-                          for jj in data.J if ({u, uu}.issubset(data.U_L) or {u, uu}.issubset(data.U_F))
-                          and data.U_num_set[u] == data.U_num_set[uu]
-                          and jj < j and u < uu), "1q")
-        # 消除对称性：不同场桥
-        model.addConstrs((sum(X[u][j] * data.U_g_set[u] for u in data.U for j in data.J_K[k]) <=
-                          sum(X[u][j] * data.U_g_set[u] for u in data.U for j in data.J_K[k + 1])
-                          for k in range(data.K_num - 1)), "symmetry k")
+        return master_X, model.objVal
 
-        return master_X, theta.X, model, (X, Z, Theta, theta)
+
+def cyclic_sequence(k, N):
+    cnt, ls = 0, []
+    while True:
+        # 生成 1 到 k 的序列
+        for i in range(0, k):
+            ls.append(i)
+            cnt += 1
+            if cnt >= N:
+                return ls
+        # 生成 k 到 1 的序列
+        for i in range(k - 1, -1, -1):
+            ls.append(i)
+            cnt += 1
+            if cnt >= N:
+                return ls
+
+
+def init_solu_3(model, X):
+    cnt, K_taken, rhs = 0, copy.deepcopy(data.J_K_first), LinExpr(0)
+    k_ls = cyclic_sequence(data.K_num, data.U_num)
+    for u in data.U:
+        k = k_ls[cnt]
+        j = K_taken[k] - 1
+        if u in data.U_F:
+            rhs.addTerms(1, X[u][j + 2])
+            K_taken[k] = K_taken[k] + 4
+        else:
+            rhs.addTerms(1, X[u][j])
+            K_taken[k] = K_taken[k] + 2
+        cnt += 1
+    init_constraint = model.addConstr(rhs == data.U_num, "init")
+
+    # ============== 求解参数 ================
+    model.Params.OutputFlag = 0
+    model.Params.timelimit = 3600
+    model.optimize()
+    if model.status == GRB.Status.INFEASIBLE:
+        print('Optimization was stopped with status %d' % model.status)
+        # do IIS, find infeasible constraints
+        model.computeIIS()
+        model.write('a.ilp')
+        model.remove(init_constraint)
+        for c in model.getConstrs():
+            if c.IISConstr:
+                print('%s' % c.constrName)
+        return False
+    else:
+        # model.write('master.sol')
+        # model.write('master.lp')
+        master_X = {}
+        for u in range(data.U_num):
+            for j in range(cf.bay_number_one_block * data.K_num):
+                if j + 1 not in data.J:
+                    continue
+                if abs(X[u][j].X) > 0.00001:
+                    master_X[u] = j
+        # 删除初始解
+        model.remove(init_constraint)
+
+        return master_X, model.objVal
 
 
 def sub_problem_help(data, master_X, pi_index=0):
@@ -786,7 +918,7 @@ def find_new_sequences2(J, original_sequence, master_results):
 def generate_cuts(master_results, sub_results, added_cuts):
     if sub_results is not None:
         if data.K_num == 1:
-            X, objVal, _, _ = master_results
+            X, objVal = master_results
             max_value, worst_path, dp, worst_path_r = sub_results
             # optimal_cuts
             added_cuts.append(['Optimal', max_value, [[key, X[key]] for key in X.keys() if key != data.U_num + 1]])
@@ -813,7 +945,7 @@ def generate_cuts(master_results, sub_results, added_cuts):
                                                                   range(len(seq))]])
             a = 1
         else:
-            X, objVal, _, _ = master_results
+            X, objVal = master_results
             v, pi, schedule = sub_results
             # optimal_cuts
             added_cuts.append(['Optimal', v, [[key, X[key]] for key in X.keys() if key != data.U_num + 1]])
