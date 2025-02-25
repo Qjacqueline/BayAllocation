@@ -85,6 +85,8 @@ def CCG():
             return
         LB = max(LB, master_results[1])  # 当前迭代主问题目标值
         if CCG_show_flag: print("Master obj:\t", master_results[1], "\t", master_results[0])
+        if abs(LB - 4356) <= 0.1:
+            a = 1
 
         # 求解子问题
         if master_results[0] == {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}:
@@ -92,7 +94,7 @@ def CCG():
         if data.K_num == 1:
             sub_results = sub_problem_single(data, master_results[0])
         else:
-            sub_results = sub_problem_multi(data, master_results[0])
+            sub_results = sub_problem_multi(data,  master_results[0])
         # compare_results = find_max_permutation_cost(N, pos, pt, init_pos)
 
         UB = min(UB, sub_results[0])
@@ -282,7 +284,7 @@ def init_master_problem():
     model.addConstrs((quicksum(X[u][j - 1] for j in set(data.J) - set(data.I)) == 0 for u in data.U_F), "2c")
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "2d")
-    # con3:对于40ft的子箱组占了前一个后一个位置就不能被其他使用
+    # con3:对于40ft的子箱组占了后一个前一个位置就不能被其他使用
     model.addConstrs((X[u][j - 1] + X[uu][j - 3] <= 1 for u in data.U_F for uu in data.U for j in data.I), "2e")
     # 对于一个贝
     # con4: 一个贝上放置的箱组一般不超过2个
@@ -296,7 +298,9 @@ def init_master_problem():
     tmpp_var = [[model.addVar(lb=0, ub=GRB.INFINITY, vtype=GRB.CONTINUOUS, name="tmpp_var" + str(u) + str(k)) for u in
                  data.U] for k in range(data.K_num)]
     model.addConstrs((tmpp_var[k][u] == quicksum(j * X[u][j - 1] for j in data.J_K[k])
-                      for k in range(data.K_num) for u in data.U), "tmpp_var")
+                      for k in range(data.K_num) for u in data.U if u in data.U_L), "tmpp_var")
+    model.addConstrs((tmpp_var[k][u] == quicksum((j - 1) * X[u][j - 1] for j in data.J_K[k])
+                      for k in range(data.K_num) for u in data.U if u in data.U_F), "tmpp_var")
     # con8: 找A_kg, B_kg的位置
     model.addConstrs((Theta[0][k][g] == gp.min_(tmpp_var[k][u] for u in data.U_g[g])
                       for k in range(data.K_num) for g in range(data.G_num)), "2i")
@@ -477,8 +481,9 @@ def sub_problem_help(data, master_X, pi_index=0):
         for u in range(data.U_num):
             j = master_X[u]
             G_u_pos[data.U_g_set[u]].append(j + 1)
-        pos = [[min(G_u_pos[g]) * cf.unit_move_time if g not in data.U_F else (min(G_u_pos[g]) - 2) * cf.unit_move_time,
-                max(G_u_pos[g]) * cf.unit_move_time] for g in range(data.G_num)]  # 每个箱组AB子箱组位置
+        pos = [[min(G_u_pos[g]) * cf.unit_move_time if g not in data.U_F else (min(G_u_pos[g]) - 1) * cf.unit_move_time,
+                max(G_u_pos[g]) * cf.unit_move_time if g not in data.U_F else (max(G_u_pos[g]) - 1) * cf.unit_move_time]
+               for g in range(data.G_num)]  # 每个箱组AB子箱组位置
         pt = [g_num * cf.unit_process_time for g_num in data.G_num_set]
         pt = [x for x in pt if x != 0]
     else:
@@ -495,7 +500,8 @@ def sub_problem_help(data, master_X, pi_index=0):
                 elif g not in data.U_F:
                     pos[k][g] = [min(G_u_pos[k][g]) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
                 else:
-                    pos[k][g] = [(min(G_u_pos[k][g]) - 2) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
+                    pos[k][g] = [(min(G_u_pos[k][g]) - 1) * cf.unit_move_time,
+                                 (max(G_u_pos[k][g] )- 1) * cf.unit_move_time]
         pt = [[sum(data.U_num_set[u] * cf.unit_process_time
                    if data.J_K_dict[master_X[u] + 1] == k and data.U_g_set[u] == g else 0
                    for u in range(data.U_num)) for g in range(data.G_num)] for k in range(data.K_num)]
@@ -553,6 +559,8 @@ def sub_problem_multi(data, master_result):
                 # st = [whole_schedule[k][g + 1] - whole_schedule[k][g] - pt[k][g + 1] for k in range(data.K_num)]
                 for k in range(data.K_num):
                     whole_schedule[k][g + 1] = whole_schedule[k][g] + max(dt[k], st[k][g]) + pt[k][g + 1]
+            a = 1
+        if st_line[-1] == 4416:
             a = 1
         if st_line[-1] > max_v:
             max_v = st_line[-1]
@@ -887,7 +895,7 @@ def original_problem_robust(data, res=None, w_obj=None):
     model.addConstrs((quicksum(X[u][j - 1] for j in data.I) == 1 for u in data.U_F), "1d")
     # con2: Initial position restrictions
     model.addConstrs((X[data.U_num][j - 1] == 1 for j in data.J_K_first), "1f")
-    # con3:对于40ft的子箱组占了前一个后一个位置就要被虚拟子箱组占用
+    # con3:对于40ft的子箱组占了后一个前一个位置就要被虚拟子箱组占用
     model.addConstrs((X[u][j - 1] + X[uu][j - 3] <= 1 for u in data.U_F for uu in data.U for j in data.I), "1g")
     # Con4: 一个贝上放置的箱组一般不超过2个
     model.addConstrs((quicksum(X[u][j - 1] for u in data.U) <= 2 for j in data.J), "1h")
@@ -915,17 +923,25 @@ def original_problem_robust(data, res=None, w_obj=None):
         for k in range(data.K_num):
             for w in range(pi_num):
                 # 当 Y[w][data.U_num][uu][k] = 1 时的约束
-                expr = data.U_num_set[uu] * cf.unit_process_time + \
-                       gp.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
-                                   for j in data.J_K[k] for jj in data.J_K[k])
+                if uu in data.U_F:
+                    expr = data.U_num_set[uu] * cf.unit_process_time + \
+                           gp.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj + 1)
+                                       for j in data.J_K[k] for jj in data.J_K[k])
+                else:
+                    expr = data.U_num_set[uu] * cf.unit_process_time + \
+                           gp.quicksum(Z[w][data.U_num][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                                       for j in data.J_K[k] for jj in data.J_K[k])
                 model.addConstr((Y[w][data.U_num][uu][k] == 1) >> (C[w][uu] >= expr), "1n")
     for u in data.U:
         for uu in data.U:
             for k in range(data.K_num):
                 for w in range(pi_num):
                     # 当 Y[w][u][uu][k] = 1 时的约束
+                    bay_delta_u = 0 if u in data.U_L else -1
+                    bay_delta_uu = 0 if uu in data.U_L else -1
                     expr = data.U_num_set[uu] * cf.unit_process_time + \
-                           gp.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time * abs(j - jj)
+                           gp.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time *
+                                       abs(j - bay_delta_u - jj + bay_delta_uu)
                                        for j in data.J_K[k] for jj in data.J_K[k])
                     model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
@@ -1086,8 +1102,8 @@ if __name__ == '__main__':
     # ============== 求解 ================
     random_seed = 0.2  # 加seq cut设置系数
     test_flag = True  # 是否开下界测试
-    # res = original_problem_robust(data)
-    res = False
+    res = original_problem_robust(data)
+    # res = False
     print(res)
     if res is False:
         obj1, time1, res1 = -1, 7200, []

@@ -661,7 +661,7 @@ def prune_bays(data):
 
 if __name__ == '__main__':
     print_flag = False
-
+    ################### todo 注意40没有-1！！！！！
     for case in ['case1', 'case2', 'case3', 'case4', 'case5', 'case6', 'case11']:
         # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\", "a") as f:
         dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)

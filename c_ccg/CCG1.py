@@ -587,6 +587,7 @@ def generate_cuts(master_results, sub_results, added_cuts):
 
 
 if __name__ == '__main__':
+    ################### todo 注意40没有-1！！！！！
     case = 'case1'
     data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
     print(case)

@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="mDP-T没有同步bug">
-      <change afterPath="$PROJECT_DIR$/a_data_process/data/standard/case4m" afterDir="false" />
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加multiYC cut">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/standard/case1m" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/standard/case1m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/standard/case2m" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/standard/case2m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/CCG1.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -407,7 +403,28 @@
       <option name="project" value="LOCAL" />
       <updated>1739828926256</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="增加multiYC cut">
+      <created>1740430564618</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1740430564618</updated>
+    </task>
+    <task id="LOCAL-00030" summary="增加multiYC cut">
+      <created>1740433182342</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1740433182342</updated>
+    </task>
+    <task id="LOCAL-00031" summary="增加multiYC cut">
+      <created>1740436860562</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1740436860562</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -430,7 +447,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
-    <MESSAGE value="init commit" />
     <MESSAGE value="OP" />
     <MESSAGE value="1.增加enumerate&#10;2.增加cuts" />
     <MESSAGE value="CCG commit" />
@@ -455,7 +471,8 @@
     <MESSAGE value="ccg区分40大小" />
     <MESSAGE value="小bug" />
     <MESSAGE value="mDP-T没有同步bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="mDP-T没有同步bug" />
+    <MESSAGE value="增加multiYC cut" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加multiYC cut" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -552,23 +569,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>421</line>
-          <option name="timeStamp" value="633" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>824</line>
-          <option name="timeStamp" value="640" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>455</line>
-          <option name="timeStamp" value="642" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>376</line>
-          <option name="timeStamp" value="648" />
+          <line>99</line>
+          <option name="timeStamp" value="656" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -583,6 +585,7 @@
       <configuration name="PythonConfigurationType">
         <watch expression="data" language="Python" />
         <watch expression="valid_permutations" language="Python" />
+        <watch expression="whole_schedule" />
       </configuration>
     </watches-manager>
   </component>
