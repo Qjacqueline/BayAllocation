@@ -89,7 +89,7 @@ def CCG():
             a = 1
 
         # 求解子问题
-        if master_results[0] == {0: 14, 1: 10, 2: 6, 3: 16, 4: 10, 5: 6}:
+        if master_results[0] == {0: 60, 1: 2, 2: 4, 3: 64, 4: 66, 5: 8}:
             a = 1
         if data.K_num == 1:
             sub_results = sub_problem_single(data, master_results[0])
@@ -501,7 +501,7 @@ def sub_problem_help(data, master_X, pi_index=0):
                     pos[k][g] = [min(G_u_pos[k][g]) * cf.unit_move_time, max(G_u_pos[k][g]) * cf.unit_move_time]
                 else:
                     pos[k][g] = [(min(G_u_pos[k][g]) - 1) * cf.unit_move_time,
-                                 (max(G_u_pos[k][g] )- 1) * cf.unit_move_time]
+                                 (max(G_u_pos[k][g]) - 1) * cf.unit_move_time]
         pt = [[sum(data.U_num_set[u] * cf.unit_process_time
                    if data.J_K_dict[master_X[u] + 1] == k and data.U_g_set[u] == g else 0
                    for u in range(data.U_num)) for g in range(data.G_num)] for k in range(data.K_num)]
@@ -546,8 +546,7 @@ def sub_problem_multi(data, master_result):
             # adjustment
             st_line, touch_flag = [], [[False for _ in range(data.G_num)] for _ in range(data.K_num)]
             st = [[whole_schedule[k][g + 1] - whole_schedule[k][g] - pt[k][g + 1] for g in range(data.G_num - 1)] for k
-                  in
-                  range(data.K_num)]
+                  in range(data.K_num)]
             for g in range(data.G_num):
                 max_l = max(whole_schedule[k][g] for k in range(data.K_num))
                 for k in range(data.K_num):
@@ -941,7 +940,7 @@ def original_problem_robust(data, res=None, w_obj=None):
                     bay_delta_uu = 0 if uu in data.U_L else -1
                     expr = data.U_num_set[uu] * cf.unit_process_time + \
                            gp.quicksum(Z[w][u][uu][j - 1][jj - 1] * cf.unit_move_time *
-                                       abs(j - bay_delta_u - jj + bay_delta_uu)
+                                       abs(j + bay_delta_u - (jj + bay_delta_uu))
                                        for j in data.J_K[k] for jj in data.J_K[k])
                     model.addConstr((Y[w][u][uu][k] == 1) >> (C[w][uu] - C[w][u] >= expr), "1n")
     # Con9: z和x的关系
@@ -1102,8 +1101,8 @@ if __name__ == '__main__':
     # ============== 求解 ================
     random_seed = 0.2  # 加seq cut设置系数
     test_flag = True  # 是否开下界测试
-    res = original_problem_robust(data)
-    # res = False
+    # res = original_problem_robust(data)
+    res = False
     print(res)
     if res is False:
         obj1, time1, res1 = -1, 7200, []
