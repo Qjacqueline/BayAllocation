@@ -353,9 +353,10 @@ def init_master_problem():
         #                  else math.ceil(len(data.U_g[g]) / data.K_num) * (
         #             cf.unit_process_time * 12 + cf.unit_move_time * 4)
         #                  for g in range(data.G_num)), name="global lb5")
+        # fixme
         model.addConstr(theta >= sum(math.ceil(len(data.U_g[g]) / data.K_num) * (cf.unit_process_time * 12)
                                      for g in range(data.G_num))
-                        + math.ceil(len(data.U_g[0]) / data.K_num) * (cf.unit_move_time * 2), name="global lb5")
+                        + math.ceil(len(data.U_g[0]) / data.K_num) * (cf.unit_move_time * 1), name="global lb5")
         # model.addConstr(
         #     theta >= sum(
         #         math.floor(len(data.U_g[g]) / data.K_num) * (cf.unit_process_time * 12 + cf.unit_move_time * 2) for g in
@@ -403,9 +404,9 @@ def init_master_problem():
     # master_X, obj_1, obj = None, float("inf"), float("inf")
     return_res = False
     init_num = 0
-    # master_X, obj, model, (X, Z, Theta, theta)
+    # 初始解1：依次放置 1->k 1->k
     res_1 = init_solu_1(model, X)
-    if res1 is not False:
+    if res_1 is not False:
         master_X1, obj_1 = res_1
         return_res = [[master_X1, obj_1, model, (X, Z, Theta, theta)]]
         init_num += 1
@@ -415,7 +416,7 @@ def init_master_problem():
         master_X2, obj_2 = res_2
         return_res.append([master_X2, obj_2, model, (X, Z, Theta, theta)])
         init_num += 1
-    # 初始解3：循环给解
+    # 初始解3：依次放置 1->k k->1
     res_3 = init_solu_3(model, X)
     if res_3 is not False:
         master_X3, obj_3 = res_3
@@ -461,7 +462,7 @@ def init_solu_1(model, X):
             rhs.addTerms(1, X[u][j])
             K_taken[k] = K_taken[k] + 2
         cnt += 1
-    init_constraint = model.addConstr(rhs == data.U_num, "init")
+    init_constraint = model.addConstr(rhs == data.U_num, "init_1")
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
@@ -506,7 +507,7 @@ def init_solu_2(model, X):
             rhs.addTerms(1, X[u][j])
             K_taken[k] = K_taken[k] + 2
         cnt += 1
-    init_constraint = model.addConstr(rhs == data.U_num, "init")
+    init_constraint = model.addConstr(rhs == data.U_num, "init_2")
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
@@ -569,7 +570,7 @@ def init_solu_3(model, X):
             rhs.addTerms(1, X[u][j])
             K_taken[k] = K_taken[k] + 2
         cnt += 1
-    init_constraint = model.addConstr(rhs == data.U_num, "init")
+    init_constraint = model.addConstr(rhs == data.U_num, "init_3")
 
     # ============== 求解参数 ================
     model.Params.OutputFlag = 0
@@ -1218,39 +1219,40 @@ def generate_color_groups(g):
 
 
 if __name__ == '__main__':
-    case = 'case1m'
-    print_flag, CCG_show_flag = True, True
-    # data = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
-    data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
-    print(case)
-    prune_bays()
-    # ============== 生成所有可能提取序列 ================
-    sequence = list(range(data.G_num))
-    valid_permutations = generate_permutations(sequence, swapped=None)
-    pi_num = len(valid_permutations)
-    pi_num_set = [i for i in range(len(valid_permutations))]
-    invalid_sequences_r = []
-    # ============== 求解 ================
-    random_seed = 0.2  # 加seq cut设置系数
-    test_flag = True  # 是否开下界测试
-    # res = original_problem_robust(data)
-    res = False
-    print(res)
-    if res is False:
-        obj1, time1, res1 = -1, 7200, []
-    else:
-        obj1, res1, worst_index1, time1 = res
+    print_flag, CCG_show_flag = False, True
+    for index in range(1, 5):
+        case = 'case' + str(index) + 'm'
+        # data = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
+        data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
+        print(case)
+        prune_bays()
+        # ============== 生成所有可能提取序列 ================
+        sequence = list(range(data.G_num))
+        valid_permutations = generate_permutations(sequence, swapped=None)
+        pi_num = len(valid_permutations)
+        pi_num_set = [i for i in range(len(valid_permutations))]
+        invalid_sequences_r = []
+        # ============== 求解 ================
+        random_seed = 0.2  # 加seq cut设置系数
+        test_flag = True  # 是否开下界测试
+        # res = original_problem_robust(data)
+        res = False
+        print(res)
+        if res is False:
+            obj1, time1, res1 = -1, 7200, []
+        else:
+            obj1, res1, worst_index1, time1 = res
 
-    ub, lb, gap, time2, res2 = CCG()
-    print("================================================================================")
-    print(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"
-          f"CCG:ub\t{ub:.2f}\tlb\t{lb:.2f}\tgap\t{gap:.2f}\ttime\t{time2:.2f}")
-    print(res1)
-    print(res2)
+        ub, lb, gap, time2, res2 = CCG()
+        print("================================================================================")
+        print(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"
+              f"CCG:ub\t{ub:.2f}\tlb\t{lb:.2f}\tgap\t{gap:.2f}\ttime\t{time2:.2f}")
+        print(res1)
+        print(res2)
 
-    # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output_m.txt", "a") as f:
-    with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output_m.txt", "a") as f:
-        # f.write("This is a test output.\n")
-        # f.write("Second line of output.\n")
-        f.write(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"
-                f"CCG:ub\t{ub:.2f}\tlb\t{lb:.2f}\tgap\t{gap:.2f}\ttime\t{time2:.2f}\n")
+        # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output_m.txt", "a") as f:
+        with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output_m.txt", "a") as f:
+            # f.write("This is a test output.\n")
+            # f.write("Second line of output.\n")
+            f.write(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"
+                    f"CCG:ub\t{ub:.2f}\tlb\t{lb:.2f}\tgap\t{gap:.2f}\ttime\t{time2:.2f}\n")

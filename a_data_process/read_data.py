@@ -7,39 +7,40 @@ from a_data_process import config as cf
 
 
 class Data:
-    S_num = 0  # 堆垛数
-    T_num = 0  # 层高
-    K_num = 0  # 箱区数
-    D_num = 0  # 卸货港数
-    G_num = 0  # 箱组数需要
-    J_num = 0  # 空贝位数
-    U_num = 0  # 子箱组数
-    U_L_num = 0  # 20TEU子箱组数
-    U_F_num = 0  # 40TEU子箱组数，含double虚拟
+    def __init__(self):
+        self.S_num = 0  # 堆垛数
+        self.T_num = 0  # 层高
+        self.K_num = 0  # 箱区数
+        self.D_num = 0  # 卸货港数
+        self.G_num = 0  # 箱组数需要
+        self.J_num = 0  # 空贝位数
+        self.U_num = 0  # 子箱组数
+        self.U_L_num = 0  # 20TEU子箱组数
+        self.U_F_num = 0  # 40TEU子箱组数，含double虚拟
 
-    G_num_set = []  # 箱组内集装箱个数 [14，13，12，12]
-    G_sub_num_set = []  # 每个箱组的子箱组数group_sub_g_num
-    # G_sub_index_set = []  # 每个箱组内子箱组标号集合[]
-    U_L_num_set = []  # 20TEU子箱组集合记录对应数量             [12, 2, 12]
-    U_L_g_set = []  # 20TEU子箱组集合记录对应箱组                 [0, 0, 2]
-    U_F_num_set = []  # 40TEU子箱组集合记录对应数量             [12, 1, 12]
-    U_F_g_set = []  # 40TEU子箱组集合记录对应箱组                 [1, 1, 3]
-    U_num_set = []  # 所有子箱组集合记录对应数量
-    U_g_set = []  # 所有子箱组集合记录对应箱组
+        self.G_num_set = []  # 箱组内集装箱个数 [14，13，12，12]
+        self.G_sub_num_set = []  # 每个箱组的子箱组数group_sub_g_num
+        # G_sub_index_set = []  # 每个箱组内子箱组标号集合[]
+        self.U_L_num_set = []  # 20TEU子箱组集合记录对应数量             [12, 2, 12]
+        self.U_L_g_set = []  # 20TEU子箱组集合记录对应箱组                 [0, 0, 2]
+        self.U_F_num_set = []  # 40TEU子箱组集合记录对应数量             [12, 1, 12]
+        self.U_F_g_set = []  # 40TEU子箱组集合记录对应箱组                 [1, 1, 3]
+        self.U_num_set = []  # 所有子箱组集合记录对应数量
+        self.U_g_set = []  # 所有子箱组集合记录对应箱组
 
-    J = []  # 总贝集合 [3,5,11,...]
-    I = []  # 存在前继贝位的贝位编号 [3]
-    J_K_first = []  # 每个箱区第一个空贝位置
-    J_K = []  # 每个block内bay标号
-    J_K_dict = {}  # 每个block内bay标号
+        self.J = []  # 总贝集合 [3,5,11,...]
+        self.I = []  # 存在前继贝位的贝位编号 [3]
+        self.J_K_first = []  # 每个箱区第一个空贝位置
+        self.J_K = []  # 每个block内bay标号
+        self.J_K_dict = {}  # 每个block内bay标号
 
-    U = []  # 子箱组标号集合
-    U_L = []  # 20TEU子箱组标号集合
-    U_F = []  # 40TEU子箱组标号集合
-    U_g = []  # g箱组子箱组集合
-    p_u = []  # 子箱组的优先级
-    # t_u = []  # 子箱组操作所需时间
-    gamma_uu = []  # 箱组间混贝成本
+        self.U = []  # 子箱组标号集合
+        self.U_L = []  # 20TEU子箱组标号集合
+        self.U_F = []  # 40TEU子箱组标号集合
+        self.U_g = []  # g箱组子箱组集合
+        self.p_u = []  # 子箱组的优先级
+        # t_u = []  # 子箱组操作所需时间
+        self.gamma_uu = []  # 箱组间混贝成本
 
     def init_process(self):
         # todo 处理个数为0的情况
@@ -131,4 +132,5 @@ def read_data(path: str):
 
 
 if __name__ == '__main__':
-    data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case4')
+    # data = read_data('/Users/jacq/PycharmProjects/BayAllocation/a_data_process/data/case4')
+    a = 1

@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加multiYC cut">
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加初始解">
+      <change beforePath="$PROJECT_DIR$/.idea/BayAllocationGit.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BayAllocationGit.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
     </list>
@@ -40,7 +42,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;debugger.dataViews.python.type.renderers&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -82,14 +84,14 @@
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="$USER_HOME$/miniforge3/envs/BayAllocation/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/c_ccg" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/c_ccg/CCGm.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
@@ -424,7 +426,35 @@
       <option name="project" value="LOCAL" />
       <updated>1740436860562</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="改40 -1">
+      <created>1740439569302</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1740439569302</updated>
+    </task>
+    <task id="LOCAL-00033" summary="改40 -1">
+      <created>1740439652980</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1740439652980</updated>
+    </task>
+    <task id="LOCAL-00034" summary="改40 -1 bug">
+      <created>1740494087428</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1740494087428</updated>
+    </task>
+    <task id="LOCAL-00035" summary="增加初始解">
+      <created>1740499679426</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1740499679426</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -447,9 +477,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
-    <MESSAGE value="OP" />
-    <MESSAGE value="1.增加enumerate&#10;2.增加cuts" />
-    <MESSAGE value="CCG commit" />
     <MESSAGE value="1.修改整理模型&#10;2.+cut" />
     <MESSAGE value="init" />
     <MESSAGE value="debug：worstcase DP" />
@@ -472,7 +499,10 @@
     <MESSAGE value="小bug" />
     <MESSAGE value="mDP-T没有同步bug" />
     <MESSAGE value="增加multiYC cut" />
-    <option name="LAST_COMMIT_MESSAGE" value="增加multiYC cut" />
+    <MESSAGE value="改40 -1" />
+    <MESSAGE value="改40 -1 bug" />
+    <MESSAGE value="增加初始解" />
+    <option name="LAST_COMMIT_MESSAGE" value="增加初始解" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -569,8 +599,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>99</line>
-          <option name="timeStamp" value="656" />
+          <line>1211</line>
+          <option name="timeStamp" value="673" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/a_data_process/read_data.py</url>
+          <line>112</line>
+          <option name="timeStamp" value="707" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
