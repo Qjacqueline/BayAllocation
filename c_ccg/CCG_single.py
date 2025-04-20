@@ -67,7 +67,7 @@ def prune_bays():
     a = 1
 
 
-def CCG():
+def CCG_single():
     LB = 0
     UB = float("inf")
     iteration_num = 0
@@ -598,4 +598,4 @@ if __name__ == '__main__':
     invalid_sequences_r = []
     # ============== 求解 ================
     random_seed = 0.2  # 加seq cut设置系数
-    CCG()
+    CCG_single()
