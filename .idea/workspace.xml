@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加初始解">
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加算例">
       <change beforePath="$PROJECT_DIR$/.idea/BayAllocationGit.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BayAllocationGit.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
     </list>
@@ -55,7 +54,7 @@
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/b_original_model" />
-      <recent name="$PROJECT_DIR$/../BayAllocation/c_ccg" />
+      <recent name="$PROJECT_DIR$/c_ccg" />
     </key>
   </component>
   <component name="RunManager" selected="Python.CCGm">
@@ -84,6 +83,9 @@
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="$USER_HOME$/miniforge3/envs/BayAllocation/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/c_ccg" />
       <option name="IS_MODULE_SDK" value="false" />
@@ -184,10 +186,10 @@
     </configuration>
     <list>
       <item itemvalue="Python.main" />
-      <item itemvalue="Python.CCGm" />
-      <item itemvalue="Python.interactive_DP" />
       <item itemvalue="Python.CCG1" />
+      <item itemvalue="Python.CCGm" />
       <item itemvalue="Python.OP" />
+      <item itemvalue="Python.interactive_DP" />
       <item itemvalue="Python.read_data (1)" />
     </list>
     <recent_temporary>
@@ -508,22 +510,22 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../BayAllocation/b_original_model/OP.py</url>
+          <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
           <line>155</line>
           <option name="timeStamp" value="50" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../BayAllocation/c_ccg/CCG1.py</url>
+          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
           <line>26</line>
           <option name="timeStamp" value="103" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../BayAllocation/c_ccg/CCG1.py</url>
+          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
           <line>261</line>
           <option name="timeStamp" value="104" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/../BayAllocation/c_ccg/CCG1.py</url>
+          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
           <line>256</line>
           <option name="timeStamp" value="105" />
         </line-breakpoint>

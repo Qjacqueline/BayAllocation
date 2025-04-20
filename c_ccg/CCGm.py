@@ -1222,8 +1222,8 @@ if __name__ == '__main__':
     print_flag, CCG_show_flag = False, True
     for index in range(1, 5):
         case = 'case' + str(index) + 'm'
-        # data = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
-        data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
+        data = read_data('C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\' + case)
+        # data = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
         print(case)
         prune_bays()
         # ============== 生成所有可能提取序列 ================
@@ -1250,8 +1250,8 @@ if __name__ == '__main__':
         print(res1)
         print(res2)
 
-        # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output_m.txt", "a") as f:
-        with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output_m.txt", "a") as f:
+        with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output_m.txt", "a") as f:
+        # with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output_m.txt", "a") as f:
             # f.write("This is a test output.\n")
             # f.write("Second line of output.\n")
             f.write(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"
