@@ -51,7 +51,7 @@ if __name__ == '__main__':
     group_num = 6
     block_num = 2
     miss_bay_num = 5
-    inst_ls = [[2, 1, 10], [4, 1, 10]]
+    inst_ls = [[2, 1, 10], [4, 1, 10], [6, 1, 10], [8, 1, 10], [10, 1, 10], [10, 2, 10], [10, 3, 10]]
     for ls in inst_ls:
         group_num, block_num, miss_bay_num = ls
         file_name = '/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + C_type + ' ' + B_type + '/' + \
