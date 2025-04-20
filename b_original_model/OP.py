@@ -212,7 +212,7 @@ def original_problem_robust(data, res=None, w_obj=None):
             ax.set_title('Placement of Box Groups', fontsize=16)
 
             # 显示图形
-            plt.savefig(case + ".png")
+            plt.savefig(inst_type + ".png")
         # print("obj:", obj.X)
         # print("time:", str(time.time() - s_t))
         k = 0
@@ -597,7 +597,7 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
             ax.set_title('Placement of Box Groups', fontsize=16)
 
             # 显示图形
-            plt.savefig(case + ".png")
+            plt.savefig(inst_type + ".png")
         # print("obj:", obj.X)
         # print("time:", str(time.time() - s_t))
         k = 0
@@ -662,9 +662,17 @@ def prune_bays(data):
 if __name__ == '__main__':
     print_flag = False
     ################### todo 注意40没有-1！！！！！
-    for case in ['case1', 'case2', 'case3', 'case4', 'case5', 'case6', 'case11']:
-        # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\standard\\", "a") as f:
-        dataa = read_data('/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard/' + case)
+    C_type, B_type = 'CNS', 'BNS'
+    group_num = 6
+    block_num = 2
+    miss_bay_num = 5
+    inst_ls = [[2, 1, 10], [4, 1, 10], [6, 1, 10], [8, 1, 10], [10, 1, 10], [10, 2, 10], [10, 3, 10]]
+    for ls in inst_ls[0:2]:
+        group_num, block_num, miss_bay_num = ls
+        inst_type = C_type + '_' + str(group_num) + '_' + B_type + '_' + str(block_num) + '_' + str(miss_bay_num)
+        file_name = '/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + \
+                    C_type + ' ' + B_type + '/' + inst_type + '.txt'
+        dataa = read_data(file_name)
         prune_bays(dataa)
         pt_sum = sum(tmp * cf.unit_process_time for tmp in dataa.G_num_set)
         # ============== 生成所有可能序列 ================
@@ -672,11 +680,14 @@ if __name__ == '__main__':
         valid_permutations = generate_permutations(sequence, swapped=None)
         # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
         pi_num = len(valid_permutations)
-
+        st_1 = time.time()
         obj1, res1, worst_index1 = original_problem_robust(dataa)
+        t_1 = time.time() - st_1
         #######测试不同随机模型#########
-        obj2, res2, worst_index2 = original_problem_robust(dataa, res1, obj1)
+        # obj2, res2, worst_index2 = original_problem_robust(dataa, res1, obj1)
+        st_2 = time.time()
         obj3, res3 = original_problem_stochastic(dataa)
+        t_2 = time.time() - st_2
         obj_w = 0
         for i in range(pi_num):
             obj4, _ = original_problem_stochastic(dataa, res3, i)
@@ -689,4 +700,4 @@ if __name__ == '__main__':
             # f.write("This is a test output.\n")
             # f.write("Second line of output.\n")
             f.write(
-                f"{case}\tRobust:\t{obj1 - pt_sum:.2f}\tStochastic:\t{obj3 - pt_sum:.2f}\tStochastic-W:\t{obj_w - pt_sum:.2f}\t1.5P_alloc:\t{obj5 - pt_sum:.2f}\n")
+                f"{inst_type}\tRobust:\t{obj1 - pt_sum:.2f}\t{t_1:.2f}\tStochastic:\t{obj3 - pt_sum:.2f}\t{t_2:.2f}\tStochastic-W:\t{obj_w - pt_sum:.2f}\t1.5P_alloc:\t{obj5 - pt_sum:.2f}\n")

@@ -14,7 +14,7 @@ def generate_instance(container_setting, bay_setting, num_container_groups, num_
     if container_setting == 'CS':
         container_groups = [12] * num_container_groups
     elif container_setting == 'CNS':
-        container_groups = [random.randint(0, 5) * 12 for _ in range(num_container_groups)]
+        container_groups = [random.randint(1, 5) * 12 for _ in range(num_container_groups)]
     else:
         raise ValueError("Invalid container setting. Must be 'CS' or 'CNS'.")
 
@@ -46,11 +46,15 @@ def generate_instance(container_setting, bay_setting, num_container_groups, num_
 if __name__ == '__main__':
     # 示例：生成一个 CS-6 BNS-5 的算例
     # for
-    C_type = 'CS'
+    C_type = 'CNS'
     B_type = 'BNS'  # 'BS'
     group_num = 6
-    miss_bay_num = 5
     block_num = 2
-    file_name = '/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + C_type + ' ' + B_type + '/' + \
-                C_type + '_' + str(group_num) + '_' + B_type + '_' + str(block_num) + '_' + str(miss_bay_num) + '.txt'
-    generate_instance(C_type, B_type, group_num, block_num, miss_bay_num, file_name)
+    miss_bay_num = 5
+    inst_ls = [[2, 1, 10], [4, 1, 10]]
+    for ls in inst_ls:
+        group_num, block_num, miss_bay_num = ls
+        file_name = '/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + C_type + ' ' + B_type + '/' + \
+                    C_type + '_' + str(group_num) + '_' + B_type + '_' + str(block_num) + '_' + str(
+            miss_bay_num) + '.txt'
+        generate_instance(C_type, B_type, group_num, block_num, miss_bay_num, file_name)

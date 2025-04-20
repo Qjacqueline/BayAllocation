@@ -64,7 +64,7 @@ def prune_bays():
                 data.J_K[k].remove(jj)
 
 
-def CCG():
+def CCG_multi():
     LB = 0
     UB = float("inf")
     iteration_num = 0
@@ -980,7 +980,7 @@ def generate_cuts(master_results, sub_results, added_cuts):
     return added_cuts
 
 
-def original_problem_robust(data, res=None, w_obj=None):
+def original_problem_robust(data, test_flag =True,res=None, w_obj=None):
     """
         :param data: 数据
         :return:
@@ -1243,7 +1243,7 @@ if __name__ == '__main__':
         else:
             obj1, res1, worst_index1, time1 = res
 
-        ub, lb, gap, time2, res2 = CCG()
+        ub, lb, gap, time2, res2 = CCG_multi()
         print("================================================================================")
         print(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"
               f"CCG:ub\t{ub:.2f}\tlb\t{lb:.2f}\tgap\t{gap:.2f}\ttime\t{time2:.2f}")
