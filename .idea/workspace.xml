@@ -4,10 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="增加算例">
-      <change beforePath="$PROJECT_DIR$/.idea/BayAllocationGit.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BayAllocationGit.iml" afterDir="false" />
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="commit before pull">
+      <change afterPath="$PROJECT_DIR$/a_data_process/generate_data_OP.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/CCGm.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCGm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_1_10.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_2_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_2_10.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_3_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_3_10.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_2_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_2_BNS_1_10.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_4_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_4_BNS_1_10.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_6_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_6_BNS_1_10.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_8_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_8_BNS_1_10.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case01" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case01" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case02" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case02" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case1" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case1" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case10" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case10" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case11" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case11" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case2" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case3" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case4" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case5" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case5" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case6" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case6" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case7" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case7" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case8" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case8" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/data/case9" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case9" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/generate_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/generate_data_CCG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/CCG_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG_main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/CCG_multi.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG_multi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/c_ccg/CCG_single.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG_single.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,41 +60,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/standard&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/Users/admin/PycharmProjects/BayAllocation/a_data_process",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\admin\PycharmProjects\BayAllocation\a_data_process" />
       <recent name="$PROJECT_DIR$/a_data_process/data/standard" />
       <recent name="$PROJECT_DIR$/c_ccg" />
       <recent name="$PROJECT_DIR$/a_data_process/data/CS BNS" />
       <recent name="$PROJECT_DIR$/a_data_process/data/CS BS" />
-      <recent name="$PROJECT_DIR$/a_data_process/data" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\admin\PycharmProjects\BayAllocation\a_data_process\data\CCG" />
+      <recent name="C:\Users\admin\PycharmProjects\BayAllocation\a_data_process\data\pre_experiment" />
       <recent name="$PROJECT_DIR$/b_original_model" />
       <recent name="$PROJECT_DIR$/c_ccg" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.CCGm">
-    <configuration name="CCG1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.CCG_main">
+    <configuration name="CCG_main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/c_ccg" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/c_ccg/CCG1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/c_ccg/CCG_main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -104,15 +127,12 @@
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/f_explore_sp_multi_YC" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/b_original_model" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/f_explore_sp_multi_YC/OP.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/b_original_model/OP.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -121,19 +141,34 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="interactive_DP" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true" nameIsGenerated="true">
+    <configuration name="generate_data_CCG" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/f_explore_sp_multi_YC" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_data_process" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\admin\PycharmProjects\BayAllocation\a_data_process\generate_data_CCG.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="generate_data_OP" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="BayAllocationGit" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_data_process" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_data_process/generate_data_OP.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -163,42 +198,21 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="read_data (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="BayAllocationGit" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/a_data_process" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/a_data_process/read_data.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="Python.main" />
-      <item itemvalue="Python.CCG1" />
+      <item itemvalue="Python.CCG_main" />
+      <item itemvalue="Python.generate_data_CCG" />
+      <item itemvalue="Python.generate_data_OP" />
       <item itemvalue="Python.CCGm" />
       <item itemvalue="Python.OP" />
-      <item itemvalue="Python.interactive_DP" />
-      <item itemvalue="Python.read_data (1)" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.CCGm" />
-        <item itemvalue="Python.interactive_DP" />
-        <item itemvalue="Python.CCG1" />
+        <item itemvalue="Python.CCG_main" />
         <item itemvalue="Python.OP" />
-        <item itemvalue="Python.read_data (1)" />
+        <item itemvalue="Python.generate_data_OP" />
+        <item itemvalue="Python.generate_data_CCG" />
+        <item itemvalue="Python.CCGm" />
       </list>
     </recent_temporary>
   </component>
@@ -456,7 +470,14 @@
       <option name="project" value="LOCAL" />
       <updated>1740499679426</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="commit before pull">
+      <created>1745136157353</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1745136157354</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -479,7 +500,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
-    <MESSAGE value="1.修改整理模型&#10;2.+cut" />
     <MESSAGE value="init" />
     <MESSAGE value="debug：worstcase DP" />
     <MESSAGE value="增加算例" />
@@ -504,40 +524,21 @@
     <MESSAGE value="改40 -1" />
     <MESSAGE value="改40 -1 bug" />
     <MESSAGE value="增加初始解" />
-    <option name="LAST_COMMIT_MESSAGE" value="增加初始解" />
+    <MESSAGE value="commit before pull" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit before pull" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>155</line>
+          <line>156</line>
           <option name="timeStamp" value="50" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
-          <line>26</line>
-          <option name="timeStamp" value="103" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
-          <line>261</line>
-          <option name="timeStamp" value="104" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
-          <line>256</line>
-          <option name="timeStamp" value="105" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main.py</url>
           <line>3</line>
           <option name="timeStamp" value="106" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
-          <line>176</line>
-          <option name="timeStamp" value="202" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/z_draft/cal_reverse_order.py</url>
@@ -560,11 +561,6 @@
           <option name="timeStamp" value="346" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCG1.py</url>
-          <line>187</line>
-          <option name="timeStamp" value="353" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/z_draft/cal_reverse_order.py</url>
           <line>205</line>
           <option name="timeStamp" value="371" />
@@ -576,12 +572,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>295</line>
+          <line>296</line>
           <option name="timeStamp" value="381" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>681</line>
+          <line>711</line>
           <option name="timeStamp" value="388" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -599,16 +595,6 @@
           <line>482</line>
           <option name="timeStamp" value="586" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/c_ccg/CCGm.py</url>
-          <line>1211</line>
-          <option name="timeStamp" value="673" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/a_data_process/read_data.py</url>
-          <line>112</line>
-          <option name="timeStamp" value="707" />
-        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -623,6 +609,7 @@
         <watch expression="data" language="Python" />
         <watch expression="valid_permutations" language="Python" />
         <watch expression="whole_schedule" />
+        <watch expression="X[u][j + 2]" language="Python" />
       </configuration>
     </watches-manager>
   </component>

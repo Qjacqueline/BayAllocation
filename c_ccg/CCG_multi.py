@@ -64,7 +64,7 @@ def prune_bays():
                 data.J_K[k].remove(jj)
 
 
-def CCG_multi():
+def CCG_multi(data, B_type="BS", CCG_show_flag=False):
     LB = 0
     UB = float("inf")
     iteration_num = 0
@@ -72,7 +72,7 @@ def CCG_multi():
     added_cuts = []
 
     # 求解主问题
-    master_results = init_master_problem()
+    master_results = init_master_problem(data, B_type)
 
     while 1:
 
@@ -229,7 +229,7 @@ def update_master_problem_adding_cuts(model, variables, added_cuts):
         return [master_X], [theta.X], model, (X, Z, Theta, theta)
 
 
-def init_master_problem():
+def init_master_problem(data, B_type):
     """
         :return: 不可行，返回 FALSE；
                  可行，返回 master_X, theta.x
@@ -399,29 +399,30 @@ def init_master_problem():
     model.addConstrs((tau[0][j - 1] + tau[1][j - 1] - 1
                       <= sum(X[u][j - 1] for u in data.U + [data.U_num + 1]) for j in data.J),
                      "continuous cut3")  # fixme m是否成立
-
-    # 初始解1
-    # master_X, obj_1, obj = None, float("inf"), float("inf")
     return_res = False
-    init_num = 0
-    # 初始解1：依次放置 1->k 1->k
-    res_1 = init_solu_1(model, X)
-    if res_1 is not False:
-        master_X1, obj_1 = res_1
-        return_res = [[master_X1, obj_1, model, (X, Z, Theta, theta)]]
-        init_num += 1
-    # 初始解2：按照长度分
-    res_2 = init_solu_2(model, X)
-    if res_2 is not False:
-        master_X2, obj_2 = res_2
-        return_res.append([master_X2, obj_2, model, (X, Z, Theta, theta)])
-        init_num += 1
-    # 初始解3：依次放置 1->k k->1
-    res_3 = init_solu_3(model, X)
-    if res_3 is not False:
-        master_X3, obj_3 = res_3
-        return_res.append([master_X3, obj_3, model, (X, Z, Theta, theta)])
-        init_num += 1
+    if B_type == "BS":
+        # 初始解1
+        # master_X, obj_1, obj = None, float("inf"), float("inf")
+
+        init_num = 0
+        # 初始解1：依次放置 1->k 1->k
+        res_1 = init_solu_1(model, X, data)
+        if res_1 is not False:
+            master_X1, obj_1 = res_1
+            return_res = [[master_X1, obj_1, model, (X, Z, Theta, theta)]]
+            init_num += 1
+        # 初始解2：按照长度分
+        res_2 = init_solu_2(model, X, data)
+        if res_2 is not False:
+            master_X2, obj_2 = res_2
+            return_res.append([master_X2, obj_2, model, (X, Z, Theta, theta)])
+            init_num += 1
+        # 初始解3：依次放置 1->k k->1
+        res_3 = init_solu_3(model, X)
+        if res_3 is not False:
+            master_X3, obj_3 = res_3
+            return_res.append([master_X3, obj_3, model, (X, Z, Theta, theta)])
+            init_num += 1
     # 补充消除对称性约束：不同重量不等价，因为会有拼贝情况
     model.addConstrs((X[uu][jj - 1] <= big_M * (1 - X[u][j - 1]) for u in data.U for uu in data.U for j in data.J
                       for jj in data.J if data.U_g_set[u] == data.U_g_set[uu]
@@ -450,17 +451,18 @@ def init_master_problem():
                return_res[1][2], return_res[1][3]
 
 
-def init_solu_1(model, X):
-    cnt, K_taken, rhs = 0, copy.deepcopy(data.J_K_first), LinExpr(0)
+def init_solu_1(model, X, data):
+    cnt, K_taken, rhs = 0, [0 for _ in range(len(data.J_K))], LinExpr(0)
     for u in data.U:
         k = cnt % data.K_num
-        j = K_taken[k] - 1
+        j = data.J_K[k]
         if u in data.U_F:
-            rhs.addTerms(1, X[u][j + 2])
-            K_taken[k] = K_taken[k] + 4
+
+            rhs.addTerms(1, X[u][j + 2])  #
+            K_taken[k] = K_taken[k] + 2
         else:
             rhs.addTerms(1, X[u][j])
-            K_taken[k] = K_taken[k] + 2
+            K_taken[k] = K_taken[k] + 1
         cnt += 1
     init_constraint = model.addConstr(rhs == data.U_num, "init_1")
 
@@ -494,7 +496,7 @@ def init_solu_1(model, X):
         return master_X, model.objVal
 
 
-def init_solu_2(model, X):
+def init_solu_2(model, X, data):
     cnt, K_taken, rhs = 0, copy.deepcopy(data.J_K_first), LinExpr(0)
     for u in data.U:
         c_ls = [num % 60 for num in K_taken]
@@ -980,7 +982,7 @@ def generate_cuts(master_results, sub_results, added_cuts):
     return added_cuts
 
 
-def original_problem_robust(data, test_flag =True,res=None, w_obj=None):
+def original_problem_robust(data, test_flag=True, res=None, w_obj=None):
     """
         :param data: 数据
         :return:
@@ -1251,7 +1253,7 @@ if __name__ == '__main__':
         print(res2)
 
         with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output_m.txt", "a") as f:
-        # with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output_m.txt", "a") as f:
+            # with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output_m.txt", "a") as f:
             # f.write("This is a test output.\n")
             # f.write("Second line of output.\n")
             f.write(f"{case}\tOP:obj\t{obj1}\ttime\t{time1:.2f}\t"

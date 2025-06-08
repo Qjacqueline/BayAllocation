@@ -152,10 +152,11 @@ def original_problem_robust(data, res=None, w_obj=None):
         # do IIS, find infeasible constraints
         model.computeIIS()
         model.write('a.ilp')
-        for c in model.getConstrs():
-            if c.IISConstr:
-                print('%s' % c.constrName)
         return False
+        # for c in model.getConstrs():
+        #     if c.IISConstr:
+        #         print('%s' % c.constrName)
+        # return False
     else:
         # model.write('OP.sol')
         # model.write('OP.lp')
@@ -537,9 +538,9 @@ def original_problem_stochastic(data, res=None, worst_seq_idx=None):
         # do IIS, find infeasible constraints
         model.computeIIS()
         model.write('a.ilp')
-        for c in model.getConstrs():
-            if c.IISConstr:
-                print('%s' % c.constrName)
+        # for c in model.getConstrs():
+        #     if c.IISConstr:
+        #         print('%s' % c.constrName)
         return False
     else:
         # model.write('OP.sol')
@@ -663,15 +664,24 @@ if __name__ == '__main__':
     print_flag = False
     ################### todo 注意40没有-1！！！！！
     C_type, B_type = 'CNS', 'BNS'
+    # C_type, B_type = 'CS', 'BS'
     group_num = 6
     block_num = 2
     miss_bay_num = 5
-    inst_ls = [[2, 1, 10], [4, 1, 10], [6, 1, 10], [8, 1, 10], [10, 1, 10], [10, 2, 10], [10, 3, 10]]
-    for ls in inst_ls[0:2]:
-        group_num, block_num, miss_bay_num = ls
+    inst_ls = [
+        ['CNS', 'BNS', 6, 2, 10], ['CNS', 'BNS', 6, 3, 10],
+        ['CS', 'BS', 6, 3, 0], ['CS', 'BNS', 6, 3, 10], ['CNS', 'BS', 6, 3, 0],
+        ['CNS', 'BNS', 8, 1, 10], ['CNS', 'BNS', 8, 2, 10], ['CNS', 'BNS', 8, 3, 10],
+        ['CS', 'BS', 8, 3, 0], ['CS', 'BNS', 8, 3, 10], ['CNS', 'BS', 8, 3, 0]
+    ]
+
+    for ls in inst_ls:
+        C_type, B_type, group_num, block_num, miss_bay_num = ls
         inst_type = C_type + '_' + str(group_num) + '_' + B_type + '_' + str(block_num) + '_' + str(miss_bay_num)
-        file_name = '/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + \
-                    C_type + ' ' + B_type + '/' + inst_type + '.txt'
+        file_name = 'C:\\Users\\admin\\PycharmProjects\\BayAllocation\\a_data_process\\data\\' + \
+                    C_type + ' ' + B_type + '\\' + inst_type + '.txt'
+        # file_name = '/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/data/' + \
+        #             C_type + ' ' + B_type + '/' + inst_type + '.txt'
         dataa = read_data(file_name)
         prune_bays(dataa)
         pt_sum = sum(tmp * cf.unit_process_time for tmp in dataa.G_num_set)
@@ -680,24 +690,42 @@ if __name__ == '__main__':
         valid_permutations = generate_permutations(sequence, swapped=None)
         # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
         pi_num = len(valid_permutations)
-        st_1 = time.time()
-        obj1, res1, worst_index1 = original_problem_robust(dataa)
-        t_1 = time.time() - st_1
-        #######测试不同随机模型#########
-        # obj2, res2, worst_index2 = original_problem_robust(dataa, res1, obj1)
-        st_2 = time.time()
-        obj3, res3 = original_problem_stochastic(dataa)
-        t_2 = time.time() - st_2
-        obj_w = 0
-        for i in range(pi_num):
-            obj4, _ = original_problem_stochastic(dataa, res3, i)
-            obj_w = max(obj4, obj_w)
-
-        #######测试1.5P-allocation到底有多好#########
-        obj5 = original_problem_robust_test_P_allocation(dataa)
-        # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output.txt", "a") as f:
-        with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output.txt", "a") as f:
-            # f.write("This is a test output.\n")
-            # f.write("Second line of output.\n")
-            f.write(
-                f"{inst_type}\tRobust:\t{obj1 - pt_sum:.2f}\t{t_1:.2f}\tStochastic:\t{obj3 - pt_sum:.2f}\t{t_2:.2f}\tStochastic-W:\t{obj_w - pt_sum:.2f}\t1.5P_alloc:\t{obj5 - pt_sum:.2f}\n")
+        try:
+            st_1 = time.time()
+            res = original_problem_robust(dataa)
+            if res is False:
+                print("Infeasible robust\t " + inst_type)
+                continue
+            obj1, res1, worst_index1 = res
+            t_1 = time.time() - st_1
+            #######测试不同随机模型#########
+            # obj2, res2, worst_index2 = original_problem_robust(dataa, res1, obj1)
+            st_2 = time.time()
+            res = original_problem_stochastic(dataa)
+            if res is False:
+                print("Infeasible stochastic\t " + inst_type)
+                continue
+            obj3, res3 = res
+            t_2 = time.time() - st_2
+            obj_w = 0
+            for i in range(pi_num):
+                res = original_problem_stochastic(dataa, res3, i)
+                if res is False:
+                    print("Infeasible stochastic\t " + inst_type)
+                    break
+                obj4, _ = res
+                obj_w = max(obj4, obj_w)
+            if res is False:
+                continue
+            #######测试1.5P-allocation到底有多好#########
+            # obj5 = original_problem_robust_test_P_allocation(dataa)
+            with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output.txt", "a") as f:
+                # with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output.txt", "a") as f:
+                # f.write("This is a test output.\n")
+                # f.write("Second line of output.\n")
+                f.write(
+                    f"{inst_type}\tRobust:\t{obj1 - pt_sum:.2f}\t{t_1:.2f}\tStochastic:\t{obj3 - pt_sum:.2f}\t{t_2:.2f}\tStochastic-W:\t{obj_w - pt_sum:.2f}\n")
+            # \t1.5P_alloc:\t{obj5 - pt_sum:.2f}\n
+            print("success\t " + inst_type)
+        except:
+            print("fail\t " + inst_type)

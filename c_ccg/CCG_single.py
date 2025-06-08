@@ -67,7 +67,7 @@ def prune_bays():
     a = 1
 
 
-def CCG_single():
+def CCG_single(data):
     LB = 0
     UB = float("inf")
     iteration_num = 0
