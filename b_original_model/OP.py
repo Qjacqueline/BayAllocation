@@ -663,16 +663,12 @@ def prune_bays(data):
 if __name__ == '__main__':
     print_flag = False
     ################### todo 注意40没有-1！！！！！
-    C_type, B_type = 'CNS', 'BNS'
-    # C_type, B_type = 'CS', 'BS'
-    group_num = 6
-    block_num = 2
-    miss_bay_num = 5
-    inst_ls = [
-        ['CNS', 'BNS', 6, 2, 10], ['CNS', 'BNS', 6, 3, 10],
-        ['CS', 'BS', 6, 3, 0], ['CS', 'BNS', 6, 3, 10], ['CNS', 'BS', 6, 3, 0],
-        ['CNS', 'BNS', 8, 1, 10], ['CNS', 'BNS', 8, 2, 10], ['CNS', 'BNS', 8, 3, 10],
-        ['CS', 'BS', 8, 3, 0], ['CS', 'BNS', 8, 3, 10], ['CNS', 'BS', 8, 3, 0]
+
+    inst_ls = [['CS', 'BS', 10, 2, 0],['CS', 'BS', 10, 3, 0],
+        # ['CNS', 'BNS', 6, 2, 10], ['CNS', 'BNS', 6, 3, 10],
+        # ['CS', 'BS', 6, 3, 0], ['CS', 'BNS', 6, 3, 10], ['CNS', 'BS', 6, 3, 0],
+        # ['CNS', 'BNS', 8, 1, 10], ['CNS', 'BNS', 8, 2, 10], ['CNS', 'BNS', 8, 3, 10],
+        # ['CS', 'BS', 8, 3, 0], ['CS', 'BNS', 8, 3, 10], ['CNS', 'BS', 8, 3, 0]
     ]
 
     for ls in inst_ls:
@@ -690,6 +686,9 @@ if __name__ == '__main__':
         valid_permutations = generate_permutations(sequence, swapped=None)
         # valid_permutations = [ (1, 0, 3, 2)]#[(0, 1, 2, 3), (0, 1, 3, 2), (0, 2, 1, 3), (1, 0, 2, 3), (1, 0, 3, 2)]
         pi_num = len(valid_permutations)
+        # with open("C:\\Users\\admin\\PycharmProjects\\BayAllocation\\b_original_model\\output.txt", "a") as f:
+        #
+
         try:
             st_1 = time.time()
             res = original_problem_robust(dataa)
@@ -723,8 +722,10 @@ if __name__ == '__main__':
                 # with open("/Users/jacq/PycharmProjects/BayAllocationGit/a_data_process/output.txt", "a") as f:
                 # f.write("This is a test output.\n")
                 # f.write("Second line of output.\n")
-                f.write(
-                    f"{inst_type}\tRobust:\t{obj1 - pt_sum:.2f}\t{t_1:.2f}\tStochastic:\t{obj3 - pt_sum:.2f}\t{t_2:.2f}\tStochastic-W:\t{obj_w - pt_sum:.2f}\n")
+                # f.write(
+                #     f"{inst_type}\tRobust:\t{obj1:.2f}\t{t_1:.2f}\tStochastic:\t{obj3:.2f}\t{t_2:.2f}\tStochastic-W:\t{obj_w:.2f}\n")
+                # f.write(f"{inst_type}\tRobust:\t{pt_sum:.2f}\n")
+                f.write(f"{inst_type}\t{pt_sum:.2f}\tRobust:\t{obj1:.2f}\t{t_1:.2f}\tStochastic:\t{obj3:.2f}\t{t_2:.2f}\tStochastic-W:\t{obj_w:.2f}\n")
             # \t1.5P_alloc:\t{obj5 - pt_sum:.2f}\n
             print("success\t " + inst_type)
         except:

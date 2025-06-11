@@ -4,34 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="commit before pull">
-      <change afterPath="$PROJECT_DIR$/a_data_process/generate_data_OP.py" afterDir="false" />
+    <list default="true" id="d980d7d7-5a33-4cb6-8ab4-88ab2579552e" name="Changes" comment="分开生成数据">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_1_10.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_2_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_2_10.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_3_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_10_BNS_3_10.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_2_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_2_BNS_1_10.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_4_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_4_BNS_1_10.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_6_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_6_BNS_1_10.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_8_BNS_1_10.txt" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/CNS BNS/CNS_8_BNS_1_10.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case01" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case01" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case02" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case02" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case1" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case1" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case10" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case10" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case11" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case11" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case2" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case2" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case3" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case4" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case5" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case5" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case6" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case6" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case7" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case7" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case8" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case8" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/data/case9" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/data/pre_experiment/case9" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/a_data_process/generate_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/generate_data_CCG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/a_data_process/generate_data_OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/a_data_process/generate_data_OP.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/b_original_model/OP.py" beforeDir="false" afterPath="$PROJECT_DIR$/b_original_model/OP.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/CCG_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG_main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/c_ccg/CCG_multi.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG_multi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/c_ccg/CCG_single.py" beforeDir="false" afterPath="$PROJECT_DIR$/c_ccg/CCG_single.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +63,7 @@
       <recent name="$PROJECT_DIR$/c_ccg" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.CCG_main">
+  <component name="RunManager" selected="Python.OP">
     <configuration name="CCG_main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BayAllocationGit" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -208,9 +188,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.CCG_main" />
         <item itemvalue="Python.OP" />
         <item itemvalue="Python.generate_data_OP" />
+        <item itemvalue="Python.CCG_main" />
         <item itemvalue="Python.generate_data_CCG" />
         <item itemvalue="Python.CCGm" />
       </list>
@@ -477,7 +457,14 @@
       <option name="project" value="LOCAL" />
       <updated>1745136157354</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="分开生成数据">
+      <created>1749383091317</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1749383091317</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -500,7 +487,6 @@
     <ignored-roots>
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
-    <MESSAGE value="init" />
     <MESSAGE value="debug：worstcase DP" />
     <MESSAGE value="增加算例" />
     <MESSAGE value="增加bay prune&#10;cut debug&#10;增加算例" />
@@ -525,16 +511,12 @@
     <MESSAGE value="改40 -1 bug" />
     <MESSAGE value="增加初始解" />
     <MESSAGE value="commit before pull" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit before pull" />
+    <MESSAGE value="分开生成数据" />
+    <option name="LAST_COMMIT_MESSAGE" value="分开生成数据" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>156</line>
-          <option name="timeStamp" value="50" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main.py</url>
           <line>3</line>
@@ -577,7 +559,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
-          <line>711</line>
+          <line>710</line>
           <option name="timeStamp" value="388" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -594,6 +576,11 @@
           <url>file://$PROJECT_DIR$/f_explore_sp_multi_YC/interactive_DP.py</url>
           <line>482</line>
           <option name="timeStamp" value="586" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/b_original_model/OP.py</url>
+          <line>149</line>
+          <option name="timeStamp" value="712" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
